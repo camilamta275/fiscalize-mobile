@@ -5,6 +5,7 @@
 - **Alessandra Barbosa**
 - **Ana Sofia**
 - **Camila Teixeira**
+- **Lucas Rodrigues** 
 - **Maria Gabriela**
 - **René Lucena**
 - **Raphael Miranda**
