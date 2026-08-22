@@ -10,6 +10,8 @@
 - **René Lucena**
 - **Raphael Miranda**
 - **Rayane Cavalcanti**
+- **Samuel Araujo**
+- **Victor Ferreira**
 
 ## 🎯 Visão Geral
 
