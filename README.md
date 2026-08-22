@@ -66,12 +66,12 @@ A aplicação permitirá que cidadãos registrem demandas urbanas e acompanhem s
 
 ### Back-end
 
-O back-end e as regras de negócio da versão web serão mantidos e reaproveitados, com as adaptações necessárias para integração com o aplicativo mobile.
+O back-end e as regras de negócio da versão web serão mantidos e reaproveitados, com as adaptações necessárias para integração com o aplicativo mobile. Ele vive em um repositório próprio e está incluído aqui como submódulo Git em `backend/` — veja [Integração com o Back-end](#-integração-com-o-back-end).
 
-- **API/Servidor:** Node.js e rotas de API existentes no projeto Fiscalize
+- **API/Servidor:** Express 5 sobre Node.js 22 — [fiscalize-backend](https://github.com/rapheto/fiscalize-backend)
 - **Linguagem:** TypeScript
-- **Banco de Dados:** `[inserir banco de dados utilizado]`
-- **Integração:** API consumida pela aplicação mobile
+- **Banco de Dados:** PostgreSQL 14+ com Prisma ORM 7
+- **Integração:** API REST consumida pela aplicação mobile, documentada via Swagger em `GET /docs`
 
 ## 🏗️ Arquitetura do Projeto
 
@@ -79,6 +79,7 @@ O back-end e as regras de negócio da versão web serão mantidos e reaproveitad
 
 ```text
 fiscalize-mobile/
+├── backend/             # Submódulo Git → fiscalize-backend (API REST)
 ├── src/
 │   ├── components/      # Componentes reutilizáveis
 │   ├── screens/         # Telas da aplicação
@@ -105,11 +106,13 @@ Antes de começar, instale as ferramentas exigidas pela tecnologia mobile escolh
 
 ### Instalação
 
-1. Clone este repositório:
+1. Clone este repositório junto com o submódulo do back-end:
 
 ```bash
-git clone URL_DO_REPOSITORIO_MOBILE
+git clone --recurse-submodules https://github.com/camilamta275/fiscalize-mobile.git
 ```
+
+> Já clonou sem o `--recurse-submodules`? Rode `git submodule update --init` na raiz do projeto.
 
 2. Acesse a pasta do projeto:
 
@@ -137,12 +140,38 @@ COMANDO_PARA_EXECUTAR
 
 ## 🔗 Integração com o Back-end
 
-A versão mobile consumirá os serviços já existentes no back-end do Fiscalize. O endereço da API deverá ser configurado por variável de ambiente.
+O back-end fica em um repositório próprio, [fiscalize-backend](https://github.com/rapheto/fiscalize-backend), incluído aqui como **submódulo Git** na pasta `backend/`. Assim o código da API fica disponível para o desenvolvimento local sem duplicar o histórico neste repositório.
 
-Exemplo:
+### Obter e atualizar o submódulo
+
+```bash
+git submodule update --init      # primeira vez, após clonar
+git submodule update --remote    # trazer a versão mais recente do back-end
+```
+
+O submódulo aponta para um commit fixo. Ao atualizá-lo, comite a mudança para que todo o time use a mesma versão:
+
+```bash
+git add backend && git commit -m "chore: atualiza submódulo do back-end"
+```
+
+### Rodar a API localmente
+
+```bash
+cd backend
+npm ci
+cp .env.example .env    # preencha DATABASE_URL e JWT_SECRET
+npm run dev             # sobe em http://localhost:3000
+```
+
+As instruções completas (banco de dados, migrações e seed) estão no [README do back-end](./backend/README.md).
+
+### Configurar o endereço da API
+
+O endereço da API deverá ser configurado por variável de ambiente:
 
 ```env
-API_BASE_URL=URL_DA_API
+API_BASE_URL=http://localhost:3000
 ```
 
 > Nunca adicione senhas, tokens ou outras credenciais diretamente ao repositório.
