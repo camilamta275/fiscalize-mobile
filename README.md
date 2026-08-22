@@ -206,7 +206,7 @@ A primeira etapa do Fiscalize foi desenvolvida como uma aplicação web. O repos
 ➡️ **[Acessar o repositório do Fiscalize Web](https://github.com/camilamta275/projeto-web)**
 
 ## Uso de IA
-Declaramos que utilizamos a(s) ferramenta(s) de Inteligência Artificial: Claude, Codex, Gemini, ChatGPT e GitHub Copilot nesta atividade, com a finalidade de gerar auxilio em desenvolvimento de código, criação de documentação, arquitetura de código e outros, sobre o qual realizamos análise crítica (curadoria) das informações apresentadas. Não tratamos dados pessoais no uso destas ferramentas. Revisamos criticamente o conteúdo gerado, identificando seus acertos e eventuais imprecisões, e assumimos a responsabilidade integral pela versão final apresentada.
+Declaramos que utilizamos as ferramentas de Inteligência Artificial: Claude, Codex, Gemini, ChatGPT e GitHub Copilot nesta atividade, com a finalidade de gerar auxilio em desenvolvimento de código, criação de documentação, arquitetura de código e outros, sobre o qual realizamos análise crítica (curadoria) das informações apresentadas. Não tratamos dados pessoais no uso destas ferramentas. Revisamos criticamente o conteúdo gerado, identificando seus acertos e eventuais imprecisões, e assumimos a responsabilidade integral pela versão final apresentada.
 
 ## 📄 Licença
 
