@@ -1,0 +1,14 @@
+{
+    "passwords": {
+        "password_less_than_8": "Teste",
+        "password_without_numbers": "Senhateste",
+        "password_without_lowercase": "SENHATESTE",
+        "password_without_uppercase": "senhateste",
+        "correct_password": "Senhateste1"
+    },
+    "login":{
+        "email": "testadordasilvatestando@gmail.com",
+        "password": "Teste123.",
+        "incorrect_password": "Senhaerrada123."
+    }
+}
