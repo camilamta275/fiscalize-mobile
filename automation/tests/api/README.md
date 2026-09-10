@@ -14,24 +14,24 @@ pip install -r requirements.txt
 From the `automation/` folder, with the venv active:
 
 ```bash
-pytest tests/api
+pytest tests/api/tests
 ```
 
 Run a single file:
 
 ```bash
-pytest tests/api/test_cidadao.py
+pytest tests/api/tests/test_cidadao.py
 ```
 
 Run a single test:
 
 ```bash
-pytest tests/api/test_cidadao.py::test_api
+pytest tests/api/tests/test_cidadao.py::test_api
 ```
 
 Run with more output (useful when something fails and you want to see the
 actual response body):
 
 ```bash
-pytest tests/api -v
+pytest tests/api/tests -v
 ```
