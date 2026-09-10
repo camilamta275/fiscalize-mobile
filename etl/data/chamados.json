@@ -1,0 +1,112 @@
+[
+    {
+        "id": "DEM-001",
+        "categoria": "Saneamento Básico",
+        "subcategoria": "Lixo não coletado",
+        "bairro": "Boa Viagem",
+        "latitude": -8.1264,
+        "longitude": -34.9036,
+        "criadoem": "2026-02-03",
+        "status": "Aberto",
+        "prioridade": "Alta"
+    },
+    {
+        "id": "DEM-002",
+        "categoria": "Infraestrutura",
+        "subcategoria": "Buraco na pista",
+        "bairro": "Casa Amarela",
+        "latitude": -8.0267,
+        "longitude": -34.9144,
+        "criadoem": "2026-02-05",
+        "status": "Em_Andamento",
+        "prioridade": "Média"
+    },
+    {
+        "id": "DEM-003",
+        "categoria": "Sinalização",
+        "subcategoria": "Placa danificada",
+        "bairro": "Boa Viagem",
+        "latitude": -8.1180,
+        "longitude": -34.8998,
+        "criadoem": "2026-02-07",
+        "status": "Resolvido",
+        "prioridade": "Baixa"
+    },
+    {
+        "id": "DEM-004",
+        "categoria": "Água e Esgoto",
+        "subcategoria": "Esgoto a céu aberto",
+        "bairro": "Várzea",
+        "latitude": -8.0440,
+        "longitude": -34.9440,
+        "criadoem": "2026-02-10",
+        "status": "Aberto",
+        "prioridade": "Alta"
+    },
+    {
+        "id": "DEM-005",
+        "categoria": "Iluminação Pública",
+        "subcategoria": "Poste apagado",
+        "bairro": "Imbiribeira",
+        "latitude": -8.1120,
+        "longitude": -34.9180,
+        "criadoem": "2026-02-12",
+        "status": "Fechado",
+        "prioridade": "Média"
+    },
+    {
+        "id": "DEM-006",
+        "categoria": "Infraestrutura",
+        "subcategoria": "Calçada danificada",
+        "bairro": "Casa Forte",
+        "latitude": -8.0330,
+        "longitude": -34.9210,
+        "criadoem": "2026-02-15",
+        "status": "Aberto",
+        "prioridade": "Baixa"
+    },
+    {
+        "id": "DEM-007",
+        "categoria": "Saneamento Básico",
+        "subcategoria": "Entulho",
+        "bairro": "Santo Amaro",
+        "latitude": -8.0530,
+        "longitude": -34.8890,
+        "criadoem": "2026-02-18",
+        "status": "Em_Andamento",
+        "prioridade": "Alta"
+    },
+    {
+        "id": "DEM-008",
+        "categoria": "Água e Esgoto",
+        "subcategoria": "Vazamento",
+        "bairro": "Madalena",
+        "latitude": -8.0630,
+        "longitude": -34.9140,
+        "criadoem": "2026-02-20",
+        "status": "Resolvido",
+        "prioridade": "Alta"
+    },
+    {
+        "id": "DEM-009",
+        "categoria": "Sinalização",
+        "subcategoria": "Faixa apagada",
+        "bairro": "Santo Antônio",
+        "latitude": -8.0620,
+        "longitude": -34.8860,
+        "criadoem": "2026-02-23",
+        "status": "Aberto",
+        "prioridade": "Média"
+    },
+    {
+        "id": "DEM-010",
+        "categoria": "Infraestrutura",
+        "subcategoria": "Buraco na pista",
+        "bairro": "Afogados",
+        "latitude": -8.0780,
+        "longitude": -34.9050,
+        "criadoem": "2026-02-25",
+        "status": "Em_Andamento",
+        "prioridade": "Alta"
+    }
+]
