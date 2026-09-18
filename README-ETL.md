@@ -20,7 +20,8 @@ etl/
 ├── src/
 │   ├── extract.py          # Extract: busca dados na Open-Meteo e no IBGE
 │   ├── transform.py        # Transform: organiza, padroniza e cruza os dados
-│   └── load.py              # Load: grava dados brutos no MongoDB e dados cruzados no SQLite
+│   └── load.py             # Load: grava dados brutos no MongoDB e dados cruzados no SQLite
+|   └── seed_mongo.py       # Seed: funções que extraem da API e populam o Mongo
 ├── run_etl.py               # ponto de entrada do pipeline (Extract -> Transform -> Load), em main()
 ├── requirements.txt
 ├── .env.example              # modelo de variáveis de ambiente (sem credenciais reais)

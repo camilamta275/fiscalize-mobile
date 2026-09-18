@@ -4,3 +4,5 @@ pymongo
 python-dotenv
 pandas
 beautifulsoup4
+sqlalchemy 
+psycopg2-binary

@@ -5,6 +5,7 @@ import pandas as pd
 from dotenv import load_dotenv
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
+from sqlalchemy import create_engine
 
 load_dotenv()
 
@@ -72,6 +73,10 @@ class Load:
         db = self.client[self.database_name]
         collection = db[collection_name]
 
+        # Remove dados anteriores da coleção antes de inserir os novos,
+        # evitando duplicação a cada nova execução da extração bruta.
+        collection.delete_many({})
+
         if isinstance(data, dict):
             collection.insert_one(data)
         else:
@@ -80,4 +85,34 @@ class Load:
         print(
             f"Dados brutos carregados com sucesso "
             f"no MongoDB: {collection_name}"
+        )
+
+    def load_neon(
+        self,
+        df: pd.DataFrame,
+        table_name: str
+    ) -> None:
+        """
+        Carrega o DataFrame transformado em uma tabela PostgreSQL.
+
+        Parâmetros:
+            df: DataFrame com os dados transformados.
+            table_name: nome da tabela no PostgreSQL.
+        """
+
+        database_url = os.getenv("DATABASE_URL")
+        engine = create_engine(database_url)
+
+        df.to_sql(
+            table_name,
+            engine,
+            if_exists="replace",
+            index=False
+        )
+
+        engine.dispose() # fecha a conexão com o banco de dados PostgreSQL, liberando recursos associados à conexão.
+
+        print(
+            f"DataFrame carregado com sucesso "
+            f"no PostgreSQL: {table_name}"
         )
