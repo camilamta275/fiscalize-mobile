@@ -3,65 +3,63 @@ import json
 from src.extract import Extract
 from src.load import Load
 from src.transform import Transform
-import pandas as pd
+from src.seed_mongo import Seed_Mongo
 
-
-def run_clima():
+def run_clima(carregar_da_api: bool = False):
     """
     Executa o ETL de dados climáticos.
+
+    Parâmetros:
+        carregar_da_api: se True, extrai os dados da API Open-Meteo e
+            salva o bruto no Mongo antes de seguir o fluxo normal.
+            Use True apenas na primeira execução ou quando quiser
+            atualizar os dados brutos.
     """
 
     ext = Extract()
     transformer = Transform()
     ld = Load()
+    seed = Seed_Mongo()
 
     try:
             log_inicio_etl("ETL de Clima")
 
-            # 1. Extração dos chamados fictícios
+           # 1. Extração dos chamados fictícios
             print("Etapa 1: Lendo chamados fictícios!")
-
-            chamados = busca_chamados();
-        
+            chamados = busca_chamados()
             print(f"{len(chamados)} chamados carregados!")
-    
-            # 2. Extração da API Open-Meteo
-            print("Etapa 2: Extraindo dados climáticos!")
+
+            # 2. Extração da API (opcional) e carga bruta no Mongo
+            if carregar_da_api:
+                print("Etapa 2: Extraindo dados climáticos da API!")
+                seed.extrair_clima_da_api_e_salvar_no_mongo(ext, ld)
+
+            # 3. Busca dos dados brutos no Mongo
+            print("Etapa 3: Buscando dados em MONGO!")
+            df_clima_raw = ext.extract_collection_from_mongo("clima_raw")
+ 
         
-            data = ext.clima(
-                latitude=-8.0631,
-                longitude=-34.8711,
-                data_inicio="2026-02-01",
-                data_fim="2026-02-28"
-            )
+            # 4. Transformação
+            print("Etapa 4: Transformando os dados!")
         
-            # Guarda o resultado bruto no MongoDB
-            ld.load_mongo(
-                data,
-                "clima_raw"
-            )
-        
-            # 3. Transformação
-            print("Etapa 3: Transformando os dados!")
-        
-            df_clima = transformer.transform_clima(data)
+            df_clima = transformer.transform_clima(df_clima_raw)
 
         
-            # 4. Cruzamento chamados + clima
-            print("Etapa 4: Cruzando chamados com dados climáticos!")
+            # 5. Cruzamento chamados + clima
+            print("Etapa 5: Cruzando chamados com dados climáticos!")
         
             df_final = transformer.merge_chamados_clima(
                 chamados,
                 df_clima
             )
         
-            # 5. Carga no SQLite
-            print("Etapa 5: Salvando no SQLite!")
-        
-            ld.load_sqlite(
-                df_final,
-                "chamados_clima"
-            )
+            # 6. Carga no SQLite
+            print("Etapa 6: Salvando no SQLite!")
+            ld.load_sqlite(df_final, "chamados_clima")
+
+            # 7. Carga no Neon
+            print("Etapa 7: Salvando no Neon!")
+            ld.load_neon(df_final, "chamados_clima")
 
             log_fim_etl("ETL de Clima")
 
@@ -70,40 +68,39 @@ def run_clima():
         ld.close()
         
 
-def run_populacao():
+def run_populacao(carregar_da_api: bool = False):
     """
     Executa o ETL de população.
+
+    Parâmetros:
+        carregar_da_api: se True, extrai os dados do IBGE e salva o
+            bruto no Mongo antes de seguir o fluxo normal. Use True
+            apenas na primeira execução ou quando quiser atualizar os
+            dados brutos.
     """
 
     ext = Extract()
     transformer = Transform()
     ld = Load()
+    seed = Seed_Mongo()
 
     try:
         log_inicio_etl("ETL de População")
 
-        # 1. Extração
-        print("Etapa 1: Extraindo dados do IBGE!")
+        # 1. Extração da API (opcional) e carga bruta no Mongo
+        if carregar_da_api:
+            print("Etapa 1: Extraindo dados de população da API!")
+            seed.extrair_populacao_da_api_e_salvar_no_mongo(ext, ld)
 
-        df_demografia = ext.populacao_bairros()
-
-        # 2. Carga do dado bruto no MongoDB
-        print("Etapa 2: Salvando dados brutos no MongoDB!")
-
-        dados_populacao = df_demografia.to_dict(
-            orient="records"
-        )
-
-        ld.load_mongo(
-            dados_populacao,
-            "populacao_ibge_raw"
-        )
+        # 2. Busca dos dados brutos no Mongo
+        print("Etapa 2: Buscando dados em MONGO!")
+        df_populacao_raw = ext.extract_collection_from_mongo("populacao_ibge_raw")
 
         # 3. Transformação
         print("Etapa 3: Transformando os dados!")
 
         df_populacao = transformer.transform_populacao(
-            df_demografia
+            df_populacao_raw
         )
 
         # 4. Leitura dos chamados fictícios
@@ -122,10 +119,11 @@ def run_populacao():
         # 6. SQLite
         print("Etapa 5: Salvando no SQLite!")
 
-        ld.load_sqlite(
-            df_final,
-            "chamados_populacao"
-        )
+        ld.load_sqlite(df_final, "chamados_populacao")
+
+        # 7. Carga no Neon
+        print("Etapa 7: Salvando no Neon!")
+        ld.load_neon(df_final, "chamados_populacao")
 
         log_fim_etl("ETL de População")
 
@@ -158,7 +156,6 @@ def log_fim_etl(nome_etl: str):
     print("=" * 50 + "\n")
     print()
 
-
 def main():
     """
         Executa as ETLs do projeto.
@@ -166,7 +163,6 @@ def main():
 
     run_clima()
     run_populacao()
-
 
 if __name__ == "__main__":
     main()

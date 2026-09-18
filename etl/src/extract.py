@@ -119,3 +119,27 @@ class Extract:
 
         return df
 
+    def extract_collection_from_mongo(self, collection_name: str) -> pd.DataFrame:
+        """
+        Extrai dados de uma coleção do MongoDB e retorna como DataFrame.
+
+        Parâmetros:
+            collection_name: nome da coleção no MongoDB.
+
+        Retorna:
+            DataFrame contendo os dados extraídos da coleção.
+        """
+
+        db = self.client["FISCALIZE_ETL"]
+        collection = db[collection_name]
+
+        data = list(collection.find())
+
+        df = pd.DataFrame(data)
+
+        print(
+            f"Dados extraídos com sucesso da coleção "
+            f"{collection_name} do MongoDB!"
+        )
+
+        return df

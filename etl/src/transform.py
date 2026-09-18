@@ -20,6 +20,10 @@ class Transform:
             DataFrame com data, temperatura média e precipitação.
         """
 
+        # Se vier do Mongo como DataFrame, pega o dicionário da primeira linha
+        if isinstance(data, pd.DataFrame):
+            data = data.iloc[0].to_dict()
+
         # Cria um DataFrame a partir dos dados de clima obtidos da API, 
         # contendo as colunas "data", "precipitacao" e "temperatura".
         daily = data["daily"] 
