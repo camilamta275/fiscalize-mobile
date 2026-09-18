@@ -5,7 +5,7 @@ ETLs desenvolvidas para enriquecer os dados de chamados urbanos do Fiscalize com
 ## Pré-requisitos
 
 - Python 3.10.
-- Dependências listadas em [requirements.txt](requirements.txt): `black`, `requests`, `pymongo`, `python-dotenv`, `pandas`, `beautifulsoup4`.
+- Dependências listadas em [requirements.txt](requirements.txt): `black`, `requests`, `pymongo`, `python-dotenv`, `pandas`, `beautifulsoup4`, `sqlalchemy`, `psycopg2-binary`.
 - Acesso ao cluster MongoDB do projeto (ver [Variáveis de ambiente](#variáveis-de-ambiente) abaixo).
 
 ## Estrutura de pastas
@@ -20,8 +20,8 @@ etl/
 ├── src/
 │   ├── extract.py          # Extract: busca dados na Open-Meteo e no IBGE
 │   ├── transform.py        # Transform: organiza, padroniza e cruza os dados
-│   └── load.py             # Load: grava dados brutos no MongoDB e dados cruzados no SQLite
-|   └── seed_mongo.py       # Seed: funções que extraem da API e populam o Mongo
+│   └── load.py              # Load: grava dados brutos no MongoDB e dados cruzados no SQLite
+|   └── seed_mongo.py      # Seed: funções que extraem da API e populam o Mongo
 ├── run_etl.py               # ponto de entrada do pipeline (Extract -> Transform -> Load), em main()
 ├── requirements.txt
 ├── .env.example              # modelo de variáveis de ambiente (sem credenciais reais)
