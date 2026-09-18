@@ -68,7 +68,9 @@ Para configurar:
 
 2. Preencha `MONGODB_URI` no `.env` com a connection string do cluster MongoDB Atlas do projeto (`smart-city`). Peça a connection string a um responsável pelo projeto, ou obtenha-a diretamente no MongoDB Atlas em **Database > Connect**, caso já tenha acesso ao cluster.
 
-3. **Nunca** commite o `.env` com valores reais — ele já está listado no `.gitignore` da raiz do repositório.
+3. Preencha `DATABASE_URL` no `.env` com a connection string do banco Neon (Postgres) do projeto. Peça a connection string a um responsável pelo projeto, ou obtenha-a diretamente no painel do Neon em **Connection Details**, caso já tenha acesso ao projeto.
+
+4. **Nunca** commite o `.env` com valores reais ele já está listado no `.gitignore` da raiz do repositório.
 
 ## Como executar o pipeline
 
