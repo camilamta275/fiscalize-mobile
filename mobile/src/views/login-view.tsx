@@ -1,3 +1,4 @@
+import { Link } from 'expo-router';
 import { ActivityIndicator, Pressable, StyleSheet, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -83,6 +84,10 @@ export function LoginView() {
             <ThemedText type="smallBold">Entrar</ThemedText>
           )}
         </Pressable>
+
+        <Link href="/register" style={styles.link}>
+          <ThemedText type="linkPrimary">Não tem conta? Criar conta</ThemedText>
+        </Link>
       </ThemedView>
     </SafeAreaView>
   );
@@ -120,5 +125,9 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: {
     opacity: 0.5,
+  },
+  link: {
+    alignSelf: 'center',
+    marginTop: Spacing.one,
   },
 });
