@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
+import { useSession } from '@/contexts/session-context';
 import { useTheme } from '@/hooks/use-theme';
 import { useHealthViewModel } from '@/viewmodels/use-health-view-model';
 
@@ -13,11 +14,27 @@ import { useHealthViewModel } from '@/viewmodels/use-health-view-model';
  */
 export function HealthView() {
   const { health, isLoading, error, baseUrl, refresh } = useHealthViewModel();
+  const { usuario, signOut } = useSession();
   const theme = useTheme();
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ThemedView style={styles.container}>
+        {usuario ? (
+          <ThemedView style={styles.card} type="backgroundElement">
+            <StatusRow label="Sessão" value="Logado" />
+            <StatusRow label="Nome" value={usuario.nome} />
+            <StatusRow label="Perfil" value={usuario.perfil} />
+          </ThemedView>
+        ) : null}
+
+        <Pressable
+          accessibilityRole="button"
+          onPress={signOut}
+          style={[styles.button, { backgroundColor: theme.backgroundElement }]}>
+          <ThemedText type="smallBold">Sair</ThemedText>
+        </Pressable>
+
         <ThemedText type="subtitle">Status da API</ThemedText>
         <ThemedText type="small" themeColor="textSecondary">
           {baseUrl}
