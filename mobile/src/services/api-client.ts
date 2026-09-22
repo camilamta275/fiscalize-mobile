@@ -20,6 +20,19 @@ const defaultBaseUrl =
 
 export const baseUrl = process.env.EXPO_PUBLIC_API_BASE_URL ?? defaultBaseUrl;
 
+/**
+ * The backend accepts the JWT via cookie or `Authorization: Bearer`
+ * (backend/src/middlewares/authMiddleware.ts) — a cookie jar shared across app
+ * restarts isn't something `fetch` gives us on native, so the app authenticates
+ * with the header instead. `session-context.tsx` calls this once the token is
+ * known (on sign-in, and after restoring it from SecureStore on launch).
+ */
+let authToken: string | null = null;
+
+export function setAuthToken(token: string | null) {
+  authToken = token;
+}
+
 type RequestOptions = {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   body?: unknown;
@@ -37,6 +50,10 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
 
   if (body !== undefined) {
     headers['Content-Type'] = 'application/json';
+  }
+
+  if (authToken) {
+    headers.Authorization = `Bearer ${authToken}`;
   }
 
   let response: Response;
