@@ -1,49 +1,20 @@
-# Mobile Automation Guide
+# API Automation Guide
 
-This guide covers setting up and running the Appium + pytest mobile automation
-suite located in `automation/`.
+The automation suite contains pytest-based integration tests for the Fiscalize
+backend API. The API tests are located in `automation/tests/api/tests/`.
 
 ## 1. Prerequisites
 
-### Node.js and Appium
+- Python 3
+- A running Fiscalize backend
+- Test user credentials in `automation/data/credentials.json`
 
-```bash
-npm install -g appium
-appium --version
-```
-
-### UiAutomator2 Driver (Android)
-
-```bash
-appium driver install uiautomator2
-```
-
-### Appium Inspector
-
-Download and install from:
-https://github.com/appium/appium-inspector/releases
-
-Use it to inspect elements and validate capabilities before wiring up a new
-page object. Example desired capabilities for the inspector:
-
-```json
-{
-  "platformName": "Android",
-  "appium:deviceName": "emulator-5554",
-  "appium:automationName": "UiAutomator2",
-  "appium:appPackage": "com.app.package.android",
-  "appium:appActivity": "com.app.package.android.view.activities.SplashActivity"
-}
-```
-
-### Android emulator / device
-
-Have an emulator running (or a physical device connected via ADB) before
-starting the Appium server or running tests. `adb devices` should list it.
+The API endpoints default to `http://localhost:3000` in
+`automation/tests/api/config/settings.py`.
 
 ## 2. Python environment
 
-The suite lives in `automation/` and uses its own virtual environment.
+The suite uses its own virtual environment. From the repository root:
 
 ```bash
 cd automation
@@ -52,93 +23,67 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Key dependencies (see `automation/requirements.txt`):
-- `Appium-Python-Client` — Appium/WebDriver client
-- `selenium` — `WebDriverWait` / `expected_conditions` used by page objects
-- `pytest`, `pytest-html`, `pytest-metadata` — test runner and HTML reporting
-
-### VS Code
-
-If you open this repo (`fiscalize-mobile`) as the VS Code workspace, select
-the automation venv as the Python interpreter so Pylance resolves `pytest`
-and `appium` imports correctly:
-
-`Cmd+Shift+P` → **Python: Select Interpreter** → `automation/.venv/bin/python3`
-
-This is already configured as the default in `.vscode/settings.json` at the
-repo root.
+In VS Code, select `automation/.venv/bin/python3` as the Python interpreter.
+The repository's `.vscode/settings.json` already configures this interpreter as
+the default.
 
 ## 3. Project structure
 
-```
+```text
 automation/
-├── conftest.py       # pytest fixtures: driver (Appium session), load_data_mobile
-├── logger.py          # shared logger used across tests/pages
-├── pytest.ini         # pytest config (test path, HTML report, logging)
+├── pytest.ini
 ├── requirements.txt
 ├── data/
-│   └── data.json      # test fixture data (passwords, login credentials)
-├── pages/
-│   └── base_page.py    # BasePage with common Appium/Selenium helpers
+│   └── credentials.json
 └── tests/
-    └── test.py
+    └── api/
+        ├── config/settings.py
+        ├── conftest.py
+        └── tests/
 ```
 
-`BasePage` (`pages/base_page.py`) wraps common actions used by page objects:
-`find_element`, `click_element`, `send_keys_to_element`, `scroll`,
-`is_element_displayed`, etc. New page objects should subclass it.
+`automation/tests/api/config/settings.py` centralizes the backend URLs.
+`automation/tests/api/conftest.py` provides fixtures for generated test values,
+configured credentials, and authenticated requests.
 
-## 4. Configuring capabilities
+## 4. Test data and configuration
 
-The Appium session capabilities are defined in the `driver` fixture in
-`automation/conftest.py`. Before running against a different app build,
-update:
+The `credentials` fixture loads the `login` object from
+`automation/data/credentials.json`. Keep test credentials in that file and do
+not commit real user passwords.
 
-- `appium:appPackage`
-- `appium:appWaitActivity`
-- `appium:deviceName` (if not using `emulator-5554`)
-
-```python
-options.load_capabilities({
-    "platformName": "Android",
-    "appium:deviceName": "emulator-5554",
-    "appium:automationName": "UiAutomator2",
-    "appium:appPackage": "com.app.package",
-    "appium:appWaitActivity": "com.app.package.MainActivity",
-    ...
-})
-```
-
-The Appium server itself must be running separately in a terminal (`appium`) on
-`http://127.0.0.1:4723` before tests execute — the fixture connects to that
-address.
-
-```bash
-appium
-```
+To target another backend, update `Endpoints.BASE_URL` in
+`automation/tests/api/config/settings.py`.
 
 ## 5. Running tests
 
-From `automation/`, with the venv active and Appium server + emulator running:
+From `automation/`, with the virtual environment active and the backend
+running:
 
 ```bash
-pytest
+pytest tests/api/tests
 ```
 
-`pytest.ini` already sets:
-- `testpaths = tests`
-- an HTML report at `automation/report.html` (`--html=report.html --self-contained-html`)
-- console logging at `INFO` level
-
-Run a single test file or test:
+Run a single test file:
 
 ```bash
-pytest tests/test.py
-pytest tests/test.py::test_name
+pytest tests/api/tests/test_cidadao.py
 ```
 
-## 6. Test data
+Run a single test:
 
-Shared test data (e.g. login credentials, password validation cases) lives in
-`automation/data/data.json` and is loaded via the `load_data_mobile` fixture
-in `conftest.py`.
+```bash
+pytest tests/api/tests/test_cidadao.py::test_api
+```
+
+Run with verbose output:
+
+```bash
+pytest tests/api/tests -v
+```
+
+`pytest.ini` enables verbose console logging and writes the self-contained HTML
+report to `automation/report.html`.
+
+See [tests/api/README.md](tests/api/README.md) for the API-specific setup and
+run commands.
