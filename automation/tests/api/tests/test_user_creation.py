@@ -60,11 +60,11 @@ def test_create_user_missing_fields():
     assert resp.status_code == 400  # Espera-se um erro de validação (400 Bad Request)
 
 # Criação de usuário com email duplicado
-def test_create_user_duplicate_email(register_user):
+def test_create_user_duplicate_email(credentials):
     # Tenta registrar outro usuário com o mesmo email
     duplicate_user_data = {
         "nome": "Duplicate User",
-        "email": register_user["email"],  # Email já registrado
+        "email": credentials["email"],  # Email já registrado
         "senha": "anotherpassword"
     }
     resp = requests.post(endpoints.REGISTER, json=duplicate_user_data)

@@ -2,12 +2,10 @@ import requests
 from automation.tests.api.config.settings import Endpoints as endpoints
 
 # Login de usuário - /auth/login
-def test_login_user(register_user):
-    email = register_user["email"]
-    senha = register_user["senha"]
+def test_login_user(credentials):
     login_data = {
-        "email": email,
-        "senha": senha
+        "email": credentials["email"],
+        "senha": credentials["password"]
     }
     resp = requests.post(endpoints.LOGIN, json=login_data)
     assert resp.status_code == 200
@@ -16,40 +14,36 @@ def test_login_user(register_user):
   
 # --- Testes para casos de erro no login do usuário ---  
 # Login de usuário com email inválido
-def test_login_user_invalid_email(register_user):
-    senha = register_user["senha"]
+def test_login_user_invalid_email(credentials):
     login_data = {
         "email": "invalid_email@example.com",
-        "senha": senha
+        "senha": credentials["password"]
     }
     resp = requests.post(endpoints.LOGIN, json=login_data)
     assert resp.status_code == 401
     
 # Login de usuário com senha inválida
-def test_login_user_invalid_password(register_user):
-    email = register_user["email"]
+def test_login_user_invalid_password(credentials):
     login_data = {
-        "email": email,
-        "senha": "invalid_password"
+        "email": credentials["email"],
+        "senha": credentials["incorrect_password"]
     }
     resp = requests.post(endpoints.LOGIN, json=login_data)
     assert resp.status_code == 401
     
 # Login de usuário com email vazio
-def test_login_user_empty_email(register_user):
-    senha = register_user["senha"]
+def test_login_user_empty_email(credentials):
     login_data = {
         "email": "",
-        "senha": senha
+        "senha": credentials["password"]
     }
     resp = requests.post(endpoints.LOGIN, json=login_data)
     assert resp.status_code == 400  # Espera-se um erro de validação (400 Bad Request)
     
 # Login de usuário com senha vazia
-def test_login_user_empty_password(register_user):
-    email = register_user["email"]
+def test_login_user_empty_password(credentials):
     login_data = {
-        "email": email,
+        "email": credentials["email"],
         "senha": ""
     }
     resp = requests.post(endpoints.LOGIN, json=login_data)
