@@ -16,6 +16,27 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npx expo start
    ```
 
+### Troubleshooting startup
+
+If React Native DevTools reports a missing executable under the `dotslash` cache,
+the error is from the optional standalone debugger and does not prevent Metro
+from serving the app. Use the Expo CLI's browser debugger or start normally:
+
+```bash
+npx expo start --localhost
+```
+
+If `npx expo start --tunnel` ends with `ngrok tunnel took too long to connect`,
+the tunnel service or network is unavailable. Use a local-network connection
+instead:
+
+```bash
+npx expo start --lan
+```
+
+For tunnel access, verify that ngrok is installed, authenticated, and allowed
+by the current network before retrying `--tunnel`.
+
 In the output, you'll find options to open the app in a
 
 - [development build](https://docs.expo.dev/develop/development-builds/introduction/)
