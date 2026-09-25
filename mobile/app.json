@@ -29,7 +29,20 @@
           "imageWidth": 76
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "O Fiscalize usa sua localização para preencher as coordenadas da ocorrência no momento do registro."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "O Fiscalize usa a câmera para fotografar a ocorrência no momento do registro.",
+          "recordAudioAndroid": false
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
