@@ -58,7 +58,12 @@ export function CameraCapture({
         <Pressable accessibilityRole="button" onPress={onCancel} style={styles.cancelChip}>
           <Text style={styles.chipText}>Cancelar</Text>
         </Pressable>
-        <Pressable accessibilityRole="button" onPress={capture} style={styles.shutter} />
+        <Pressable
+          accessibilityLabel="Tirar foto"
+          accessibilityRole="button"
+          onPress={capture}
+          style={styles.shutter}
+        />
         <ThemedView style={styles.spacer} />
       </SafeAreaView>
     </CameraView>
