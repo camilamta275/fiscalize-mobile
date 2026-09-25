@@ -56,15 +56,14 @@ A aplicação permitirá que cidadãos registrem demandas urbanas e acompanhem s
 
 ### Front-end Mobile
 
-> Preencher após a definição das tecnologias utilizadas na nova aplicação.
-
-- **Framework Mobile:** `[inserir framework]`
-- **Linguagem:** `[inserir linguagem]`
-- **Biblioteca de Interface:** `[inserir biblioteca]`
-- **Navegação:** `[inserir tecnologia]`
-- **Gerenciamento de Estado:** `[inserir tecnologia]`
-- **Formulários e Validação:** `[inserir tecnologia]`
-- **Testes:** `[inserir ferramentas]`
+- **Framework Mobile:** Expo (React Native) com Expo Router
+- **Linguagem:** TypeScript
+- **Interface:** componentes nativos do React Native, com um pequeno design system próprio (`ThemedText`/`ThemedView`, cores em `src/constants/theme.ts`) — sem biblioteca de UI de terceiros
+- **Navegação:** Expo Router (roteamento por arquivos, com `Stack.Protected` guardando as rotas autenticadas)
+- **Gerenciamento de Estado:** Context API (`SessionProvider`, para a sessão do usuário) + estado local por tela, seguindo um padrão MVVM (`models/`, `services/`, `viewmodels/`, `views/`)
+- **Formulários e Validação:** validação própria nos `viewmodels`, espelhando as mesmas regras do front-end web (`frontend/src/lib/validations.ts`)
+- **Recursos nativos:** `expo-secure-store` (token de sessão), `expo-location` (GPS sob demanda) e `expo-camera` (foto da ocorrência)
+- **Testes:** ainda não há suíte automatizada configurada no mobile
 
 ### Back-end
 
@@ -77,34 +76,35 @@ O back-end e as regras de negócio da versão web serão mantidos e reaproveitad
 
 ## 🏗️ Arquitetura do Projeto
 
-> Atualizar esta seção de acordo com a estrutura adotada durante o desenvolvimento.
-
 ```text
 fiscalize-mobile/
-├── backend/             # Submódulo Git → fiscalize-backend (API REST)
-├── src/
-│   ├── components/      # Componentes reutilizáveis
-│   ├── screens/         # Telas da aplicação
-│   ├── navigation/      # Configuração das rotas e navegação
-│   ├── services/        # Comunicação com a API
-│   ├── hooks/           # Hooks personalizados
-│   ├── contexts/        # Contextos e estados globais
-│   ├── utils/           # Funções auxiliares
-│   └── assets/          # Imagens, ícones e fontes
-├── tests/               # Testes automatizados
-└── README.md
+├── backend/                # Submódulo Git → fiscalize-backend (API REST)
+└── mobile/                 # App Expo (React Native)
+    ├── app.json
+    ├── .env.example         # EXPO_PUBLIC_API_BASE_URL — veja "Como Executar"
+    └── src/
+        ├── app/             # Rotas (Expo Router, roteamento por arquivos)
+        ├── components/      # Componentes de UI reutilizáveis
+        ├── constants/       # Cores, espaçamento, tema
+        ├── contexts/        # Contextos globais (sessão/autenticação)
+        ├── hooks/           # Hooks personalizados
+        ├── models/          # Tipos que espelham as respostas do backend
+        ├── services/        # Chamadas HTTP à API
+        ├── viewmodels/      # Estado e regras de cada tela (padrão MVVM)
+        └── views/           # Componentes visuais de cada tela
 ```
 
 ## 🚀 Como Executar o Projeto
 
+**Funciona em Windows, macOS e Linux** — Node.js, o Expo CLI e o Metro (o bundler) são multiplataforma. A única coisa que só existe no macOS é o **simulador de iOS** (exige Xcode); em Windows/Linux você testa em um **celular físico** (Android ou iPhone, não importa o sistema do seu computador) usando o app Expo Go, ou em um emulador Android (exige Android Studio, mas **não é obrigatório** — dá pra desenvolver 100% num celular físico).
+
 ### Pré-requisitos
 
-Antes de começar, instale as ferramentas exigidas pela tecnologia mobile escolhida.
-
-- `[inserir requisito, por exemplo: Node.js]`
-- `[inserir requisito, por exemplo: Android Studio ou Xcode]`
-- `[inserir gerenciador de pacotes]`
-- `[inserir emulador, simulador ou aplicativo de execução]`
+- **Node.js 22+** (mesma versão usada no `backend/`)
+- **App Expo Go** instalado no celular — [Android](https://play.google.com/store/apps/details?id=host.exp.exponent) ou [iOS](https://apps.apple.com/app/expo-go/id982107779)
+  - No **iOS físico**, o Expo Go exige estar logado com a mesma conta Expo do computador (`npx expo login`) — é gratuito, só criar conta em [expo.dev](https://expo.dev). No Android não precisa.
+- **PostgreSQL** — só se for rodar o backend localmente (veja o [README do backend](./backend/README.md))
+- Android Studio ou Xcode — **opcionais**, só se você quiser usar um emulador/simulador em vez de celular físico
 
 ### Instalação
 
@@ -112,33 +112,48 @@ Antes de começar, instale as ferramentas exigidas pela tecnologia mobile escolh
 
 ```bash
 git clone --recurse-submodules https://github.com/camilamta275/fiscalize-mobile.git
+cd fiscalize-mobile
 ```
 
-> Já clonou sem o `--recurse-submodules`? Rode `git submodule update --init` na raiz do projeto.
+> Já clonou sem o `--recurse-submodules`? Rode `git submodule update --init`.
 
-2. Acesse a pasta do projeto:
+2. Instale as dependências do app mobile:
 
 ```bash
-cd NOME_DA_PASTA
+cd mobile
+npm install
 ```
 
-3. Instale as dependências:
-
-```bash
-COMANDO_DE_INSTALACAO
-```
-
-4. Configure as variáveis de ambiente conforme o arquivo de exemplo:
+3. Configure a URL da API:
 
 ```bash
 cp .env.example .env
 ```
 
-5. Execute a aplicação:
+Abra o `.env` e ajuste `EXPO_PUBLIC_API_BASE_URL` conforme onde você for testar (o próprio arquivo explica cada caso):
+   - Emulador Android → `http://10.0.2.2:3000` (já é o padrão, não precisa mexer)
+   - Simulador iOS → `http://localhost:3000` (também já é o padrão)
+   - **Celular físico** (o caso mais comum) → o IP da sua máquina na rede local, ex: `http://192.168.0.10:3000`. Descubra o seu com `ipconfig getifaddr en0` (macOS) ou `ipconfig` (Windows, procure por "Endereço IPv4"). Esse IP muda se você trocar de Wi-Fi — é só atualizar o `.env` de novo quando isso acontecer.
+
+4. Suba o backend (em outro terminal — veja o [README do backend](./backend/README.md) para configurar banco de dados e seed):
 
 ```bash
-COMANDO_PARA_EXECUTAR
+cd backend
+npm ci
+cp .env.example .env    # preencha DATABASE_URL e JWT_SECRET
+npm run dev             # sobe em http://localhost:3000
 ```
+
+5. Rode o app mobile:
+
+```bash
+cd mobile
+npx expo start
+```
+
+No terminal vai aparecer um QR code — escaneie com a **Câmera** do iPhone (abre direto no Expo Go) ou pelo próprio app **Expo Go** no Android. Se preferir um emulador/simulador, pressione `a` (Android) ou `i` (iOS, só no Mac) no terminal onde o `expo start` está rodando.
+
+> Se o celular não conseguir conectar (erro de rede), confira se ele está na **mesma rede Wi-Fi** do computador e se o `.env` tem o IP certo. Como alternativa, `npx expo start --tunnel` cria um túnel público que funciona mesmo em redes diferentes (mais lento, mas contorna problemas de firewall/rede corporativa).
 
 ## 🔗 Integração com o Back-end
 
@@ -170,11 +185,7 @@ As instruções completas (banco de dados, migrações e seed) estão no [README
 
 ### Configurar o endereço da API
 
-O endereço da API deverá ser configurado por variável de ambiente:
-
-```env
-API_BASE_URL=http://localhost:3000
-```
+O app mobile aponta para o backend pela variável `EXPO_PUBLIC_API_BASE_URL` — veja o passo 3 de [Como Executar o Projeto](#-como-executar-o-projeto) para os valores certos em cada cenário (emulador, simulador ou celular físico).
 
 > Nunca adicione senhas, tokens ou outras credenciais diretamente ao repositório.
 
@@ -189,11 +200,7 @@ A estratégia de testes deverá considerar tanto o reaproveitamento das validaç
 - Testes de permissões, câmera, localização e notificações, quando implementados.
 - Testes em diferentes tamanhos de tela, dispositivos e sistemas operacionais.
 
-Para executar os testes:
-
-```bash
-COMANDO_DE_TESTE
-```
+> Ainda não há suíte de testes automatizados configurada em `mobile/` (nenhum script `test` no `package.json`) — esta seção será preenchida quando isso for adicionado. O que existe hoje é `npm run lint` (`mobile/package.json`), que roda o ESLint.
 
 ## 🗺️ Status do Projeto
 
