@@ -31,6 +31,13 @@ export function useDemandFormViewModel(demandId?: string) {
   const [location, setLocation] = useState('');
   const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [isCapturingLocation, setIsCapturingLocation] = useState(false);
+  /**
+   * The backend's `chamado.fotourl` column has no counterpart in
+   * demandController/demandService — create/update never read or write it,
+   * and there's no upload endpoint. So this stays device-local: it's never
+   * sent in `submit`, only kept for the View to preview.
+   */
+  const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [currentStatus, setCurrentStatus] = useState<DemandStatus | null>(null);
 
   const [fieldErrors, setFieldErrors] = useState<{
@@ -80,7 +87,19 @@ export function useDemandFormViewModel(demandId?: string) {
         return;
       }
       const position = await Location.getCurrentPositionAsync();
-      setCoords({ latitude: position.coords.latitude, longitude: position.coords.longitude });
+      const { latitude, longitude } = position.coords;
+      setCoords({ latitude, longitude });
+
+      // The GPS fix is the point of this button — the address is a courtesy
+      // derived from it, not something the user should also have to type.
+      // reverseGeocodeAsync can come back empty (offline, no match, etc.), so
+      // this always falls back to something submittable.
+      try {
+        const [address] = await Location.reverseGeocodeAsync({ latitude, longitude });
+        setLocation((address && formatAddress(address)) || formatCoords(latitude, longitude));
+      } catch {
+        setLocation(formatCoords(latitude, longitude));
+      }
     } catch {
       setError('Não foi possível obter sua localização.');
     } finally {
@@ -89,7 +108,7 @@ export function useDemandFormViewModel(demandId?: string) {
   }, []);
 
   const submit = useCallback(async () => {
-    const errors = validate(title, description, categoryId, location);
+    const errors = validate(title, description, categoryId, location, coords);
     setFieldErrors(errors);
     if (Object.keys(errors).length > 0) return;
 
@@ -100,7 +119,9 @@ export function useDemandFormViewModel(demandId?: string) {
         title,
         description,
         category_id: categoryId!,
-        location,
+        // A GPS fix with no address text (edge case: captured, then cleared
+        // by hand) still needs *some* string — the backend requires it.
+        location: location.trim() || (coords ? formatCoords(coords.latitude, coords.longitude) : ''),
         ...(coords && { latitude: coords.latitude, longitude: coords.longitude }),
       };
 
@@ -136,6 +157,8 @@ export function useDemandFormViewModel(demandId?: string) {
     coords,
     captureLocation,
     isCapturingLocation,
+    photoUri,
+    setPhotoUri,
     isBlocked,
     currentStatus,
     fieldErrors,
@@ -150,7 +173,8 @@ function validate(
   title: string,
   description: string,
   categoryId: number | null,
-  location: string
+  location: string,
+  coords: { latitude: number; longitude: number } | null
 ) {
   const errors: {
     title?: string;
@@ -168,9 +192,30 @@ function validate(
   if (categoryId === null) {
     errors.categoryId = 'Selecione uma categoria';
   }
-  if (location.trim().length < 10) {
-    errors.location = 'Endereço inválido';
+  // A captured GPS fix satisfies this on its own — the address field only
+  // has to be filled by hand when there's no coordinate to fall back to.
+  if (!coords && location.trim().length < 10) {
+    errors.location = 'Informe o endereço ou use sua localização atual';
   }
 
   return errors;
+}
+
+function formatAddress(address: Location.LocationGeocodedAddress): string {
+  // `formattedAddress` is Android-only (see expo-location docs) — iOS never
+  // sets it, so this composes from the individual parts either way.
+  if (address.formattedAddress) return address.formattedAddress;
+
+  const parts = [
+    [address.street, address.streetNumber].filter(Boolean).join(', '),
+    address.district,
+    address.city,
+    address.region,
+  ].filter((part): part is string => !!part && part.length > 0);
+
+  return parts.join(', ');
+}
+
+function formatCoords(latitude: number, longitude: number): string {
+  return `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
 }

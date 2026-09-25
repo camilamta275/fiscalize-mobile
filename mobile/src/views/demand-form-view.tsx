@@ -1,7 +1,10 @@
+import { Image } from 'expo-image';
 import { Link } from 'expo-router';
+import { useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { CameraCapture } from '@/components/camera-capture';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
@@ -31,6 +34,8 @@ export function DemandFormView({ demandId }: { demandId?: string }) {
     coords,
     captureLocation,
     isCapturingLocation,
+    photoUri,
+    setPhotoUri,
     isBlocked,
     currentStatus,
     fieldErrors,
@@ -40,6 +45,19 @@ export function DemandFormView({ demandId }: { demandId?: string }) {
     submit,
   } = useDemandFormViewModel(demandId);
   const theme = useTheme();
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+
+  if (isCameraOpen) {
+    return (
+      <CameraCapture
+        onCancel={() => setIsCameraOpen(false)}
+        onCapture={(uri) => {
+          setPhotoUri(uri);
+          setIsCameraOpen(false);
+        }}
+      />
+    );
+  }
 
   if (isLoadingCategories || isLoadingDemand) {
     return (
@@ -167,6 +185,24 @@ export function DemandFormView({ demandId }: { demandId?: string }) {
               )}
             </Pressable>
 
+            <ThemedView style={styles.field}>
+              <ThemedText type="smallBold">Foto</ThemedText>
+              {photoUri ? (
+                <Image contentFit="cover" source={{ uri: photoUri }} style={styles.photoPreview} />
+              ) : null}
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => setIsCameraOpen(true)}
+                style={[styles.button, { backgroundColor: theme.backgroundElement }]}>
+                <ThemedText type="smallBold">
+                  {photoUri ? 'Tirar outra foto' : 'Tirar foto'}
+                </ThemedText>
+              </Pressable>
+              <ThemedText themeColor="textSecondary" type="small">
+                A foto fica só no aparelho por enquanto — o backend ainda não tem onde guardá-la.
+              </ThemedText>
+            </ThemedView>
+
             {error ? (
               <ThemedText style={styles.feedback} themeColor="textSecondary">
                 {error}
@@ -289,5 +325,10 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.three,
     gap: Spacing.two,
     padding: Spacing.three,
+  },
+  photoPreview: {
+    aspectRatio: 4 / 3,
+    borderRadius: Spacing.two,
+    width: '100%',
   },
 });
