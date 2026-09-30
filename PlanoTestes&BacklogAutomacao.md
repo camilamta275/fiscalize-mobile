@@ -379,30 +379,17 @@ Na segunda saída, os casos de teste passaram a ser construídos considerando os
 <summary><strong>4.3 Matriz de alocação</strong></summary>
 
 Pedida antes da geração dos casos.
-
-| Condição de teste | Nível responsável | Justificativa |
-| :--- | :--- | :--- |
-| Login do cidadão com credenciais válidas | Componente | Valida a regra de autenticação de forma isolada, verificando o comportamento esperado para credenciais válidas. |
-| Rejeição de login com credenciais inválidas | Componente | A regra de validação das credenciais pode ser verificada isoladamente, sem depender do fluxo completo da aplicação. |
-| Validação da descrição com mínimo de 20 caracteres | Componente | É uma regra de validação de campo que pode ser testada diretamente nos limites válido e inválido. |
-| Validação do endereço com mínimo de 5 caracteres | Componente | É uma regra de validação de campo independente do fluxo completo de registro. |
-| Geração do protocolo no formato SCH-AAAA-NNNN | Componente | A geração e validação do formato do protocolo constituem uma regra específica que pode ser verificada isoladamente. |
-| Validação das transições de status do chamado | Componente | A máquina de estados pode ser validada isoladamente para garantir que as transições permitidas sejam respeitadas. |
-| Associação entre perfil e permissões de acesso | Integração de componentes | Verifica a comunicação entre autenticação, perfil e mecanismo de autorização. |
-| Autenticação e manutenção da sessão do cidadão | Integração de componentes | Envolve a comunicação entre tela/controlador, serviço de autenticação e mecanismo de sessão. |
-| Autenticação do Gestor e acesso às rotas administrativas | Integração de componentes | Verifica a integração entre autenticação, perfil e middleware de autorização. |
-| Criação e persistência de um chamado | Integração de componentes | Valida a comunicação entre o fluxo de criação, serviço/regra de negócio e persistência dos dados. |
-| Geração do protocolo e disponibilização em 'Meus Chamados' | Integração de componentes | Verifica se a criação do chamado, geração do protocolo e consulta dos dados estão integradas corretamente. |
-| Alteração de status e registro do evento na timeline | Integração de componentes | Verifica a comunicação entre atualização do chamado e registro do histórico. |
-| Notificação in-app após alteração de status | Integração de componentes | Valida a comunicação entre a alteração do status e o mecanismo de notificações. |
-| Filtros, status e busca na fila de chamados | Integração de componentes | Verifica a integração entre os critérios de consulta, dados dos chamados e apresentação do resultado. |
-| Registro completo de chamado pelo assistente de 3 etapas | Sistema | O objetivo é verificar o fluxo completo ponta a ponta dentro da fronteira do produto. |
-| Visualização da lista 'Meus Chamados' com status e protocolo | Sistema | Verifica o comportamento do sistema completo na apresentação dos chamados ao cidadão. |
-| Gestor altera o status e cidadão visualiza a atualização | Sistema | Exige o fluxo completo entre os perfis, atualização do chamado e consulta pelo cidadão. |
-| Visualização da timeline/histórico do chamado | Sistema | Verifica a entrega do histórico ao usuário no fluxo completo de consulta do chamado. |
-| Recuperação de senha | Sistema | Caso de lacuna identificado na segunda rodada, a ser validado como fluxo completo quando aplicável. |
-| Tratamento de falha de conexão durante o envio do chamado | Sistema | Verifica o comportamento do produto na fronteira quando a dependência externa de rede falha. |
-| Cadastro de novo cidadão | Sistema | Caso de lacuna identificado na segunda rodada, envolvendo o fluxo completo de criação de conta. |
+| Condição de Teste | Nível Responsável | Justificativa |
+|---|---|---|
+| Login do Cidadão com e-mail e senha válidos | Componente | Validação das credenciais pode ser verificada isoladamente, sem depender de outros componentes. |
+| Tentativa de login com credenciais inválidas | Componente | A regra de validação das credenciais e o comportamento para dados inválidos podem ser verificados de forma isolada. |
+| Visualização da lista 'Meus Chamados' com status coloridos e protocolo | Integração de componentes | Envolve a comunicação entre os componentes responsáveis pela consulta dos chamados e pela apresentação dos dados na interface. |
+| Registro de chamado completo pelo assistente de 3 etapas | Sistema | Representa um fluxo completo do produto, envolvendo as etapas do registro e a entrega do chamado ao sistema. |
+| Validação dos limites mínimos de descrição (≥20 caracteres) e endereço (≥5 caracteres) | Componente | As regras de limite de caracteres podem ser verificadas isoladamente. |
+| Geração automática de número de protocolo no formato SCH-AAAA-NNNN | Componente | A regra de geração e validação do formato do protocolo pode ser testada isoladamente. |
+| Recebimento de notificação in-app após mudança de status do chamado | Integração de componentes | É necessário verificar a comunicação entre a alteração de status e o componente responsável pela notificação. |
+| Visualização da timeline (histórico) do chamado pelo cidadão | Integração de componentes | Envolve a obtenção do histórico e sua apresentação na interface do cidadão. |
+| Login do Gestor e acesso à plataforma | Sistema | Verifica o fluxo de autenticação e o acesso do Gestor dentro do comportamento esperado do sistema. |
 
 </details>
 
