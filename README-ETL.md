@@ -83,6 +83,15 @@ python run_etl.py
 
 Hoje, `main()` em [run_etl.py](run_etl.py) executa dois etls `run_populacao()` e `run_clima()`.
 
+### Execução orquestrada com Prefect
+
+A mesma pipeline também está organizada como um flow do Prefect em [etl/flow_etl.py](etl/flow_etl.py), com tasks, novas tentativas automáticas, execução paralela de clima e população e acompanhamento pelo painel web. O passo a passo está em [etl/ORQUESTRACAO_PREFECT.md](etl/ORQUESTRACAO_PREFECT.md).
+
+```bash
+cd etl
+python flow_etl.py
+```
+
 ## ETL de Clima
 
 ### Objetivo

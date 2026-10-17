@@ -1,5 +1,6 @@
 import os
 import sqlite3
+from pathlib import Path
 
 import pandas as pd
 from dotenv import load_dotenv
@@ -21,7 +22,9 @@ class Load:
         self.client = MongoClient(self.mongo_uri, server_api=ServerApi("1"))
 
         self.database_name = "FISCALIZE_ETL"
-        self.sqlite_database = "fiscalize_etl.db"
+        # Caminho absoluto: o banco fica sempre em etl/, independente
+        # da pasta de onde o script for executado.
+        self.sqlite_database = Path(__file__).resolve().parent.parent / "fiscalize_etl.db"
 
     def close(self) -> None:
         """Encerra a conexão com o MongoDB."""

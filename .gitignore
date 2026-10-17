@@ -90,3 +90,7 @@ build_output.txt
 *.DS_Store
 
 *.log
+
+# ETL: banco SQLite gerado localmente; prints da documentação são versionados
+etl/fiscalize_etl.db
+!etl/docs/img/*.png

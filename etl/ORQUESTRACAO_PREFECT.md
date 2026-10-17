@@ -10,7 +10,7 @@ O fluxo foi implementado no arquivo `etl/flow_etl.py`, utilizando *tasks* para r
 
 Antes de executar o projeto, é necessário ter instalado:
 
-- Python 3.11;
+- Python 3.11 ou superior (testado com Python 3.14 e Prefect 3.8);
 - Git, para clonar o repositório;
 - Visual Studio Code ou outro editor de código;
 - Acesso às bases de dados utilizadas pelo projeto, incluindo MongoDB e Neon PostgreSQL;
@@ -136,7 +136,30 @@ Flow run 'nome-da-execucao' - Finished in state Completed()
 
 O nome da execução pode variar a cada tentativa.
 
+### 8.1. Opções de execução
+
+| Comando | O que faz |
+|---|---|
+| `python flow_etl.py` | Executa a pipeline usando os dados brutos já armazenados no MongoDB. |
+| `python flow_etl.py --api` | Antes de transformar, busca novamente os dados nas APIs (Open-Meteo e IBGE) e atualiza o MongoDB. |
+| `python flow_etl.py --simular-falha` | Lê uma coleção inexistente no lugar de `clima_raw`, para demonstrar como o Prefect registra uma falha e as novas tentativas. |
+| `python flow_etl.py --serve` | Cria o deployment `etl-fiscalize-agendado`, que executa a pipeline automaticamente a cada hora. O terminal deve permanecer aberto. |
+
+Com o deployment ativo, também é possível disparar uma execução pelo próprio painel, em **Deployments > etl-fiscalize-agendado > Run**, informando os parâmetros do flow.
+
 ## 9. Como a pipeline funciona
+
+O fluxo possui dois ramos independentes, um de clima e outro de população, que são executados em paralelo. Dentro de cada ramo, as etapas seguem uma ordem fixa:
+
+```text
+                  ┌─> [Extrair clima da API]* ─> Extrair clima_raw ─> Transformar clima ─> Cruzar chamados e clima ─┬─> Carregar no SQLite
+Ler chamados ─────┤                                                                                                 └─> Carregar no Neon
+                  └─> [Extrair população da API]* ─> Extrair populacao_ibge_raw ─> Transformar população ─> Cruzar chamados e população ─┬─> Carregar no SQLite
+                                                                                                                                        └─> Carregar no Neon
+* apenas com --api
+```
+
+As dependências são definidas pela passagem de dados entre as tasks: uma task só começa quando as tasks das quais recebe dados terminam com sucesso. A leitura do MongoDB depende da extração das APIs por meio do parâmetro `wait_for`. Se uma etapa falhar, as etapas seguintes do mesmo ramo não são executadas, mas o outro ramo continua normalmente.
 
 O fluxo foi organizado para processar os dados dos chamados e combiná-los com informações climáticas e populacionais.
 
@@ -151,7 +174,9 @@ A tarefa `extrair_mongo` consulta as coleções do MongoDB utilizadas pela pipel
 - `clima_raw`: dados climáticos;
 - `populacao_ibge_raw`: dados populacionais.
 
-Nessa configuração, o fluxo utiliza os dados brutos já armazenados no MongoDB, sem solicitar uma nova extração das APIs durante cada execução.
+Por padrão, o fluxo utiliza os dados brutos já armazenados no MongoDB. Com a opção `--api` (parâmetro `carregar_da_api=True`), as tasks `extrair_clima_api` e `extrair_populacao_api` buscam os dados na Open-Meteo e no IBGE e atualizam essas coleções antes da leitura.
+
+As tasks de extração e de carga no Neon dependem de serviços externos. Por isso, foram configuradas com novas tentativas automáticas (`retries`) em caso de falha.
 
 ### 9.3. Transformação dos dados
 
@@ -191,6 +216,38 @@ Os estados permitem identificar se uma execução foi concluída com sucesso ou 
 Durante o desenvolvimento, ocorreu uma falha no carregamento da tabela `chamados_clima` no Neon porque o usuário da conexão não tinha permissão para removê-la. O Prefect registrou o erro e realizou as tentativas de repetição configuradas. Após a correção do problema de permissão, uma nova execução foi concluída com sucesso.
 
 Esse caso demonstra a importância do monitoramento: além de coordenar as tarefas, o Prefect ajuda a localizar a etapa que falhou e fornece informações para investigar a causa.
+
+### 10.1. Evidências da execução
+
+**Histórico de execuções do flow `ETL Fiscalize`**
+
+![Histórico de execuções](docs/img/01-runs.png)
+
+**Execução concluída com sucesso: grafo das tasks e suas dependências**
+
+![Grafo da execução](docs/img/02-grafo-sucesso.png)
+
+**Logs da execução**
+
+![Logs da execução](docs/img/03-logs.png)
+
+**Terminal ao final da execução**
+
+![Terminal](docs/img/04-terminal.png)
+
+**Execução com falha**
+
+Nesta execução, a variável `DATABASE_URL` não estava configurada no `.env`. As etapas de leitura, extração, transformação, cruzamento e carga no SQLite foram concluídas nos dois ramos, mas as duas tasks `Carregar no Neon` falharam. O Prefect registrou as novas tentativas configuradas (`Retry 1/2`, `Retry 2/2`) e, depois de esgotá-las, marcou essas tasks e o flow com o estado `Failed`. O erro registrado nos logs (`Could not parse SQLAlchemy URL`) indica diretamente a causa: a ausência da URL de conexão com o Neon.
+
+Uma falha também pode ser reproduzida com `python flow_etl.py --simular-falha`, que faz a task `Extrair dados do MongoDB` ler uma coleção vazia. Nesse caso, as etapas seguintes do ramo de clima não são executadas, e o ramo de população termina normalmente.
+
+![Grafo da execução com falha](docs/img/05-grafo-falha.png)
+
+![Log do erro e das novas tentativas](docs/img/06-log-falha.png)
+
+**Deployment agendado (`--serve`)**
+
+![Deployment agendado](docs/img/07-deployment.png)
 
 ## 11. Resultado esperado
 
