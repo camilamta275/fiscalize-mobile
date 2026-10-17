@@ -11,6 +11,7 @@ import * as authService from '@/services/auth-service';
  * returns no token for /auth/register — so `submit` reports success and lets
  * the View send the user to `/login` to sign in for real.
  */
+// Updated by AI.
 export function useRegisterViewModel() {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
@@ -60,6 +61,7 @@ export function useRegisterViewModel() {
   };
 }
 
+// Updated by AI.
 function validate(nome: string, email: string, senha: string, confirmarSenha: string) {
   const errors: { nome?: string; email?: string; senha?: string; confirmarSenha?: string } = {};
 
@@ -69,12 +71,18 @@ function validate(nome: string, email: string, senha: string, confirmarSenha: st
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     errors.email = 'Email inválido';
   }
-  if (senha.length < 8) {
-    errors.senha = 'Senha deve ter no mínimo 8 caracteres';
+  if (!isPasswordPolicyValid(senha)) {
+    errors.senha =
+      'Senha deve ter no mínimo 8 caracteres, incluindo letras maiúsculas e minúsculas, número e caractere especial';
   }
   if (confirmarSenha !== senha) {
     errors.confirmarSenha = 'As senhas não correspondem';
   }
 
   return errors;
+}
+
+// Created by AI.
+function isPasswordPolicyValid(password: string): boolean {
+  return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/.test(password);
 }

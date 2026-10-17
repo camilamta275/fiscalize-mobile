@@ -85,3 +85,111 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Documentação e manutenção dos artefatos de testes.
 - **Tipo de contribuição da IA:** Atualização de links relativos e codificação de espaços e caracteres especiais.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0007
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `backend/src/utils/passwordPolicy.ts`, `backend/src/controllers/authController.ts`, `backend/src/services/authService.ts`, `backend/prisma/schema.prisma`, migração `20261017153500_add_login_lockout`, viewmodels de login/cadastro mobile, `mobile/src/views/register-view.tsx` e `AUDITORIA-REQUISITOS-SEGURANCA.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** RNF-SEC-02 implementada com política de senha, bcrypt custo 10 e bloqueio persistido após cinco falhas consecutivas.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram analisados apenas campos e fluxos de autenticação do sistema.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Implementar e validar os controles de política de senhas e proteção contra força bruta.
+- **Etapa da atividade:** Implementação, migração de banco, alinhamento do cliente e validação.
+- **Tipo de contribuição da IA:** Análise de requisitos e código, edição de backend/mobile/documentação, criação de migração Prisma e execução de build, type-check e validações.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0008
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `backend/src/auth.api.test.ts`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Testes de API criados para validar senha forte, bcrypt custo 10, bloqueio após cinco falhas e reset após login válido.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados dados sintéticos nos testes.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Validar automaticamente a implementação da RNF-SEC-02 no backend.
+- **Etapa da atividade:** Testes de API e validação.
+- **Tipo de contribuição da IA:** Criação de testes, mocks de persistência, execução de requisições HTTP locais e análise dos resultados.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0009
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/tests/test_auth_security.py`, `automation/tests/api/tests/test_user_creation.py`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Testes black-box de API adicionados para política de senha e bloqueio após cinco falhas consecutivas.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; os testes usam e-mails sintéticos e dados temporários.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Validar a RNF-SEC-02 por meio da API HTTP do backend.
+- **Etapa da atividade:** Testes de API e manutenção da suíte existente.
+- **Tipo de contribuição da IA:** Criação de testes HTTP, ajuste de fixtures/casos incompatíveis com a política de senha e validação da estrutura da suíte.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0010
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/data/credentials.json`, `automation/tests/api/conftest.py`, `automation/tests/api/tests/test_auth_security.py`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Casos de senha movidos para os dados da automação e testes ajustados ao padrão existente da suíte de API.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados dados sintéticos e credenciais de teste já configuradas.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Organizar os dados dos testes e manter a consistência da suíte de API.
+- **Etapa da atividade:** Manutenção de dados e testes de API.
+- **Tipo de contribuição da IA:** Atualização do JSON de dados, criação de fixture e adequação da escrita dos testes ao padrão existente.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0011
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/tests/test_auth_security.py`, `automation/tests/api/conftest.py`, `automation/tests/api/tests/test_user_creation.py`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Comentários inline de atribuição de IA adicionados aos códigos Python alterados, conforme as regras do AGENTS.md.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados dados sintéticos e credenciais de teste.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Adequar os testes às regras de atribuição de código gerado por IA.
+- **Etapa da atividade:** Conformidade e revisão de testes.
+- **Tipo de contribuição da IA:** Inserção de comentários inline e verificação da cobertura das funções alteradas.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0012
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `backend/src/utils/passwordPolicy.ts`, `backend/src/services/authService.ts`, `backend/src/controllers/authController.ts`, `backend/prisma/schema.prisma`, `backend/prisma/migrations/20261017153500_add_login_lockout/migration.sql`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Comentários inline de atribuição de IA adicionados aos códigos backend criados ou alterados na RNF-SEC-02.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram analisados apenas fluxos e estruturas de autenticação.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Adequar o backend às regras de atribuição definidas no AGENTS.md.
+- **Etapa da atividade:** Conformidade e revisão do backend.
+- **Tipo de contribuição da IA:** Inserção de comentários inline nos módulos, funções, constantes, campos do schema e migração alterados.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0013
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `AGENTS.md`, arquivos backend da RNF-SEC-02, arquivos de testes de API e viewmodels mobile de autenticação
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Tags de criação e atualização diferenciadas conforme o AGENTS.md e aplicadas aos códigos alterados pela IA.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados apenas dados sintéticos e credenciais de teste.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Diferenciar e aplicar corretamente as tags de atribuição em códigos criados e atualizados por IA.
+- **Etapa da atividade:** Atualização de regras, correção de atribuições e validação.
+- **Tipo de contribuição da IA:** Atualização do AGENTS.md, inserção das tags `Created by AI.` e `Updated by AI.`, correção de sintaxe e execução de verificações.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0014
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/tests/test_auth_security.py`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Cenário duplicado de cadastro válido removido; testes de segurança ficaram focados na política de senha e bloqueio de login.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados dados sintéticos nos testes.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Eliminar sobreposição entre testes gerais de cadastro e testes específicos da RNF-SEC-02.
+- **Etapa da atividade:** Refatoração e validação da suíte de testes de API.
+- **Tipo de contribuição da IA:** Remoção do cenário duplicado e verificação da coleta dos testes.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0015
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/conftest.py`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Leitura duplicada do credentials.json removida com fixture compartilhada para credenciais gerais e segurança.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados dados sintéticos e credenciais de teste.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Eliminar duplicação na configuração dos testes de API.
+- **Etapa da atividade:** Refatoração e validação de fixtures.
+- **Tipo de contribuição da IA:** Extração da leitura compartilhada do JSON e atualização das fixtures consumidoras.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
