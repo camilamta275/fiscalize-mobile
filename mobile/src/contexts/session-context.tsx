@@ -3,7 +3,7 @@ import { createContext, use, useEffect, useState, type PropsWithChildren } from 
 import { ApiError } from '@/models/api-error';
 import type { Usuario } from '@/models/usuario';
 import * as authService from '@/services/auth-service';
-import { setAuthToken } from '@/services/api-client';
+import { setAuthTokens, setTokenRotationHandler } from '@/services/api-client';
 import { useStorageState } from '@/hooks/use-storage-state';
 
 /**
@@ -32,9 +32,13 @@ export function useSession() {
 }
 
 const TOKEN_KEY = 'fiscalize.token';
+// Created by AI.
+const REFRESH_TOKEN_KEY = 'fiscalize.refresh-token';
 
 export function SessionProvider({ children }: PropsWithChildren) {
   const [[isRestoringToken, token], setToken] = useStorageState(TOKEN_KEY);
+  const [[isRestoringRefreshToken, storedRefreshToken], setStoredRefreshToken] =
+    useStorageState(REFRESH_TOKEN_KEY);
   const [usuario, setUsuario] = useState<Usuario | null>(null);
   const [isResolvingUsuario, setIsResolvingUsuario] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -42,33 +46,57 @@ export function SessionProvider({ children }: PropsWithChildren) {
   // A restored token still needs its usuario — the token alone was never
   // shown to the user, so there's nothing to render until this resolves.
   useEffect(() => {
-    if (isRestoringToken) return;
+    if (isRestoringToken || isRestoringRefreshToken) return;
 
     if (!token) {
+      setAuthTokens(null, storedRefreshToken);
       setUsuario(null);
       setIsResolvingUsuario(false);
       return;
     }
 
-    setAuthToken(token);
+    setAuthTokens(token, storedRefreshToken);
+    setTokenRotationHandler((nextToken, nextRefreshToken) => {
+      if (!nextToken) {
+        setToken(null);
+        setStoredRefreshToken(null);
+        setUsuario(null);
+        return;
+      }
+      setToken(nextToken);
+      setStoredRefreshToken(nextRefreshToken);
+    });
     authService
       .me()
       .then(setUsuario)
       .catch(() => {
-        // Expired or revoked — the stored token is no longer good for anything.
-        setAuthToken(null);
+        // Expired or revoked — the refresh flow will have cleared both tokens.
+        setAuthTokens(null, null);
         setToken(null);
+        setStoredRefreshToken(null);
         setUsuario(null);
       })
       .finally(() => setIsResolvingUsuario(false));
-  }, [isRestoringToken, token, setToken]);
+  }, [
+    isRestoringToken,
+    isRestoringRefreshToken,
+    token,
+    storedRefreshToken,
+    setToken,
+    setStoredRefreshToken,
+  ]);
 
   const signIn = async (email: string, senha: string) => {
     setError(null);
     try {
-      const { token: newToken, ...loggedInUsuario } = await authService.login(email, senha);
-      setAuthToken(newToken);
+      const {
+        token: newToken,
+        refreshToken: newRefreshToken,
+        ...loggedInUsuario
+      } = await authService.login(email, senha);
+      setAuthTokens(newToken, newRefreshToken);
       setToken(newToken);
+      setStoredRefreshToken(newRefreshToken);
       setUsuario(loggedInUsuario);
     } catch (caught) {
       const message =
@@ -79,11 +107,12 @@ export function SessionProvider({ children }: PropsWithChildren) {
   };
 
   const signOut = () => {
-    authService.logout().catch(() => {
+    authService.logout(storedRefreshToken).catch(() => {
       // The token is being discarded locally either way.
     });
-    setAuthToken(null);
+    setAuthTokens(null, null);
     setToken(null);
+    setStoredRefreshToken(null);
     setUsuario(null);
   };
 
@@ -91,7 +120,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
     <SessionContext.Provider
       value={{
         usuario,
-        isLoading: isRestoringToken || isResolvingUsuario,
+        isLoading: isRestoringToken || isRestoringRefreshToken || isResolvingUsuario,
         error,
         signIn,
         signOut,
