@@ -265,3 +265,87 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Correção e validação de teste de API.
 - **Tipo de contribuição da IA:** Análise do erro de restrição única e geração de dado sintético único por execução.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0022
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** cadastro e portal mobile, serviços e rotas de perfil, Prisma, Swagger e testes de API
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Cadastro recebeu CPF, endereço com ViaCEP; portal ganhou edição, exportação, exclusão e toggle de anonimização.
+- **Tratamento de dados pessoais:** Houve uso somente de dados sintéticos nos testes e nos exemplos de endereço.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Implementar controles de perfil e atualizar os fluxos de cadastro e direitos do titular.
+- **Etapa da atividade:** Implementação, documentação e validação.
+- **Tipo de contribuição da IA:** Edição de frontend, backend, migração, documentação e testes; correção de compilação e compatibilidade multiplataforma.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0023
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** telas de perfil, segurança, edição de dados e layout autenticado do mobile
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Perfil reorganizado em edição, segurança e saída; exportação removida e campos de senha corrigidos.
+- **Tratamento de dados pessoais:** Houve somente exibição e edição dos dados do usuário autenticado.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Ajustar a navegação e a experiência do portal de direitos do titular.
+- **Etapa da atividade:** Implementação e validação.
+- **Tipo de contribuição da IA:** Criação de telas, rotas, reorganização de ações e correção visual dos campos de senha.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0024
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `mobile/src/views/rights-portal-view.tsx`, `mobile/src/views/profile-edit-view.tsx`, `mobile/src/views/profile-security-view.tsx`, `mobile/src/app/(app)/_layout.tsx`, `mobile/src/app/(app)/profile/edit.tsx`, `mobile/src/app/(app)/profile/security.tsx`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Perfil separado em edição, segurança e logout; exportação removida e campos de senha ficaram visíveis.
+- **Tratamento de dados pessoais:** Houve uso dos dados do usuário autenticado apenas nas telas protegidas do aplicativo.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Adequar a navegação do perfil aos requisitos de privacidade e segurança.
+- **Etapa da atividade:** Implementação, revisão e validação.
+- **Tipo de contribuição da IA:** Atualização de telas e rotas, remoção de ações antigas, inclusão do logout no perfil e correção visual dos campos de senha.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0025
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `mobile/src/views/rights-portal-view.tsx`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Botões de edição alinhados à esquerda e botão Sair centralizado no final da tela de perfil.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Ajustar o alinhamento e o posicionamento dos controles do perfil.
+- **Etapa da atividade:** Ajuste visual e validação.
+- **Tipo de contribuição da IA:** Alteração pontual de estilos da tela de perfil.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0026
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `mobile/src/views/rights-portal-view.tsx`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Botão Segurança padronizado com a mesma cor visível do botão Editar meus dados.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Corrigir a visibilidade e padronizar os controles da tela de perfil.
+- **Etapa da atividade:** Ajuste visual e validação.
+- **Tipo de contribuição da IA:** Alteração pontual de estilo do botão de segurança e registro da atividade.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0027
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `mobile/src/views/profile-security-view.tsx`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Botão Cancelar adicionado acima das ações de exclusão e anonimização nos popups de senha.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Melhorar o controle e a segurança dos diálogos de confirmação.
+- **Etapa da atividade:** Ajuste de interface e validação.
+- **Tipo de contribuição da IA:** Inclusão do cancelamento explícito do modal e limpeza da senha digitada.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0028
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `mobile/src/views/profile-edit-view.tsx`, `mobile/src/views/profile-security-view.tsx`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Botões Voltar removidos; a navegação permanece disponível pela seta do cabeçalho.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Simplificar a navegação das telas de perfil.
+- **Etapa da atividade:** Ajuste de interface e validação.
+- **Tipo de contribuição da IA:** Remoção dos controles redundantes de retorno.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo

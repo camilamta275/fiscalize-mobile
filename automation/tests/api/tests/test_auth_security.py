@@ -4,6 +4,18 @@ import requests
 
 from automation.tests.api.config.settings import Endpoints as endpoints
 
+def profile_fields(seed):
+    return {
+        "cpf": str(uuid.uuid4().int)[:11],
+        "rua": "Rua de Teste",
+        "numero": "10",
+        "bairro": "Centro",
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "cep": "01001000",
+        "complemento": "",
+    }
+
 # Created by AI.
 @pytest.fixture(scope="module", autouse=True)
 def api_is_available():
@@ -24,6 +36,7 @@ def test_register_rejects_password_outside_policy(auth_security_data):
             "nome": f"Usuário {uuid.uuid4()}",
             "email": f"security-{uuid.uuid4()}@example.com",
             "senha": password_case["password"],
+            **profile_fields("invalid"),
         }
         response = requests.post(endpoints.REGISTER, json=user_data)
 
@@ -41,6 +54,7 @@ def test_login_locks_account_after_five_consecutive_failures(credentials, auth_s
             "nome": f"Usuário {uuid.uuid4()}",
             "email": email,
             "senha": auth_security_data["valid_password"],
+            **profile_fields(email),
         },
     )
     assert registration.status_code == 201, registration.text
@@ -65,6 +79,7 @@ def test_login_locks_account_after_five_consecutive_failures(credentials, auth_s
     valid_password_while_locked = requests.post(endpoints.LOGIN, json={
         "email": email,
         "senha": auth_security_data["valid_password"],
+        **profile_fields(email),
     })
     assert valid_password_while_locked.status_code == 423
 
@@ -124,7 +139,12 @@ def rights_portal_auth(auth_security_data):
     email = f"rights-{uuid.uuid4()}@example.com"
     registration = requests.post(
         endpoints.REGISTER,
-        json={"nome": "Titular de Teste", "email": email, "senha": password},
+        json={
+            "nome": "Titular de Teste",
+            "email": email,
+            "senha": password,
+            **profile_fields(email),
+        },
     )
     assert registration.status_code == 201, registration.text
 
@@ -157,7 +177,13 @@ def test_rights_portal_updates_profile(rights_portal_auth):
             "nome": "Titular Atualizado",
             "email": email,
             "cpf": cpf,
-            "endereco": "Rua da Proteção de Dados, 10",
+            "rua": "Rua da Proteção de Dados",
+            "numero": "10",
+            "bairro": "Centro",
+            "cidade": "São Paulo",
+            "estado": "SP",
+            "cep": "01001000",
+            "complemento": "",
         },
     )
     assert update_response.status_code == 200, update_response.text
@@ -180,14 +206,21 @@ def test_rights_portal_exports_personal_data(rights_portal_auth):
 
 # Created by AI.
 def test_rights_portal_anonymizes_personal_data(rights_portal_auth):
-    # O titular solicita a anonimização definitiva dos dados pessoais.
+    # O titular ativa e desativa a preferência de anonimização sem excluir a conta.
     _email, password, headers = rights_portal_auth
-    anonymize_response = requests.delete(
-        endpoints.GET_USER,
+    anonymize_response = requests.patch(
+        endpoints.ANONYMIZATION,
         headers=headers,
-        json={"senha": password, "mode": "anonymize"},
+        json={"enabled": True, "senha": password},
     )
     assert anonymize_response.status_code == 204, anonymize_response.text
+    disable_response = requests.patch(
+        endpoints.ANONYMIZATION,
+        headers=headers,
+        json={"enabled": False},
+    )
+    assert disable_response.status_code == 204, disable_response.text
+    assert requests.get(endpoints.GET_USER, headers=headers).status_code == 200
 
 
 # Created by AI.

@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router';
 
-import { SignOutButton } from '@/components/sign-out-button';
+import { ProfileButton } from '@/components/profile-button';
 
 /**
  * Route — the layout for every screen behind sign-in. Guarded by
@@ -14,11 +14,16 @@ export default function AppLayout() {
     <Stack>
       <Stack.Screen
         name="index"
-        options={{ title: 'Ocorrências', headerRight: () => <SignOutButton /> }}
+        options={{
+          title: 'Ocorrências',
+          headerRight: () => <ProfileButton />,
+        }}
       />
       <Stack.Screen name="new" options={{ title: 'Nova ocorrência' }} />
       <Stack.Screen name="[id]" options={{ title: 'Editar ocorrência' }} />
       <Stack.Screen name="profile" options={{ title: 'Meus dados e privacidade' }} />
+      <Stack.Screen name="profile/edit" options={{ title: 'Editar meus dados' }} />
+      <Stack.Screen name="profile/security" options={{ title: 'Segurança' }} />
     </Stack>
   );
 }

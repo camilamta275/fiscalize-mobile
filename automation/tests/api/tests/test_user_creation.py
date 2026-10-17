@@ -1,6 +1,19 @@
 import requests
 from automation.tests.api.config.settings import Endpoints as endpoints
 
+# Created by AI.
+def profile_fields(seed):
+    return {
+        "cpf": str(abs(hash(seed)))[:11].ljust(11, "1"),
+        "rua": "Rua de Teste",
+        "numero": "10",
+        "bairro": "Centro",
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "cep": "01001000",
+        "complemento": "",
+    }
+
 # Updated by AI.
 def test_create_user(create_uuid):
     # Criação de usuário - /auth/register
@@ -9,7 +22,8 @@ def test_create_user(create_uuid):
     new_user_data = {
         "nome": f"{name}",
         "email": f"{name}@example.com",
-        "senha": f"{password}"
+        "senha": f"{password}",
+        **profile_fields(name),
     }
     resp = requests.post(endpoints.REGISTER, json=new_user_data)
     assert resp.status_code == 201
@@ -24,7 +38,8 @@ def test_create_user_invalid_email(create_uuid):
     new_user_data = {
         "nome": f"{name}",
         "email": f"{name}example.com",  # Email inválido (sem @)
-        "senha": f"{password}"
+        "senha": f"{password}",
+        **profile_fields(name),
     }
     resp = requests.post(endpoints.REGISTER, json=new_user_data)
     assert resp.status_code == 400  # Espera-se um erro de validação (400 Bad Request)
@@ -37,7 +52,8 @@ def test_create_user_invalid_email_format(create_uuid):
     new_user_data = {
         "nome": f"{name}",
         "email": f"{name}@example",  # Email inválido (sem domínio)
-        "senha": f"{password}"
+        "senha": f"{password}",
+        **profile_fields(name),
     }
     resp = requests.post(endpoints.REGISTER, json=new_user_data)
     assert resp.status_code == 400  # Espera-se um erro de validação (400 Bad Request)
@@ -50,7 +66,8 @@ def test_create_user_invalid_email_format_with_spaces(create_uuid):
     new_user_data = {
         "nome": f"{name}",
         "email": f"{name} @example.com",  # Email inválido (espaço)
-        "senha": f"{password}"
+        "senha": f"{password}",
+        **profile_fields(name),
     }
     resp = requests.post(endpoints.REGISTER, json=new_user_data)
     assert resp.status_code == 400  # Espera-se um erro de validação (400 Bad Request)
@@ -70,7 +87,8 @@ def test_create_user_duplicate_email(credentials):
     duplicate_user_data = {
         "nome": "Duplicate User",
         "email": credentials["email"],  # Email já registrado
-        "senha": "Another1!"
+        "senha": "Another1!",
+        **profile_fields("duplicate"),
     }
     resp = requests.post(endpoints.REGISTER, json=duplicate_user_data)
     assert resp.status_code == 409  # Espera-se um erro de conflito (409 Conflict)
@@ -81,7 +99,8 @@ def test_create_user_short_password(create_uuid):
     new_user_data = {
         "nome": f"{name}",
         "email": f"{name}@example.com",
-        "senha": "123"  # Senha curta
+        "senha": "123",  # Senha curta
+        **profile_fields(name),
     }
     resp = requests.post(endpoints.REGISTER, json=new_user_data)
     assert resp.status_code == 400  # Espera-se um erro de validação (400 Bad Request)
@@ -94,7 +113,8 @@ def test_create_user_special_characters_in_name(create_uuid):
     new_user_data = {
         "nome": f"{name}",
         "email": f"{name}@example.com",
-        "senha": f"{password}"
+        "senha": f"{password}",
+        **profile_fields(name),
     }
     resp = requests.post(endpoints.REGISTER, json=new_user_data)
     assert resp.status_code == 400  # Espera-se um erro de validação (400 Bad Request)
@@ -106,7 +126,8 @@ def test_create_user_empty_name(create_uuid):
     new_user_data = {
         "nome": "",  # Nome vazio
         "email": f"{password}@example.com",
-        "senha": f"{password}"
+        "senha": f"{password}",
+        **profile_fields(name),
     }
     resp = requests.post(endpoints.REGISTER, json=new_user_data)
     assert resp.status_code == 400  # Espera-se um erro de validação (400 Bad Request)
@@ -117,7 +138,8 @@ def test_create_user_empty_password(create_uuid):
     new_user_data = {
         "nome": f"{name}",
         "email": f"{name}@example.com",
-        "senha": ""  # Senha vazia
+        "senha": "",  # Senha vazia
+        **profile_fields(name),
     }
     resp = requests.post(endpoints.REGISTER, json=new_user_data)
     assert resp.status_code == 400  # Espera-se um erro de validação (400 Bad Request)
@@ -130,7 +152,8 @@ def test_create_user_empty_email(create_uuid):
     new_user_data = {
         "nome": f"{name}",
         "email": "",  # Email vazio
-        "senha": f"{password}"
+        "senha": f"{password}",
+        **profile_fields(name),
     }
     resp = requests.post(endpoints.REGISTER, json=new_user_data)
     assert resp.status_code == 400  # Espera-se um erro de validação (400 Bad Request)
