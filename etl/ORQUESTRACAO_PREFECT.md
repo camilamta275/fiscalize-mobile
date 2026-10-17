@@ -142,6 +142,7 @@ O nome da execução pode variar a cada tentativa.
 |---|---|
 | `python flow_etl.py` | Executa a pipeline usando os dados brutos já armazenados no MongoDB. |
 | `python flow_etl.py --api` | Antes de transformar, busca novamente os dados nas APIs (Open-Meteo e IBGE) e atualiza o MongoDB. |
+| `python flow_etl.py --sem-neon` | Executa a pipeline gravando os resultados apenas no SQLite, sem a carga no Neon. Útil quando não há acesso ao banco PostgreSQL. |
 | `python flow_etl.py --simular-falha` | Lê uma coleção inexistente no lugar de `clima_raw`, para demonstrar como o Prefect registra uma falha e as novas tentativas. |
 | `python flow_etl.py --serve` | Cria o deployment `etl-fiscalize-agendado`, que executa a pipeline automaticamente a cada hora. O terminal deve permanecer aberto. |
 
