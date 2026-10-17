@@ -81,6 +81,7 @@ jobs:
       - name: Preparar banco de dados
         working-directory: backend
         run: |
+          npx prisma generate
           npx prisma migrate deploy
           npm run seed
 
@@ -162,6 +163,7 @@ jobs:
       - name: Preparar banco e iniciar API
         working-directory: backend
         run: |
+          npx prisma generate
           npx prisma migrate deploy
           npm run seed
           npm run dev > "$RUNNER_TEMP/fiscalize-api.log" 2>&1 &
