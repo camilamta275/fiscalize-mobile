@@ -1,0 +1,186 @@
+name: Regressão
+
+on:
+  push:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  DATABASE_URL: postgresql://postgres:postgres@localhost:5432/fiscalize?schema=public
+  JWT_SECRET: ci-only-secret
+  NODE_ENV: test
+  PORT: 3000
+  ALLOWED_ORIGINS: http://localhost:3001
+
+jobs:
+  unit:
+    name: Testes unitários
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Executar testes unitários
+        run: npm test -- --passWithNoTests
+
+  api:
+    name: Testes de API
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: fiscalize
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d fiscalize"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Instalar dependências do backend
+        working-directory: backend
+        run: npm ci
+
+      - name: Preparar banco de dados
+        working-directory: backend
+        run: |
+          npx prisma migrate deploy
+          npm run seed
+
+      - name: Iniciar API
+        working-directory: backend
+        run: |
+          npm run dev > "$RUNNER_TEMP/fiscalize-api.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/fiscalize-api.pid"
+
+      - name: Aguardar API
+        run: |
+          for attempt in {1..30}; do
+            if curl --fail --silent http://localhost:3000/health > /dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat "$RUNNER_TEMP/fiscalize-api.log"
+          exit 1
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: automation/requirements.txt
+
+      - name: Instalar dependências de automação
+        run: python -m pip install -r automation/requirements.txt
+
+      - name: Executar testes de API
+        working-directory: automation
+        run: python -m pytest tests/api/tests
+
+      - name: Executar smoke test antes do merge
+        if: github.event_name == 'pull_request' || github.event_name == 'schedule'
+        working-directory: automation
+        run: python -m pytest tests/api/tests/test_cidadao.py::test_api --maxfail=1
+
+  regression:
+    name: Suíte completa de regressão
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: fiscalize
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d fiscalize"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Instalar dependências do backend
+        working-directory: backend
+        run: npm ci
+
+      - name: Executar testes unitários
+        working-directory: backend
+        run: npm test -- --passWithNoTests
+
+      - name: Preparar banco e iniciar API
+        working-directory: backend
+        run: |
+          npx prisma migrate deploy
+          npm run seed
+          npm run dev > "$RUNNER_TEMP/fiscalize-api.log" 2>&1 &
+
+      - name: Aguardar API
+        run: |
+          for attempt in {1..30}; do
+            if curl --fail --silent http://localhost:3000/health > /dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat "$RUNNER_TEMP/fiscalize-api.log"
+          exit 1
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: automation/requirements.txt
+
+      - name: Instalar dependências de automação
+        run: python -m pip install -r automation/requirements.txt
+
+      - name: Executar todos os testes automatizados
+        working-directory: automation
+        run: python -m pytest tests

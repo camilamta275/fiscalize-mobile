@@ -1,38 +1,42 @@
-# API Automation Guide
+# Automation Guide
 
-The automation suite contains pytest-based integration tests for the Fiscalize
-backend API. The API tests are located in `automation/tests/api/tests/`.
+The automation suite contains integration tests for the Fiscalize backend API
+and mobile end-to-end flows. Mobile tests use [Maestro](https://maestro.mobile.dev/)
+and must not depend on Appium.
 
 ## 1. Prerequisites
 
-- Python 3
-- A running Fiscalize backend
-- Test user credentials in `automation/data/credentials.json`
+- Maestro CLI, configured with an Android emulator or iOS simulator
+- A running Fiscalize backend for API and mobile flows
+- Test user credentials in `automation/data/credentials.json`, when required
+- Python is not required for mobile tests
 
 The API endpoints default to `http://localhost:3000` in
 `automation/tests/api/config/settings.py`.
 
-## 2. Python environment
+## 2. Mobile tests with Maestro
 
-The suite uses its own virtual environment. From the repository root:
+Store Maestro flows under `automation/tests/mobile/`. Run all mobile flows from
+the repository root:
 
 ```bash
-cd automation
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+maestro test automation/tests/mobile
 ```
 
-In VS Code, select `automation/.venv/bin/python3` as the Python interpreter.
-The repository's `.vscode/settings.json` already configures this interpreter as
-the default.
+Run a single flow:
+
+```bash
+maestro test automation/tests/mobile/login.yaml
+```
+
+Maestro is responsible for interacting with the mobile application through the
+configured emulator or simulator. Do not add Appium fixtures or Python-based
+mobile tests.
 
 ## 3. Project structure
 
 ```text
 automation/
-├── pytest.ini
-├── requirements.txt
 ├── data/
 │   └── credentials.json
 └── tests/
@@ -40,6 +44,8 @@ automation/
         ├── config/settings.py
         ├── conftest.py
         └── tests/
+    └── mobile/
+        └── *.yaml
 ```
 
 `automation/tests/api/config/settings.py` centralizes the backend URLs.
@@ -55,10 +61,33 @@ not commit real user passwords.
 To target another backend, update `Endpoints.BASE_URL` in
 `automation/tests/api/config/settings.py`.
 
-## 5. Running tests
+## 5. Quality Gate e proteção da branch principal
 
-From `automation/`, with the virtual environment active and the backend
-running:
+O workflow de regressão em
+[`.github/workflows/regressao.yml`](../.github/workflows/regressao.yml) funciona
+como Quality Gate para alterações propostas. Os jobs obrigatórios são:
+
+- **Testes unitários**
+- **Testes de API**
+- **Smoke test**, executado nas verificações de pull request
+
+Configure a proteção da branch principal no GitHub em **Settings > Branches >
+Branch protection rules** (ou em **Rulesets**) com as seguintes opções:
+
+1. Exigir um pull request antes do merge.
+2. Exigir que os checks passem antes do merge.
+3. Adicionar os checks `Testes unitários` e `Testes de API` como obrigatórios.
+4. Exigir que a branch esteja atualizada antes do merge, quando aplicável.
+5. Restringir o bypass da proteção a administradores e automações autorizadas.
+
+Com essa regra, um pull request não poderá ser integrado enquanto qualquer
+check obrigatório falhar. O merge só deve ser realizado depois que todos os
+checks forem concluídos com sucesso e as aprovações exigidas estiverem
+registradas.
+
+## 6. Running API tests
+
+From `automation/`, with the backend running:
 
 ```bash
 pytest tests/api/tests
