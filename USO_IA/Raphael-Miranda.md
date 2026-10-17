@@ -193,3 +193,15 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Refatoração e validação de fixtures.
 - **Tipo de contribuição da IA:** Extração da leitura compartilhada do JSON e atualização das fixtures consumidoras.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0016
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `backend/src/config/env.ts`, `backend/src/services/authService.ts`, `backend/src/controllers/authController.ts`, `backend/src/routes/authRoutes.ts`, `backend/src/config/swagger.ts`, `backend/prisma/schema.prisma`, migração `20261017162600_add_refresh_tokens`, `mobile/src/services/api-client.ts`, `mobile/src/services/auth-service.ts`, `mobile/src/contexts/session-context.tsx`, `automation/tests/api/tests/test_auth_security.py`, `backend/README.md` e `AUDITORIA-REQUISITOS-SEGURANCA.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** RNF-SEC-03 implementada com JWT curto, refresh token persistido por hash, rotação one-time-use e renovação automática no mobile.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados tokens e dados sintéticos de teste.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Implementar expiração curta e rotação segura de sessões no backend e no cliente mobile.
+- **Etapa da atividade:** Implementação, migração de banco, testes, documentação e validação.
+- **Tipo de contribuição da IA:** Análise dos fluxos, edição de backend/mobile/testes/documentação, criação de migração Prisma e execução de build e type-check.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
