@@ -22,4 +22,12 @@ export type Usuario = {
   criadoem?: string;
   cpf?: string | null;
   endereco?: string | null;
+  rua?: string | null;
+  numero?: string | null;
+  bairro?: string | null;
+  cidade?: string | null;
+  estado?: string | null;
+  cep?: string | null;
+  complemento?: string | null;
+  anonimizar_dados?: boolean;
 };
