@@ -10,4 +10,5 @@ class Endpoints:
     GET_USER = f"{BASE_URL}/auth/me"
     EXPORT_USER = f"{GET_USER}/export"
     ANONYMIZATION = f"{GET_USER}/anonymization"
+    CHANGE_PASSWORD = f"{BASE_URL}/auth/me/password"
     DEMANDS = f"{BASE_URL}/demands"

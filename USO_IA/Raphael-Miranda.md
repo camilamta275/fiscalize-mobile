@@ -349,3 +349,75 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Ajuste de interface e validação.
 - **Tipo de contribuição da IA:** Remoção dos controles redundantes de retorno.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0029
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** backend de autenticação, serviço mobile, tela de segurança, Swagger e testes de API
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Criada alteração de senha com validação, modal com três campos, regras, confirmação e testes de API.
+- **Tratamento de dados pessoais:** Houve tratamento de credenciais apenas no fluxo autenticado e em dados sintéticos de teste.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Implementar a alteração segura de senha no backend e no aplicativo.
+- **Etapa da atividade:** Implementação, documentação e validação.
+- **Tipo de contribuição da IA:** Criação de endpoint, rotação de sessões refresh, interface mobile, documentação Swagger e testes de sucesso e erro.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0030
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/tests/test_auth_security.py`, `automation/tests/api/tests/test_user_creation.py`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Corrigidos os testes de refresh e nome vazio após a inclusão dos campos obrigatórios de endereço.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados dados sintéticos nos testes.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Corrigir falhas de testes de API identificadas na execução da suíte.
+- **Etapa da atividade:** Correção e validação.
+- **Tipo de contribuição da IA:** Análise das falhas, atualização dos payloads de cadastro e correção de referência de variável.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0031
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/tests/test_auth_security.py`, `automation/tests/api/tests/test_user_creation.py`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Corrigidas duas falhas da suíte: payload incompleto de refresh e referência inválida no teste de nome vazio.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados dados sintéticos nos testes.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Garantir a execução repetível da suíte completa após mudanças no cadastro.
+- **Etapa da atividade:** Correção e validação final.
+- **Tipo de contribuição da IA:** Diagnóstico dos erros, correção cirúrgica dos testes e execução da suíte completa.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0032
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `mobile/src/views/profile-security-view.tsx`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Alterar senha passou a ser a primeira opção exibida na tela de segurança.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Ajustar a ordem das opções da tela de segurança.
+- **Etapa da atividade:** Ajuste de interface e validação.
+- **Tipo de contribuição da IA:** Reordenação pontual do botão de alteração de senha.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0033
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/data/credentials.json`, `automation/tests/api/conftest.py`, `automation/tests/api/tests/test_auth_security.py`, `automation/tests/api/tests/test_user_creation.py`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Dados de endereço dos testes foram centralizados no JSON e os testes passaram a reutilizar essa configuração.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados dados sintéticos de teste.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Evitar dados duplicados nos testes e centralizar sua manutenção.
+- **Etapa da atividade:** Refatoração e validação.
+- **Tipo de contribuição da IA:** Inclusão da configuração de perfil no JSON, criação do carregador compartilhado e remoção de duplicação nos testes.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0034
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `mobile/src/views/profile-security-view.tsx`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Botão Confirmar passou a aparecer antes do botão Cancelar no modal de alteração de senha.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Ajustar a ordem dos controles da confirmação de alteração de senha.
+- **Etapa da atividade:** Ajuste de interface e validação.
+- **Tipo de contribuição da IA:** Reordenação pontual dos botões do modal.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo

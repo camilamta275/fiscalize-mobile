@@ -1,18 +1,6 @@
 import requests
 from automation.tests.api.config.settings import Endpoints as endpoints
-
-# Created by AI.
-def profile_fields(seed):
-    return {
-        "cpf": str(abs(hash(seed)))[:11].ljust(11, "1"),
-        "rua": "Rua de Teste",
-        "numero": "10",
-        "bairro": "Centro",
-        "cidade": "São Paulo",
-        "estado": "SP",
-        "cep": "01001000",
-        "complemento": "",
-    }
+from automation.tests.api.conftest import profile_fields
 
 # Updated by AI.
 def test_create_user(create_uuid):
@@ -23,7 +11,7 @@ def test_create_user(create_uuid):
         "nome": f"{name}",
         "email": f"{name}@example.com",
         "senha": f"{password}",
-        **profile_fields(name),
+        **profile_fields(create_uuid),
     }
     resp = requests.post(endpoints.REGISTER, json=new_user_data)
     assert resp.status_code == 201
@@ -39,7 +27,7 @@ def test_create_user_invalid_email(create_uuid):
         "nome": f"{name}",
         "email": f"{name}example.com",  # Email inválido (sem @)
         "senha": f"{password}",
-        **profile_fields(name),
+        **profile_fields(create_uuid),
     }
     resp = requests.post(endpoints.REGISTER, json=new_user_data)
     assert resp.status_code == 400  # Espera-se um erro de validação (400 Bad Request)
@@ -127,7 +115,7 @@ def test_create_user_empty_name(create_uuid):
         "nome": "",  # Nome vazio
         "email": f"{password}@example.com",
         "senha": f"{password}",
-        **profile_fields(name),
+        **profile_fields(create_uuid),
     }
     resp = requests.post(endpoints.REGISTER, json=new_user_data)
     assert resp.status_code == 400  # Espera-se um erro de validação (400 Bad Request)

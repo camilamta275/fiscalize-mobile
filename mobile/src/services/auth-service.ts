@@ -85,6 +85,14 @@ export function setAnonymization(enabled: boolean, senha?: string): Promise<void
   });
 }
 
+// Created by AI.
+export function changePassword(senhaAtual: string, novaSenha: string, confirmarNovaSenha: string): Promise<void> {
+  return request<void>('/auth/me/password', {
+    method: 'PATCH',
+    body: { senhaAtual, novaSenha, confirmarNovaSenha },
+  });
+}
+
 export function logout(refreshToken: string | null): Promise<void> {
   return request<void>('/auth/logout', { method: 'POST', body: { refreshToken } });
 }

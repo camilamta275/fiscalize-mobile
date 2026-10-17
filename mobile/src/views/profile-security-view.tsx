@@ -15,7 +15,10 @@ export function ProfileSecurityView() {
   const { usuario, setUsuario, signOut } = useSession();
   const theme = useTheme();
   const [password, setPassword] = useState('');
-  const [modal, setModal] = useState<'anonymize' | 'delete' | null>(null);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [newPasswordConfirmation, setNewPasswordConfirmation] = useState('');
+  const [modal, setModal] = useState<'anonymize' | 'delete' | 'change-password' | null>(null);
   const [enabled, setEnabled] = useState(usuario?.anonimizar_dados ?? false);
   const [busy, setBusy] = useState(false);
 
@@ -68,33 +71,89 @@ export function ProfileSecurityView() {
     }
   };
 
+  const confirmPasswordChange = async () => {
+    if (!currentPassword || !newPassword || !newPasswordConfirmation) return;
+    if (newPassword !== newPasswordConfirmation) {
+      Alert.alert('Não foi possível alterar a senha', 'A confirmação da nova senha não confere.');
+      return;
+    }
+    setBusy(true);
+    try {
+      await authService.changePassword(currentPassword, newPassword, newPasswordConfirmation);
+      Alert.alert('Senha alterada', 'Sua senha foi alterada com sucesso.');
+      setModal(null);
+      setCurrentPassword('');
+      setNewPassword('');
+      setNewPasswordConfirmation('');
+    } catch (error) {
+      Alert.alert('Não foi possível alterar a senha', error instanceof Error ? error.message : 'Tente novamente.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const closeModal = () => {
+    setModal(null);
+    setPassword('');
+    setCurrentPassword('');
+    setNewPassword('');
+    setNewPasswordConfirmation('');
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <Modal transparent visible={modal !== null} onRequestClose={() => setModal(null)}>
-        <Pressable onPress={() => setModal(null)} style={styles.backdrop}>
+      <Modal transparent visible={modal !== null} onRequestClose={closeModal}>
+        <Pressable onPress={closeModal} style={styles.backdrop}>
           <Pressable onPress={(event) => event.stopPropagation()} style={[styles.modal, { backgroundColor: theme.background }]}>
-            <ThemedText type="subtitle">Confirme sua senha</ThemedText>
-            <ThemedText themeColor="textSecondary">A senha é necessária para {modal === 'delete' ? 'excluir a conta' : 'ativar a anonimização'}.</ThemedText>
-            <TextInput
-              accessibilityLabel="Senha de confirmação"
-              onChangeText={setPassword}
-              placeholder="Digite sua senha"
-              placeholderTextColor={theme.textSecondary}
-              secureTextEntry
-              style={[styles.input, { backgroundColor: theme.backgroundElement, color: theme.text }]}
-              value={password}
-            />
-            <Pressable disabled={busy} onPress={() => { setModal(null); setPassword(''); }} style={[styles.button, { backgroundColor: theme.backgroundElement }]}>
-              <ThemedText type="smallBold">Cancelar</ThemedText>
-            </Pressable>
-            <Pressable disabled={busy || !password} onPress={() => void (modal === 'delete' ? deleteAccount() : confirmAnonymization())} style={[styles.button, { backgroundColor: theme.backgroundSelected }]}>
-              <ThemedText type="smallBold">{modal === 'delete' ? 'Excluir conta' : 'Confirmar'}</ThemedText>
-            </Pressable>
+            <ThemedText type="subtitle">{modal === 'change-password' ? 'Alterar senha' : 'Confirme sua senha'}</ThemedText>
+            {modal === 'change-password' ? (
+              <>
+                <TextInput accessibilityLabel="Senha atual" onChangeText={setCurrentPassword} placeholder="Senha atual" placeholderTextColor={theme.textSecondary} secureTextEntry style={[styles.input, { backgroundColor: theme.backgroundElement, color: theme.text }]} value={currentPassword} />
+                <TextInput accessibilityLabel="Nova senha" onChangeText={setNewPassword} placeholder="Nova senha" placeholderTextColor={theme.textSecondary} secureTextEntry style={[styles.input, { backgroundColor: theme.backgroundElement, color: theme.text }]} value={newPassword} />
+                <TextInput accessibilityLabel="Confirme a nova senha" onChangeText={setNewPasswordConfirmation} placeholder="Confirme a nova senha" placeholderTextColor={theme.textSecondary} secureTextEntry style={[styles.input, { backgroundColor: theme.backgroundElement, color: theme.text }]} value={newPasswordConfirmation} />
+                <ThemedText type="small" themeColor="textSecondary">
+                  A senha deve ter no mínimo 8 caracteres, incluindo letra maiúscula, letra minúscula, número e caractere especial.
+                </ThemedText>
+              </>
+            ) : (
+              <>
+                <ThemedText themeColor="textSecondary">A senha é necessária para {modal === 'delete' ? 'excluir a conta' : 'ativar a anonimização'}.</ThemedText>
+                <TextInput accessibilityLabel="Senha de confirmação" onChangeText={setPassword} placeholder="Digite sua senha" placeholderTextColor={theme.textSecondary} secureTextEntry style={[styles.input, { backgroundColor: theme.backgroundElement, color: theme.text }]} value={password} />
+              </>
+            )}
+            {modal === 'change-password' ? (
+              <>
+                <Pressable
+                  disabled={busy || !currentPassword || !newPassword || !newPasswordConfirmation}
+                  onPress={() => void confirmPasswordChange()}
+                  style={[styles.button, { backgroundColor: theme.backgroundSelected }]}>
+                  <ThemedText type="smallBold">Confirmar</ThemedText>
+                </Pressable>
+                <Pressable disabled={busy} onPress={closeModal} style={[styles.button, { backgroundColor: theme.backgroundElement }]}>
+                  <ThemedText type="smallBold">Cancelar</ThemedText>
+                </Pressable>
+              </>
+            ) : (
+              <>
+                <Pressable disabled={busy} onPress={closeModal} style={[styles.button, { backgroundColor: theme.backgroundElement }]}>
+                  <ThemedText type="smallBold">Cancelar</ThemedText>
+                </Pressable>
+                <Pressable
+                  disabled={busy || !password}
+                  onPress={() => void (modal === 'delete' ? deleteAccount() : confirmAnonymization())}
+                  style={[styles.button, { backgroundColor: theme.backgroundSelected }]}>
+                  <ThemedText type="smallBold">{modal === 'delete' ? 'Excluir conta' : 'Confirmar anonimização'}</ThemedText>
+                </Pressable>
+              </>
+            )}
           </Pressable>
         </Pressable>
       </Modal>
       <ScrollView contentContainerStyle={styles.container}>
         <ThemedText type="title">Segurança</ThemedText>
+        <Pressable disabled={busy} onPress={() => setModal('change-password')} style={[styles.button, { backgroundColor: theme.backgroundSelected }]}>
+          <ThemedText type="smallBold">Alterar senha</ThemedText>
+        </Pressable>
         <ThemedView style={styles.row}>
           <ThemedView style={styles.copy}>
             <ThemedText type="smallBold">Anonimizar dados nas denúncias</ThemedText>

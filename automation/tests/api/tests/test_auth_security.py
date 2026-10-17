@@ -3,18 +3,7 @@ import pytest
 import requests
 
 from automation.tests.api.config.settings import Endpoints as endpoints
-
-def profile_fields(seed):
-    return {
-        "cpf": str(uuid.uuid4().int)[:11],
-        "rua": "Rua de Teste",
-        "numero": "10",
-        "bairro": "Centro",
-        "cidade": "São Paulo",
-        "estado": "SP",
-        "cep": "01001000",
-        "complemento": "",
-    }
+from automation.tests.api.conftest import profile_fields
 
 # Created by AI.
 @pytest.fixture(scope="module", autouse=True)
@@ -94,6 +83,7 @@ def test_refresh_token_rotates_and_rejects_reuse(auth_security_data):
             "nome": f"Usuário {uuid.uuid4()}",
             "email": email,
             "senha": auth_security_data["valid_password"],
+            **profile_fields(email),
         },
     )
     assert registration.status_code == 201, registration.text
@@ -176,14 +166,7 @@ def test_rights_portal_updates_profile(rights_portal_auth):
         json={
             "nome": "Titular Atualizado",
             "email": email,
-            "cpf": cpf,
-            "rua": "Rua da Proteção de Dados",
-            "numero": "10",
-            "bairro": "Centro",
-            "cidade": "São Paulo",
-            "estado": "SP",
-            "cep": "01001000",
-            "complemento": "",
+            **profile_fields(cpf),
         },
     )
     assert update_response.status_code == 200, update_response.text
@@ -221,6 +204,75 @@ def test_rights_portal_anonymizes_personal_data(rights_portal_auth):
     )
     assert disable_response.status_code == 204, disable_response.text
     assert requests.get(endpoints.GET_USER, headers=headers).status_code == 200
+
+
+# Created by AI.
+def test_user_can_change_password(rights_portal_auth):
+    # O titular altera a senha e consegue autenticar com a nova credencial.
+    email, old_password, headers = rights_portal_auth
+    new_password = "NewStrong1!"
+    response = requests.patch(
+        endpoints.CHANGE_PASSWORD,
+        headers=headers,
+        json={
+            "senhaAtual": old_password,
+            "novaSenha": new_password,
+            "confirmarNovaSenha": new_password,
+        },
+    )
+    assert response.status_code == 204, response.text
+
+    old_login = requests.post(endpoints.LOGIN, json={"email": email, "senha": old_password})
+    assert old_login.status_code == 401, old_login.text
+    new_login = requests.post(endpoints.LOGIN, json={"email": email, "senha": new_password})
+    assert new_login.status_code == 200, new_login.text
+
+
+# Created by AI.
+def test_change_password_rejects_invalid_current_password(rights_portal_auth):
+    _email, old_password, headers = rights_portal_auth
+    response = requests.patch(
+        endpoints.CHANGE_PASSWORD,
+        headers=headers,
+        json={
+            "senhaAtual": "WrongCurrent1!",
+            "novaSenha": "NewStrong1!",
+            "confirmarNovaSenha": "NewStrong1!",
+        },
+    )
+    assert response.status_code == 401, response.text
+    assert old_password != "WrongCurrent1!"
+
+
+# Created by AI.
+def test_change_password_rejects_mismatched_confirmation(rights_portal_auth):
+    _email, old_password, headers = rights_portal_auth
+    response = requests.patch(
+        endpoints.CHANGE_PASSWORD,
+        headers=headers,
+        json={
+            "senhaAtual": old_password,
+            "novaSenha": "NewStrong1!",
+            "confirmarNovaSenha": "Different1!",
+        },
+    )
+    assert response.status_code == 400, response.text
+
+
+# Created by AI.
+def test_change_password_rejects_weak_new_password(rights_portal_auth):
+    _email, old_password, headers = rights_portal_auth
+    response = requests.patch(
+        endpoints.CHANGE_PASSWORD,
+        headers=headers,
+        json={
+            "senhaAtual": old_password,
+            "novaSenha": "weak",
+            "confirmarNovaSenha": "weak",
+        },
+    )
+    assert response.status_code == 400, response.text
+    assert "8 caracteres" in response.json()["error"]
 
 
 # Created by AI.

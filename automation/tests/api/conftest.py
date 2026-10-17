@@ -5,6 +5,17 @@ import requests
 from pathlib import Path
 from automation.tests.api.config.settings import Endpoints as endpoints
 
+# Created by AI.
+def profile_fields():
+    """Retorna o perfil sintético base configurado no arquivo de dados."""
+    credentials_path = Path(__file__).resolve().parents[2] / "data" / "credentials.json"
+    with credentials_path.open(encoding="utf-8") as credentials_file:
+        profile = json.load(credentials_file)["profile"]
+    return {
+        **profile,
+        "cpf": str(uuid.uuid4().int)[:11],
+    }
+
 # Updated by AI.
 @pytest.fixture
 def create_uuid():
