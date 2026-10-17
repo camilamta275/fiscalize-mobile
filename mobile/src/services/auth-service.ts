@@ -6,6 +6,7 @@ import { request } from '@/services/api-client';
  * POST /auth/logout, registered in backend/src/routes/authRoutes.ts.
  */
 
+// Updated by AI.
 type LoginResponse = Usuario & { token: string; refreshToken: string };
 
 /**
@@ -35,6 +36,26 @@ export function refresh(refreshToken: string): Promise<LoginResponse> {
 /** Resolves the token restored from SecureStore into its user, on app launch. */
 export function me(): Promise<Usuario> {
   return request<Usuario>('/auth/me');
+}
+
+// Created by AI.
+export function updateMe(data: {
+  nome: string;
+  email: string;
+  cpf?: string | null;
+  endereco?: string | null;
+}): Promise<Usuario> {
+  return request<Usuario>('/auth/me', { method: 'PUT', body: data });
+}
+
+// Created by AI.
+export function exportMe(): Promise<unknown> {
+  return request<unknown>('/auth/me/export');
+}
+
+// Created by AI.
+export function deleteMe(senha: string, mode: 'delete' | 'anonymize'): Promise<void> {
+  return request<void>('/auth/me', { method: 'DELETE', body: { senha, mode } });
 }
 
 export function logout(refreshToken: string | null): Promise<void> {
