@@ -32,6 +32,7 @@ const ALL_STATUSES: DemandStatus[] = [
  * doesn't re-query on every keystroke); everything else comes from the
  * ViewModel.
  */
+// Updated by AI.
 export function DemandsListView() {
   const {
     demands,
@@ -51,6 +52,11 @@ export function DemandsListView() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ThemedView style={styles.header}>
+        <Link href="/profile" asChild>
+          <Pressable accessibilityRole="button">
+            <ThemedText type="link">Meus dados e privacidade</ThemedText>
+          </Pressable>
+        </Link>
         <TextInput
           onChangeText={setSearchDraft}
           onSubmitEditing={() => setSearch(searchDraft)}

@@ -205,3 +205,63 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Implementação, migração de banco, testes, documentação e validação.
 - **Tipo de contribuição da IA:** Análise dos fluxos, edição de backend/mobile/testes/documentação, criação de migração Prisma e execução de build e type-check.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0017
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `backend/src/services/authService.ts`, `backend/src/controllers/authController.ts`, `backend/src/routes/authRoutes.ts`, `mobile/src/models/usuario.ts`, `mobile/src/services/auth-service.ts`, `mobile/src/contexts/session-context.tsx`, `mobile/src/app/(app)/_layout.tsx`, `mobile/src/app/(app)/profile.tsx`, `mobile/src/views/rights-portal-view.tsx`, `mobile/src/views/demands-list-view.tsx`, `automation/tests/api/tests/test_auth_security.py` e `AUDITORIA-REQUISITOS-SEGURANCA.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** RNF-SEC-08 e RNF-SEC-11 implementadas com portal de perfil, edição, exportação JSON, exclusão e anonimização protegidas por senha.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados dados sintéticos nos testes.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Implementar o portal de direitos do titular e o direito ao esquecimento no backend e no mobile.
+- **Etapa da atividade:** Implementação, testes, documentação e validação.
+- **Tipo de contribuição da IA:** Análise do modelo de dados, edição de backend/mobile/testes/documentação e execução de compilação e coleta de testes.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0018
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/tests/test_auth_security.py`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Teste do portal separado em cenários independentes para consulta, edição, exportação e anonimização.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados dados sintéticos nos testes.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Melhorar o isolamento e a identificação dos casos de teste do portal de direitos.
+- **Etapa da atividade:** Refatoração e validação da suíte de testes de API.
+- **Tipo de contribuição da IA:** Criação de fixture compartilhada e separação do cenário integrado em quatro testes independentes.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0019
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/config/settings.py`, `automation/tests/api/tests/test_auth_security.py`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Endpoints nomeados adicionados e o teste de edição passou a verificar a persistência antes da exportação.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados dados sintéticos nos testes.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Revisar a consistência dos cenários de segurança e do portal de direitos.
+- **Etapa da atividade:** Revisão e validação da suíte de testes de API.
+- **Tipo de contribuição da IA:** Padronização de endpoints e reforço das asserções de persistência dos dados atualizados.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0020
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/tests/test_auth_security.py`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Teste de exclusão permanente da conta adicionado ao portal de direitos.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados dados sintéticos nos testes.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Validar a exclusão da conta e a invalidação do acesso após a operação.
+- **Etapa da atividade:** Implementação e validação de teste de API.
+- **Tipo de contribuição da IA:** Criação do cenário de exclusão e das asserções de resposta e revogação de acesso.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0021
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/tests/test_auth_security.py`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** CPF do teste de atualização passou a ser único para permitir execuções repetidas da suíte.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foi usado um CPF sintético gerado por execução.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Corrigir a falha causada pela restrição única do CPF no banco de testes.
+- **Etapa da atividade:** Correção e validação de teste de API.
+- **Tipo de contribuição da IA:** Análise do erro de restrição única e geração de dado sintético único por execução.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo

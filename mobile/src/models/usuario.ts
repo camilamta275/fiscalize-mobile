@@ -18,4 +18,8 @@ export type Usuario = {
   nome: string;
   email: string;
   perfil: Perfil;
+  status?: string;
+  criadoem?: string;
+  cpf?: string | null;
+  endereco?: string | null;
 };

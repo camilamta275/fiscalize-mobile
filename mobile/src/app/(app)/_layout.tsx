@@ -8,6 +8,7 @@ import { SignOutButton } from '@/components/sign-out-button';
  * to know anything about auth. The ocorrências list is the app's only entry
  * point (no Home/tabs) — `new` and `[id]` push on top of it.
  */
+// Updated by AI.
 export default function AppLayout() {
   return (
     <Stack>
@@ -17,6 +18,7 @@ export default function AppLayout() {
       />
       <Stack.Screen name="new" options={{ title: 'Nova ocorrência' }} />
       <Stack.Screen name="[id]" options={{ title: 'Editar ocorrência' }} />
+      <Stack.Screen name="profile" options={{ title: 'Meus dados e privacidade' }} />
     </Stack>
   );
 }

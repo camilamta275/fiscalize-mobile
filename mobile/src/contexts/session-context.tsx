@@ -13,12 +13,14 @@ import { useStorageState } from '@/hooks/use-storage-state';
  * `login`; `use-login-view-model.ts` calls `signIn`.
  */
 
+// Updated by AI.
 type SessionContextValue = {
   usuario: Usuario | null;
   isLoading: boolean;
   error: string | null;
   signIn: (email: string, senha: string) => Promise<void>;
   signOut: () => void;
+  setUsuario: (usuario: Usuario) => void;
 };
 
 const SessionContext = createContext<SessionContextValue | null>(null);
@@ -124,6 +126,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
         error,
         signIn,
         signOut,
+        setUsuario,
       }}>
       {children}
     </SessionContext.Provider>
