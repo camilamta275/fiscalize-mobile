@@ -421,3 +421,39 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Ajuste de interface e validação.
 - **Tipo de contribuição da IA:** Reordenação pontual dos botões do modal.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0035
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/tests/test_auth_security.py`, `automation/tests/api/tests/test_user_creation.py`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Corrigidas chamadas incompatíveis ao fixture de perfil após sua refatoração para usar somente o JSON.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados dados sintéticos nos testes.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Corrigir as falhas observadas na execução dos testes no CI.
+- **Etapa da atividade:** Correção e validação.
+- **Tipo de contribuição da IA:** Análise do traceback, padronização das chamadas para `profile_fields()` e execução da suíte completa.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0036
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/conftest.py`, `automation/tests/api/tests/test_auth_security.py`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Payloads completos de cadastro foram encapsulados em helper para melhorar a legibilidade dos testes.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados dados sintéticos nos testes.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Tornar os testes de autenticação mais claros e fáceis de manter.
+- **Etapa da atividade:** Refatoração e validação.
+- **Tipo de contribuição da IA:** Criação do helper de cadastro e substituição dos payloads inline nos cenários de segurança.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0037
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/conftest.py`, `automation/tests/api/tests/test_auth_security.py`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Desfeita a refatoração do helper de payload, restaurando os payloads inline com `profile_fields()`.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados dados sintéticos nos testes.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Restaurar a estrutura anterior dos testes conforme solicitado.
+- **Etapa da atividade:** Reversão pontual e validação.
+- **Tipo de contribuição da IA:** Remoção do helper e restauração dos payloads inline sem reverter correções anteriores.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo

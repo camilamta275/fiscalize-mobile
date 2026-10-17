@@ -25,7 +25,7 @@ def test_register_rejects_password_outside_policy(auth_security_data):
             "nome": f"Usuário {uuid.uuid4()}",
             "email": f"security-{uuid.uuid4()}@example.com",
             "senha": password_case["password"],
-            **profile_fields("invalid"),
+            **profile_fields(),
         }
         response = requests.post(endpoints.REGISTER, json=user_data)
 
@@ -43,7 +43,7 @@ def test_login_locks_account_after_five_consecutive_failures(credentials, auth_s
             "nome": f"Usuário {uuid.uuid4()}",
             "email": email,
             "senha": auth_security_data["valid_password"],
-            **profile_fields(email),
+            **profile_fields(),
         },
     )
     assert registration.status_code == 201, registration.text
@@ -68,7 +68,7 @@ def test_login_locks_account_after_five_consecutive_failures(credentials, auth_s
     valid_password_while_locked = requests.post(endpoints.LOGIN, json={
         "email": email,
         "senha": auth_security_data["valid_password"],
-        **profile_fields(email),
+        **profile_fields(),
     })
     assert valid_password_while_locked.status_code == 423
 
@@ -83,7 +83,7 @@ def test_refresh_token_rotates_and_rejects_reuse(auth_security_data):
             "nome": f"Usuário {uuid.uuid4()}",
             "email": email,
             "senha": auth_security_data["valid_password"],
-            **profile_fields(email),
+            **profile_fields(),
         },
     )
     assert registration.status_code == 201, registration.text
@@ -133,7 +133,7 @@ def rights_portal_auth(auth_security_data):
             "nome": "Titular de Teste",
             "email": email,
             "senha": password,
-            **profile_fields(email),
+            **profile_fields(),
         },
     )
     assert registration.status_code == 201, registration.text
@@ -166,7 +166,7 @@ def test_rights_portal_updates_profile(rights_portal_auth):
         json={
             "nome": "Titular Atualizado",
             "email": email,
-            **profile_fields(cpf),
+            **profile_fields(),
         },
     )
     assert update_response.status_code == 200, update_response.text

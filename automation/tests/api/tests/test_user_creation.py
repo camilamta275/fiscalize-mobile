@@ -11,7 +11,7 @@ def test_create_user(create_uuid):
         "nome": f"{name}",
         "email": f"{name}@example.com",
         "senha": f"{password}",
-        **profile_fields(create_uuid),
+        **profile_fields(),
     }
     resp = requests.post(endpoints.REGISTER, json=new_user_data)
     assert resp.status_code == 201
@@ -27,7 +27,7 @@ def test_create_user_invalid_email(create_uuid):
         "nome": f"{name}",
         "email": f"{name}example.com",  # Email inválido (sem @)
         "senha": f"{password}",
-        **profile_fields(create_uuid),
+        **profile_fields(),
     }
     resp = requests.post(endpoints.REGISTER, json=new_user_data)
     assert resp.status_code == 400  # Espera-se um erro de validação (400 Bad Request)
@@ -41,7 +41,7 @@ def test_create_user_invalid_email_format(create_uuid):
         "nome": f"{name}",
         "email": f"{name}@example",  # Email inválido (sem domínio)
         "senha": f"{password}",
-        **profile_fields(name),
+        **profile_fields(),
     }
     resp = requests.post(endpoints.REGISTER, json=new_user_data)
     assert resp.status_code == 400  # Espera-se um erro de validação (400 Bad Request)
@@ -55,7 +55,7 @@ def test_create_user_invalid_email_format_with_spaces(create_uuid):
         "nome": f"{name}",
         "email": f"{name} @example.com",  # Email inválido (espaço)
         "senha": f"{password}",
-        **profile_fields(name),
+        **profile_fields(),
     }
     resp = requests.post(endpoints.REGISTER, json=new_user_data)
     assert resp.status_code == 400  # Espera-se um erro de validação (400 Bad Request)
@@ -76,7 +76,7 @@ def test_create_user_duplicate_email(credentials):
         "nome": "Duplicate User",
         "email": credentials["email"],  # Email já registrado
         "senha": "Another1!",
-        **profile_fields("duplicate"),
+        **profile_fields(),
     }
     resp = requests.post(endpoints.REGISTER, json=duplicate_user_data)
     assert resp.status_code == 409  # Espera-se um erro de conflito (409 Conflict)
@@ -88,7 +88,7 @@ def test_create_user_short_password(create_uuid):
         "nome": f"{name}",
         "email": f"{name}@example.com",
         "senha": "123",  # Senha curta
-        **profile_fields(name),
+        **profile_fields(),
     }
     resp = requests.post(endpoints.REGISTER, json=new_user_data)
     assert resp.status_code == 400  # Espera-se um erro de validação (400 Bad Request)
@@ -102,7 +102,7 @@ def test_create_user_special_characters_in_name(create_uuid):
         "nome": f"{name}",
         "email": f"{name}@example.com",
         "senha": f"{password}",
-        **profile_fields(name),
+        **profile_fields(),
     }
     resp = requests.post(endpoints.REGISTER, json=new_user_data)
     assert resp.status_code == 400  # Espera-se um erro de validação (400 Bad Request)
@@ -115,7 +115,7 @@ def test_create_user_empty_name(create_uuid):
         "nome": "",  # Nome vazio
         "email": f"{password}@example.com",
         "senha": f"{password}",
-        **profile_fields(create_uuid),
+        **profile_fields(),
     }
     resp = requests.post(endpoints.REGISTER, json=new_user_data)
     assert resp.status_code == 400  # Espera-se um erro de validação (400 Bad Request)
@@ -127,7 +127,7 @@ def test_create_user_empty_password(create_uuid):
         "nome": f"{name}",
         "email": f"{name}@example.com",
         "senha": "",  # Senha vazia
-        **profile_fields(name),
+        **profile_fields(),
     }
     resp = requests.post(endpoints.REGISTER, json=new_user_data)
     assert resp.status_code == 400  # Espera-se um erro de validação (400 Bad Request)
@@ -141,7 +141,7 @@ def test_create_user_empty_email(create_uuid):
         "nome": f"{name}",
         "email": "",  # Email vazio
         "senha": f"{password}",
-        **profile_fields(name),
+        **profile_fields(),
     }
     resp = requests.post(endpoints.REGISTER, json=new_user_data)
     assert resp.status_code == 400  # Espera-se um erro de validação (400 Bad Request)
