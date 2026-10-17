@@ -141,7 +141,6 @@ def carregar_neon(dados, tabela):
 @flow(name="ETL Fiscalize", log_prints=True)
 def etl_fiscalize(
     carregar_da_api: bool = False,
-    carregar_neon_pg: bool = True,
     colecao_clima: str = "clima_raw",
     colecao_populacao: str = "populacao_ibge_raw"
 ):
@@ -151,8 +150,6 @@ def etl_fiscalize(
     Parâmetros:
         carregar_da_api: se True, busca os dados nas APIs (Open-Meteo e
             IBGE) e atualiza o bruto no MongoDB antes de transformar.
-        carregar_neon_pg: se False, grava os resultados apenas no SQLite
-            (útil quando não há acesso ao banco Neon).
         colecao_clima / colecao_populacao: coleções do MongoDB lidas
             pela pipeline. Um nome inexistente faz a extração falhar,
             o que serve para demonstrar o tratamento de falhas.
@@ -199,16 +196,10 @@ def etl_fiscalize(
 
     cargas = [
         carregar_sqlite.submit(chamados_clima, "chamados_clima"),
+        carregar_neon.submit(chamados_clima, "chamados_clima"),
         carregar_sqlite.submit(chamados_populacao, "chamados_populacao"),
+        carregar_neon.submit(chamados_populacao, "chamados_populacao"),
     ]
-
-    if carregar_neon_pg:
-        cargas += [
-            carregar_neon.submit(chamados_clima, "chamados_clima"),
-            carregar_neon.submit(chamados_populacao, "chamados_populacao"),
-        ]
-    else:
-        print("Carga no Neon desativada: resultados gravados apenas no SQLite.")
 
     wait(cargas)
 
@@ -231,11 +222,6 @@ if __name__ == "__main__":
         help="atualiza os dados brutos das APIs antes de rodar"
     )
     parser.add_argument(
-        "--sem-neon",
-        action="store_true",
-        help="grava os resultados apenas no SQLite, sem carregar no Neon"
-    )
-    parser.add_argument(
         "--simular-falha",
         action="store_true",
         help="lê uma coleção inexistente para demonstrar uma falha"
@@ -255,7 +241,6 @@ if __name__ == "__main__":
     else:
         etl_fiscalize(
             carregar_da_api=args.api,
-            carregar_neon_pg=not args.sem_neon,
             colecao_clima=(
                 "colecao_inexistente" if args.simular_falha else "clima_raw"
             )
