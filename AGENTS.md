@@ -9,9 +9,13 @@ an AI.
 Every new or existing function, method, class, component, hook, type,
 interface, module-level constant, configuration block, or other code unit
 written, updated, refactored, or materially modified by an AI must include an
-inline comment stating that:
+inline attribution comment using the appropriate tag:
 
-1. The code was created by AI.
+1. New code units must use `Created by AI.`
+2. Existing code units updated, refactored, or materially modified by AI must
+   use `Updated by AI.`
+3. If a code unit already has `Created by AI.`, add `Updated by AI.` on the
+   next line when it is subsequently updated by AI.
 
 Use the comment syntax supported by the language. For example:
 
@@ -30,6 +34,16 @@ def example() -> None:
     pass
 ```
 
+For an existing code unit that is updated:
+
+```ts
+// Created by AI.
+// Updated by AI.
+export function example(): void {
+  // implementation
+}
+```
+
 For YAML or JSON-like configuration, place the attribution on the nearest
 supported comment line. Do not add comments to strict JSON files, because
 comments would make them invalid; instead, ask for human guidance before
@@ -39,7 +53,7 @@ the file.
 The attribution must be added to every applicable code unit changed by the AI,
 including pre-existing code that is updated or refactored, not only once per
 file. Before completing a change, verify that all AI-written, updated,
-refactored, or materially modified code has the required attribution comment.
+refactored, or materially modified code has the correct creation/update tag.
 
 Human reviewers must inspect and approve the code before it is considered
 ready for integration.

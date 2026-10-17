@@ -14,6 +14,7 @@ import { useRegisterViewModel } from '@/viewmodels/use-register-view-model';
  * user in (the backend returns no token for it), so success routes to
  * `/login` instead of falling through `Stack.Protected` like sign-in does.
  */
+// Updated by AI.
 export function RegisterView() {
   const {
     nome,
@@ -85,7 +86,7 @@ export function RegisterView() {
           error={fieldErrors.senha}
           label="Senha"
           onChangeText={setSenha}
-          placeholder="Mínimo 8 caracteres"
+          placeholder="8+ caracteres, maiúscula, minúscula, número e símbolo"
           secureTextEntry
           theme={theme}
           value={senha}

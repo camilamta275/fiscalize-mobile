@@ -1,10 +1,11 @@
 import requests
 from automation.tests.api.config.settings import Endpoints as endpoints
 
-# Criação de usuário - /auth/register
+# Updated by AI.
 def test_create_user(create_uuid):
+    # Criação de usuário - /auth/register
     name = create_uuid # Não precisa do () pois estamos chamando uma fixture
-    password = create_uuid # Não precisa do () pois estamos chamando uma fixture
+    password = f"Strong{create_uuid[:8]}1!" # Política: 8+ chars, letras, número e especial
     new_user_data = {
         "nome": f"{name}",
         "email": f"{name}@example.com",
@@ -14,10 +15,12 @@ def test_create_user(create_uuid):
     assert resp.status_code == 201
     
 # --- Testes para casos de erro na criação de usuário ---
-# Criação de usuário com email inválido
+
+# Updated by AI.
 def test_create_user_invalid_email(create_uuid):
+    # Criação de usuário com email inválido
     name = create_uuid
-    password = create_uuid
+    password = f"Strong{create_uuid[:8]}1!"
     new_user_data = {
         "nome": f"{name}",
         "email": f"{name}example.com",  # Email inválido (sem @)
@@ -26,10 +29,11 @@ def test_create_user_invalid_email(create_uuid):
     resp = requests.post(endpoints.REGISTER, json=new_user_data)
     assert resp.status_code == 400  # Espera-se um erro de validação (400 Bad Request)
     
-# Criação de usuário com email inválido (formato incorreto)
+# Updated by AI.
 def test_create_user_invalid_email_format(create_uuid):
+    # Criação de usuário com email inválido (formato incorreto)
     name = create_uuid
-    password = create_uuid
+    password = f"Strong{create_uuid[:8]}1!"
     new_user_data = {
         "nome": f"{name}",
         "email": f"{name}@example",  # Email inválido (sem domínio)
@@ -37,11 +41,12 @@ def test_create_user_invalid_email_format(create_uuid):
     }
     resp = requests.post(endpoints.REGISTER, json=new_user_data)
     assert resp.status_code == 400  # Espera-se um erro de validação (400 Bad Request)
-    
-# Criação de usuário com email inválido (espaços)
+
+# Updated by AI.
 def test_create_user_invalid_email_format_with_spaces(create_uuid):
+    # Criação de usuário com email inválido (espaços)
     name = create_uuid
-    password = create_uuid
+    password = f"Strong{create_uuid[:8]}1!"
     new_user_data = {
         "nome": f"{name}",
         "email": f"{name} @example.com",  # Email inválido (espaço)
@@ -50,8 +55,8 @@ def test_create_user_invalid_email_format_with_spaces(create_uuid):
     resp = requests.post(endpoints.REGISTER, json=new_user_data)
     assert resp.status_code == 400  # Espera-se um erro de validação (400 Bad Request)
 
-# Criação de usuário com campos obrigatórios ausentes
 def test_create_user_missing_fields():
+    # Criação de usuário com campos obrigatórios ausentes
     new_user_data = {
         "nome": "Test User"
         # Campos obrigatórios "email" e "senha" estão ausentes
@@ -59,19 +64,19 @@ def test_create_user_missing_fields():
     resp = requests.post(endpoints.REGISTER, json=new_user_data)
     assert resp.status_code == 400  # Espera-se um erro de validação (400 Bad Request)
 
-# Criação de usuário com email duplicado
+# Updated by AI.
 def test_create_user_duplicate_email(credentials):
     # Tenta registrar outro usuário com o mesmo email
     duplicate_user_data = {
         "nome": "Duplicate User",
         "email": credentials["email"],  # Email já registrado
-        "senha": "anotherpassword"
+        "senha": "Another1!"
     }
     resp = requests.post(endpoints.REGISTER, json=duplicate_user_data)
     assert resp.status_code == 409  # Espera-se um erro de conflito (409 Conflict)
 
-# Criação de usuário com senha curta
 def test_create_user_short_password(create_uuid):
+    # Criação de usuário com senha curta
     name = create_uuid
     new_user_data = {
         "nome": f"{name}",
@@ -80,11 +85,12 @@ def test_create_user_short_password(create_uuid):
     }
     resp = requests.post(endpoints.REGISTER, json=new_user_data)
     assert resp.status_code == 400  # Espera-se um erro de validação (400 Bad Request)
-    
-# Criação de usuário com caracteres especiais no nome
+
+# Updated by AI.
 def test_create_user_special_characters_in_name(create_uuid):
+    # Criação de usuário com caracteres especiais no nome
     name = create_uuid + "!@#$%^&*()"  # Nome com caracteres especiais
-    password = create_uuid
+    password = f"Strong{create_uuid[:8]}1!"
     new_user_data = {
         "nome": f"{name}",
         "email": f"{name}@example.com",
@@ -93,9 +99,10 @@ def test_create_user_special_characters_in_name(create_uuid):
     resp = requests.post(endpoints.REGISTER, json=new_user_data)
     assert resp.status_code == 400  # Espera-se um erro de validação (400 Bad Request)
 
-# Criação de usuário com campos vazios
+# Updated by AI.
 def test_create_user_empty_name(create_uuid):
-    password = create_uuid
+    # Criação de usuário com campos vazios
+    password = f"Strong{create_uuid[:8]}1!"
     new_user_data = {
         "nome": "",  # Nome vazio
         "email": f"{password}@example.com",
@@ -115,8 +122,9 @@ def test_create_user_empty_password(create_uuid):
     resp = requests.post(endpoints.REGISTER, json=new_user_data)
     assert resp.status_code == 400  # Espera-se um erro de validação (400 Bad Request)
 
-# Criação de usuário com email vazio
+# Updated by AI.
 def test_create_user_empty_email(create_uuid):
+# Criação de usuário com email vazio
     name = create_uuid
     password = create_uuid
     new_user_data = {

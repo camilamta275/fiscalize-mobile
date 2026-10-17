@@ -8,6 +8,7 @@ import { useSession } from '@/contexts/session-context';
  * Field rules mirror frontend/src/lib/validations.ts `loginSchema` so the two
  * apps reject the same input for the same reason.
  */
+// Updated by AI.
 export function useLoginViewModel() {
   const { signIn, error: authError } = useSession();
   const [email, setEmail] = useState('');
@@ -42,15 +43,22 @@ export function useLoginViewModel() {
   };
 }
 
+// Updated by AI.
 function validate(email: string, senha: string) {
   const errors: { email?: string; senha?: string } = {};
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     errors.email = 'Email inválido';
   }
-  if (senha.length < 6) {
-    errors.senha = 'Senha deve ter no mínimo 6 caracteres';
+  if (!isPasswordPolicyValid(senha)) {
+    errors.senha =
+      'Senha deve ter no mínimo 8 caracteres, incluindo letras maiúsculas e minúsculas, número e caractere especial';
   }
 
   return errors;
+}
+
+// Created by AI.
+function isPasswordPolicyValid(password: string): boolean {
+  return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/.test(password);
 }
