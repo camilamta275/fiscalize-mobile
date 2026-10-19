@@ -11,7 +11,7 @@
 - **Raphael Miranda**
 - **Rayane Cavalcanti**
 - **Samuel Araujo**
-- **Victor Ferreira**
+- **Victor Ferreira*
 
 ## 🎯 Visão Geral
 
