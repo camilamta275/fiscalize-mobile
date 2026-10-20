@@ -5,7 +5,7 @@ from automation.tests.api.config.settings import Endpoints as endpoints
 def test_login_user(credentials):
     login_data = {
         "email": credentials["email"],
-        "senha": credentials["password"]
+        "senha": credentials[""]
     }
     resp = requests.post(endpoints.LOGIN, json=login_data)
     assert resp.status_code == 200
