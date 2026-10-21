@@ -1,11 +1,15 @@
 # ETL Fiscalize — População e Clima
 
-ETLs desenvolvidas para enriquecer os dados de chamados urbanos do Fiscalize com fontes públicas externas: condições climáticas (Open-Meteo) e população por bairro (Censo IBGE 2022). Os dados brutos são gravados no MongoDB e os dados já cruzados/transformados no SQLite.
+ETLs desenvolvidas para enriquecer os dados de chamados urbanos do Fiscalize
+com fontes públicas externas: condições climáticas (Open-Meteo) e população
+por bairro (Censo IBGE 2022). Os dados brutos são gravados no MongoDB e os
+dados transformados são carregados no SQLite e no Neon.
 
 ## Pré-requisitos
 
 - Python 3.10.
-- Dependências listadas em [requirements.txt](requirements.txt): `black`, `requests`, `pymongo`, `python-dotenv`, `pandas`, `beautifulsoup4`, `sqlalchemy`, `psycopg2-binary`.
+- Dependências listadas em [requirements.txt](requirements.txt), incluindo
+  `streamlit` para o dashboard.
 - Acesso ao cluster MongoDB do projeto (ver [Variáveis de ambiente](#variáveis-de-ambiente) abaixo).
 
 ## Estrutura de pastas
@@ -18,11 +22,13 @@ etl/
 │   ├── clima.ipynb         # rascunho exploratório do ETL de clima
 │   └── populacao.ipynb     # rascunho exploratório do ETL de população
 ├── src/
+│   ├── config.py           # carrega o .env uma única vez
 │   ├── extract.py          # Extract: busca dados na Open-Meteo e no IBGE
 │   ├── transform.py        # Transform: organiza, padroniza e cruza os dados
 │   └── load.py              # Load: grava dados brutos no MongoDB e dados cruzados no SQLite
 |   └── seed_mongo.py      # Seed: funções que extraem da API e populam o Mongo
 ├── run_etl.py               # ponto de entrada do pipeline (Extract -> Transform -> Load), em main()
+├── ../dashboard/app.py      # dashboard Streamlit conectado ao Neon
 ├── requirements.txt
 ├── .env.example              # modelo de variáveis de ambiente (sem credenciais reais)
 └── .env                       # variáveis de ambiente reais (não versionado)
@@ -56,7 +62,10 @@ pip install -r requirements.txt
 
 ### 3. Variáveis de ambiente
 
-O pipeline lê a variável `MONGODB_URI` (via `python-dotenv` + `os.getenv`, em [src/extract.py](src/extract.py) e [src/load.py](src/load.py)) para conectar ao MongoDB. É a única variável de ambiente que o código atualmente utiliza — o nome do banco (`FISCALIZE_ETL`) e o do arquivo SQLite (`fiscalize_etl.db`) estão fixos no código, não vêm de variável de ambiente.
+O arquivo [src/config.py](src/config.py) lê o `.env` uma única vez e expõe
+`MONGODB_URI`, `DATABASE_URL`, `MONGO_DATABASE`, `SQLITE_DATABASE` e o caminho
+dos chamados. Os demais módulos importam essas configurações sem chamar
+`os.getenv` ou `load_dotenv` novamente.
 
 Para configurar:
 
@@ -74,14 +83,60 @@ Para configurar:
 
 ## Como executar o pipeline
 
-O script `run_etl.py` usa caminhos relativos (`data/chamados.json` e o arquivo `fiscalize_etl.db`), então **precisa ser executado com o diretório de trabalho dentro de `etl/`**.
+Os caminhos são resolvidos a partir da pasta `etl/`, portanto o pipeline pode
+ser executado a partir da raiz:
 
 ```bash
-cd etl
-python run_etl.py
+python etl/run_etl.py
 ```
 
-Hoje, `main()` em [run_etl.py](run_etl.py) executa dois etls `run_populacao()` e `run_clima()`.
+O `main()` executa os dois ETLs. Como as funções usam por padrão os dados brutos
+já armazenados, uma carga inicial pode ser feita chamando `run_clima(True)` ou
+`run_populacao(True)` em um script Python.
+
+## Histórico da camada bronze e auditoria
+
+Cada carga bruta recebe `data_extracao` em UTC no momento da inserção no
+MongoDB. O método de carga não apaga documentos antigos. Ao extrair uma
+coleção, o pipeline seleciona somente os documentos pertencentes à maior
+`data_extracao`, isto é, à carga mais recente.
+
+O pipeline imprime contagens para auditoria:
+
+- clima: documento bruto, registros climáticos transformados e chamados no
+  destino;
+- população: registros da carga bronze, registros após o filtro de Recife e
+  bairros agregados na tabela final.
+
+As contagens não precisam ser iguais. Na população, o IBGE entrega registros
+de vários locais, a transformação mantém apenas Recife e a tabela final
+agrega os dez chamados por bairro. No clima, um documento bruto contém listas
+diárias; cada item da lista vira uma linha transformada, e o destino mantém
+uma linha por chamado.
+
+Não são usados índices fixos para descartar itens da fonte. A carga de clima
+é validada para conter um documento completo, e todas as listas diárias são
+convertidas em linhas.
+
+## Dados ausentes
+
+O IBGE pode representar ausência com campos vazios, `-`, `N/A`, `NA` ou `...`.
+Esses marcadores são lidos como nulos e valores numéricos inválidos são
+convertidos para `NaN`; eles não são convertidos para zero. Na Open-Meteo,
+`0` de precipitação é preservado como zero porque significa ausência de chuva,
+enquanto um valor ausente da fonte permanece nulo.
+
+## Dashboard
+
+O dashboard lê a tabela final `chamados_populacao` diretamente do Neon.
+Ele oferece filtro por bairro, métricas de chamados/população e gráfico de
+chamados por bairro.
+
+A partir da raiz do repositório:
+
+```bash
+python -m streamlit run dashboard/app.py
+```
 
 ## ETL de Clima
 
@@ -177,11 +232,45 @@ Destinos: MongoDB → coleção `populacao_ibge_raw` (dados brutos); SQLite → 
 
 ## Troubleshooting
 
-**`FileNotFoundError: [Errno 2] No such file or directory: 'data/chamados.json'`**
-O script foi executado fora da pasta `etl/`. Rode `cd etl` antes de `python run_etl.py` (ver [Como executar o pipeline](#como-executar-o-pipeline)).
+**`FileNotFoundError` ao abrir `chamados.json`**
+Confira se o arquivo está em `etl/data/chamados.json` e execute
+`python etl/run_etl.py` a partir da raiz.
 
 **Erro ao conectar no MongoDB (timeout, autenticação, etc.)**
 Confira se o arquivo `.env` existe dentro de `etl/` e se `MONGODB_URI` está preenchida com uma connection string válida (ver [Variáveis de ambiente](#variáveis-de-ambiente)).
 
 **`ModuleNotFoundError: No module named 'src'`**
-Confirme que o ambiente virtual está ativado e que as dependências foram instaladas (`pip install -r requirements.txt`), e que o comando está sendo executado a partir de `etl/`.
+Confirme que o ambiente virtual está ativado, que as dependências foram
+instaladas (`pip install -r etl/requirements.txt`) e que o comando foi
+executado conforme as instruções acima.
+
+**Dados brutos sem `data_extracao`**
+Se a coleção tiver apenas cargas antigas sem `data_extracao`, execute uma nova
+carga pela função de seed para gerar documentos marcados. Quando houver uma
+carga marcada, documentos legados são preservados, mas a transformação usa
+somente a carga marcada mais recente.
+
+**`must be owner of table` ao carregar no Neon**
+O usuário da `DATABASE_URL` precisa ser proprietário das tabelas finais quando
+o carregamento usa `if_exists="replace"`. Se o proprietário for outro usuário,
+use no `.env` a connection string do proprietário ou peça ao responsável pelo
+Neon para conceder a permissão necessária e alinhar o proprietário da tabela.
+
+### Impedimento registrado para continuidade
+
+Em 21/10/2026, a conexão configurada conseguiu acessar o Neon, mas a carga
+falhou ao substituir `chamados_clima`:
+
+```text
+psycopg.errors.InsufficientPrivilege:
+must be owner of table chamados_clima
+```
+
+Diagnóstico realizado sem expor a senha: o usuário conectado foi
+`time_desenvolvimento` e o proprietário da tabela foi `neondb_owner`.
+O próximo responsável deve obter a `DATABASE_URL` do proprietário ou alinhar
+as permissões/propriedade no Neon. Depois disso, executar novamente:
+
+```bash
+python etl/run_etl.py
+```

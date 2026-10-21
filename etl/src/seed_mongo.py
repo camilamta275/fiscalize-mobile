@@ -1,6 +1,8 @@
 from src.extract import Extract
 from src.load import Load
 
+
+# Updated by AI.
 class Seed_Mongo:
     """
     Funções responsáveis por extrair os dados brutos das fontes externas
@@ -10,10 +12,12 @@ class Seed_Mongo:
     Este módulo deve ser executado apenas na carga inicial do projeto ou
     quando for necessário atualizar os dados brutos armazenados no Mongo.
     """
+    # Updated by AI.
     def __init__(self):
         pass;
 
 
+    # Updated by AI.
     def extrair_clima_da_api_e_salvar_no_mongo(self, ext: Extract, ld: Load):
         """
         Extrai os dados climáticos da API Open-Meteo e salva o resultado
@@ -37,6 +41,7 @@ class Seed_Mongo:
         print("Dados climáticos salvos no MongoDB!")
 
 
+    # Updated by AI.
     def extrair_populacao_da_api_e_salvar_no_mongo(self, ext: Extract, ld: Load):
         """
         Extrai os dados de população do IBGE e salva o resultado bruto

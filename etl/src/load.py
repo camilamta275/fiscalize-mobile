@@ -1,33 +1,36 @@
-import os
 import sqlite3
+from datetime import datetime, timezone
 
 import pandas as pd
-from dotenv import load_dotenv
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 from sqlalchemy import create_engine
 
-load_dotenv()
+from src.config import DATABASE_URL, MONGO_DATABASE, MONGODB_URI, SQLITE_DATABASE
 
 
+# Updated by AI.
 class Load:
     """
     Responsável por persistir os dados extraídos da API do IBGE (PNADC),
     seja em um arquivo JSON local, seja em uma coleção do MongoDB.
     """
 
+    # Updated by AI.
     def __init__(self):
-        self.mongo_uri = os.getenv("MONGODB_URI")
+        self.mongo_uri = MONGODB_URI
         self.client = MongoClient(self.mongo_uri, server_api=ServerApi("1"))
 
-        self.database_name = "FISCALIZE_ETL"
-        self.sqlite_database = "fiscalize_etl.db"
+        self.database_name = MONGO_DATABASE
+        self.sqlite_database = SQLITE_DATABASE
 
+    # Updated by AI.
     def close(self) -> None:
         """Encerra a conexão com o MongoDB."""
         self.client.close()
 
 
+    # Updated by AI.
     def load_sqlite(
         self,
         df: pd.DataFrame,
@@ -41,22 +44,20 @@ class Load:
             table_name: nome da tabela no SQLite.
         """
 
-        conn = sqlite3.connect(self.sqlite_database)
-
-        df.to_sql(
-            table_name,
-            conn,
-            if_exists="replace",
-            index=False
-        )
-
-        conn.close()
+        with sqlite3.connect(self.sqlite_database) as conn:
+            df.to_sql(
+                table_name,
+                conn,
+                if_exists="replace",
+                index=False,
+            )
 
         print(
             f"DataFrame carregado com sucesso "
             f"no SQLite: {table_name}"
         )
 
+    # Updated by AI.
     def load_mongo(
         self,
         data: dict | list[dict],
@@ -73,20 +74,30 @@ class Load:
         db = self.client[self.database_name]
         collection = db[collection_name]
 
-        # Remove dados anteriores da coleção antes de inserir os novos,
-        # evitando duplicação a cada nova execução da extração bruta.
-        collection.delete_many({})
-
+        data_extracao = datetime.now(timezone.utc)
         if isinstance(data, dict):
-            collection.insert_one(data)
+            records = [dict(data)]
         else:
-            collection.insert_many(data)
+            records = [dict(item) for item in data]
+
+        if not records:
+            raise ValueError(
+                f"Nenhum registro foi recebido para a coleção "
+                f"{collection_name}."
+            )
+
+        for record in records:
+            record["data_extracao"] = data_extracao
+
+        collection.insert_many(records)
 
         print(
             f"Dados brutos carregados com sucesso "
-            f"no MongoDB: {collection_name}"
+            f"no MongoDB: {collection_name} "
+            f"({len(records)} registros; carga {data_extracao})"
         )
 
+    # Updated by AI.
     def load_neon(
         self,
         df: pd.DataFrame,
@@ -100,17 +111,16 @@ class Load:
             table_name: nome da tabela no PostgreSQL.
         """
 
-        database_url = os.getenv("DATABASE_URL")
-        engine = create_engine(database_url)
-
-        df.to_sql(
-            table_name,
-            engine,
-            if_exists="replace",
-            index=False
-        )
-
-        engine.dispose() # fecha a conexão com o banco de dados PostgreSQL, liberando recursos associados à conexão.
+        engine = create_engine(DATABASE_URL)
+        try:
+            df.to_sql(
+                table_name,
+                engine,
+                if_exists="replace",
+                index=False,
+            )
+        finally:
+            engine.dispose()
 
         print(
             f"DataFrame carregado com sucesso "

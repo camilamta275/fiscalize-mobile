@@ -1,14 +1,18 @@
 import pandas as pd
 
+
+# Updated by AI.
 class Transform:
     """
         Responsável por transformar os dados extraídos, deixando-os prontos
         para carga em um banco relacional (SQLite).
     """
      
+    # Updated by AI.
     def __init__(self):
         pass
 
+    # Updated by AI.
     def transform_clima(self, data: dict) -> pd.DataFrame:
         """
         Transforma os dados climáticos da API Open-Meteo em um DataFrame.
@@ -20,9 +24,20 @@ class Transform:
             DataFrame com data, temperatura média e precipitação.
         """
 
-        # Se vier do Mongo como DataFrame, pega o dicionário da primeira linha
+        # A extração já restringe o DataFrame à carga mais recente.
         if isinstance(data, pd.DataFrame):
-            data = data.iloc[0].to_dict()
+            if data.empty:
+                raise ValueError("A carga de clima está vazia.")
+            if len(data) != 1:
+                raise ValueError(
+                    "A carga de clima deve conter um documento com as "
+                    "listas diárias completas."
+                )
+            data = next(iter(
+                data.drop(columns=["_id"], errors="ignore").to_dict(
+                    orient="records"
+                )
+            ))
 
         # Cria um DataFrame a partir dos dados de clima obtidos da API, 
         # contendo as colunas "data", "precipitacao" e "temperatura".
@@ -34,6 +49,14 @@ class Transform:
             "precipitacao": daily["precipitation_sum"]
         })
 
+        df["temperatura"] = pd.to_numeric(
+            df["temperatura"],
+            errors="coerce",
+        )
+        df["precipitacao"] = pd.to_numeric(
+            df["precipitacao"],
+            errors="coerce",
+        )
         # Converte a coluna "data" do DataFrame para o tipo datetime e extrai apenas a data
         df["data"] = pd.to_datetime(df["data"]) 
  
@@ -41,6 +64,7 @@ class Transform:
 
         return df
 
+    # Updated by AI.
     def merge_chamados_clima(
         self,
         chamados: list[dict],
@@ -78,6 +102,7 @@ class Transform:
 
         return df_final
 
+    # Updated by AI.
     def transform_populacao(self, data: pd.DataFrame) -> pd.DataFrame:
         """
         Transforma os dados demográficos do IBGE,
@@ -92,6 +117,9 @@ class Transform:
         V01006 = Quantidade de moradores
         codigo_recife = 2611606 (RECIFE)
         """
+
+        if data.empty:
+            raise ValueError("A carga de população está vazia.")
 
         df = data[
             ["CD_BAIRRO", "NM_BAIRRO", "V01006"]
@@ -119,6 +147,9 @@ class Transform:
             .str.upper()
         )
 
+        df[["codigo_bairro", "bairro"]] = df[
+            ["codigo_bairro", "bairro"]
+        ].replace(["", "-", "N/A", "NA", "..."], pd.NA)
         df["populacao"] = pd.to_numeric(
             df["populacao"],
             errors="coerce"
@@ -128,6 +159,7 @@ class Transform:
 
         return df
 
+    # Updated by AI.
     def merge_chamados_populacao(
         self,
         chamados: list[dict],
