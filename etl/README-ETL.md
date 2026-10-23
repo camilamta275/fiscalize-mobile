@@ -181,25 +181,17 @@ http://localhost:8501
 
 A aplicação depende de uma conexão válida com o Neon e da existência da tabela `chamados_populacao`.
 
-### Evidências de execução
+## Evidências de execução
 
-As capturas abaixo documentam a execução do dashboard, o uso do filtro por bairro e a visualização dos dados detalhados.
-
-#### 1. Visão geral do dashboard
-
-A primeira captura apresenta a tela geral do dashboard, com os indicadores e o gráfico de chamados por bairro.
+### 1. Visão geral do dashboard
 
 ![Visão geral do dashboard do Fiscalize](../docs/evidencias/dashboard_visao_geral.png)
 
-#### 2. Filtro por bairro e tabela
-
-A segunda captura demonstra a aplicação do filtro por bairro e a atualização das informações exibidas.
+### 2. Filtro por bairro e tabela
 
 ![Dashboard com filtro por bairro e tabela](../docs/evidencias/dashboard_filtro_tabela.png)
 
-#### 3. Dados detalhados
-
-A terceira captura apresenta a tabela com os dados consolidados utilizados pelo dashboard.
+### 3. Dados detalhados
 
 ![Dados detalhados do dashboard do Fiscalize](../docs/evidencias/dashboard_dados_detalhados.png)
 
