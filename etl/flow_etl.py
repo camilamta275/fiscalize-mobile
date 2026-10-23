@@ -43,19 +43,16 @@ def extrair_mongo(nome_colecao):
         ext.close()
 
 
-# Updated by AI.
 @task(name="Transformar clima", log_prints=True)
 def transformar_clima(dados_brutos):
     return Transform().transform_clima(dados_brutos)
 
 
-# Updated by AI.
 @task(name="Transformar população", log_prints=True)
 def transformar_populacao(dados_brutos):
     return Transform().transform_populacao(dados_brutos)
 
 
-# Updated by AI.
 @task(name="Cruzar chamados e clima", log_prints=True)
 def cruzar_clima(chamados, dados_clima):
     return Transform().merge_chamados_clima(
@@ -64,7 +61,6 @@ def cruzar_clima(chamados, dados_clima):
     )
 
 
-# Updated by AI.
 @task(name="Cruzar chamados e população", log_prints=True)
 def cruzar_populacao(chamados, dados_populacao):
     return Transform().merge_chamados_populacao(
@@ -73,7 +69,6 @@ def cruzar_populacao(chamados, dados_populacao):
     )
 
 
-# Updated by AI.
 @task(name="Carregar no SQLite", log_prints=True)
 def carregar_sqlite(dados, tabela):
     load = Load()
