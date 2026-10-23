@@ -169,20 +169,17 @@ def busca_chamados():
 
     return chamados
 
-# Updated by AI.
 def log_inicio_etl(nome_etl: str):
     print("\n" + "=" * 50)
     print(f"  INICIANDO: {nome_etl}")
     print("=" * 50 + "\n")
 
-# Updated by AI.
 def log_fim_etl(nome_etl: str):
     print("\n" + "=" * 50)
     print(f"  ✅ CONCLUÍDO: {nome_etl}")
     print("=" * 50 + "\n")
     print()
 
-# Updated by AI.
 def main():
     """
         Executa as ETLs do projeto.
