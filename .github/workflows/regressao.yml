@@ -75,12 +75,22 @@ jobs:
           "$REPORTS_DIR/unit-junit.xml"
 
       # Created by AI.
+      - name: Preparar artefatos dos testes unitários
+        if: always()
+        working-directory: .
+        run: |
+          mkdir -p "$RUNNER_TEMP/artifacts/fiscalize-mobile/reports"
+          if [ -d "$REPORTS_DIR" ]; then
+            cp -R "$REPORTS_DIR"/. "$RUNNER_TEMP/artifacts/fiscalize-mobile/reports"/
+          fi
+
+      # Created by AI.
       - name: Publicar artefatos dos testes unitários
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: relatorios-unit
-          path: ${{ env.REPORTS_DIR }}/
+          path: ${{ runner.temp }}/artifacts/
           if-no-files-found: warn
           retention-days: 14
 
@@ -186,14 +196,24 @@ jobs:
           "$REPORTS_DIR/api-smoke-junit.xml"
 
       # Created by AI.
+      - name: Preparar artefatos dos testes de API
+        if: always()
+        run: |
+          mkdir -p "$RUNNER_TEMP/artifacts/fiscalize-mobile/reports"
+          if [ -d "$REPORTS_DIR" ]; then
+            cp -R "$REPORTS_DIR"/. "$RUNNER_TEMP/artifacts/fiscalize-mobile/reports"/
+          fi
+          if [ -f "$RUNNER_TEMP/fiscalize-api.log" ]; then
+            cp "$RUNNER_TEMP/fiscalize-api.log" "$RUNNER_TEMP/artifacts/fiscalize-mobile/reports"/
+          fi
+
+      # Created by AI.
       - name: Publicar artefatos dos testes de API
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: relatorios-api
-          path: |
-            ${{ env.REPORTS_DIR }}/
-            ${{ runner.temp }}/fiscalize-api.log
+          path: ${{ runner.temp }}/artifacts/
           if-no-files-found: warn
           retention-days: 14
 
@@ -301,14 +321,24 @@ jobs:
           "$REPORTS_DIR/regression-junit.xml"
 
       # Created by AI.
+      - name: Preparar artefatos da regressão
+        if: always()
+        run: |
+          mkdir -p "$RUNNER_TEMP/artifacts/fiscalize-mobile/reports"
+          if [ -d "$REPORTS_DIR" ]; then
+            cp -R "$REPORTS_DIR"/. "$RUNNER_TEMP/artifacts/fiscalize-mobile/reports"/
+          fi
+          if [ -f "$RUNNER_TEMP/fiscalize-api.log" ]; then
+            cp "$RUNNER_TEMP/fiscalize-api.log" "$RUNNER_TEMP/artifacts/fiscalize-mobile/reports"/
+          fi
+
+      # Created by AI.
       - name: Publicar artefatos da regressão
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: relatorios-regression
-          path: |
-            ${{ env.REPORTS_DIR }}/
-            ${{ runner.temp }}/fiscalize-api.log
+          path: ${{ runner.temp }}/artifacts/
           if-no-files-found: warn
           retention-days: 14
 

@@ -166,8 +166,9 @@ report to `automation/report.html`.
 ### Execution reports
 
 The GitHub Actions workflow writes JUnit XML and self-contained HTML reports to
-`automation/reports/` (ignored by git) and publishes them as run artifacts. To
-reproduce locally:
+`automation/reports/` (ignored by git) and publishes them as run artifacts. Each
+artifact is laid out as `fiscalize-mobile/reports/`, with the XML/HTML files and,
+for the API jobs, the backend log. To reproduce locally:
 
 ```bash
 cd automation

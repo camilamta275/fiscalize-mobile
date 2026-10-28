@@ -613,3 +613,15 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Observabilidade e resposta a falhas no pipeline de CI.
 - **Tipo de contribuição da IA:** Relatórios JUnit/HTML por job, scripts de resumo e de conversão do JSON do Jest, upload de artefatos e criação/deduplicação de issues com a etiqueta `falha-ci`.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0051
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `.github/workflows/regressao.yml`, `automation/README.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Artefatos do CI passaram a ser publicados em `fiscalize-mobile/reports/`, sem as pastas redundantes do runner, e o log da API foi movido para dentro de `reports`.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; apenas resultados de testes com contas sintéticas.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Corrigir a estrutura dos artefatos, que preservava o caminho absoluto do runner (`fiscalize-mobile/fiscalize-mobile/automation/reports` e `_temp`).
+- **Etapa da atividade:** Ajuste de usabilidade dos artefatos após revisão do usuário.
+- **Tipo de contribuição da IA:** Etapa de preparação que consolida relatórios e log em um único diretório antes do upload.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
