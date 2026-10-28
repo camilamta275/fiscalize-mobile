@@ -2,7 +2,7 @@ import os
 
 import requests
 from automation.tests.api.config.settings import Endpoints as endpoints
-from automation.tests.api.conftest import login_trusted
+from automation.tests.api.conftest import login_with_mfa
 
 # Created by AI.
 def device_fields():
@@ -14,7 +14,7 @@ def device_fields():
 # Login de usuário - /auth/login
 # Updated by AI.
 def test_login_user(credentials, database):
-    session = login_trusted(
+    session = login_with_mfa(
         database,
         credentials["email"],
         credentials["password"],

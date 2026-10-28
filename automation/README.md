@@ -116,12 +116,18 @@ npx prisma migrate deploy
 
 ### MFA preconditions
 
-Every login now requires a `deviceId`, and the first login from an unknown
-device returns `mfaRequired` with an emailed six-digit code. To keep the
-authenticated scenarios automated, the fixtures in `tests/api/conftest.py`
-connect directly to PostgreSQL and pre-trust the device used by each scenario
-(`usuario_dispositivos`). The same helpers mark a critical-action challenge as
-verified, which is exactly the state produced when the user types the code.
+Every login requires a `deviceId`, and the first login from an unknown device
+returns `mfaRequired` with an emailed six-digit code. The suite does **not**
+bypass that step: the fixtures in `tests/api/conftest.py` complete the real
+flow end to end.
+
+The test process cannot read the mailbox, but the backend stores only the
+SHA-256 of a six-digit numeric code. Since that search space is small, the
+fixtures recover the exact code that would have been emailed and submit it to
+`POST /auth/2fa/verify`, the same endpoint the app uses. Critical actions do the
+same with `/auth/2fa/request-critical`. No database state is forged: the only
+direct SQL is read-only, plus one update that moves a challenge's expiration
+into the past to cover the expiry rule.
 
 This requires:
 

@@ -6,7 +6,7 @@ from automation.tests.api.config.settings import Endpoints as endpoints
 from automation.tests.api.conftest import (
     critical_mfa_token,
     login_payload,
-    login_trusted,
+    login_with_mfa,
     profile_fields,
     register_account,
     require_session,
@@ -93,7 +93,7 @@ def test_refresh_token_rotates_and_rejects_reuse(auth_security_data, database):
     email = f"refresh-{uuid.uuid4()}@example.com"
     register_account(email, auth_security_data["valid_password"])
 
-    session = login_trusted(database, email, auth_security_data["valid_password"], "refresh")
+    session = login_with_mfa(database, email, auth_security_data["valid_password"], "refresh")
     first_refresh_token = session["refreshToken"]
 
     first_refresh_response = requests.post(
@@ -128,7 +128,7 @@ def rights_portal_auth(auth_security_data, database):
     email = f"rights-{uuid.uuid4()}@example.com"
     register_account(email, password)
 
-    session = login_trusted(database, email, password, "rights")
+    session = login_with_mfa(database, email, password, "rights")
     headers = {"Authorization": f"Bearer {session['token']}"}
     return email, password, headers
 

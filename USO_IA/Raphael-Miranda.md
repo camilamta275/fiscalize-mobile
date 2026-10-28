@@ -577,3 +577,15 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Correção de defeito e conformidade com as regras do repositório.
 - **Tipo de contribuição da IA:** Substituição de `globalThis.crypto.randomUUID` por `Crypto.randomUUID()` do expo-crypto, instalação da dependência, inserção das atribuições e validação com `tsc` e `eslint`.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0048
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/conftest.py`, `automation/tests/api/tests/test_mfa_otp.py`, `automation/tests/api/tests/test_auth_security.py`, `automation/tests/api/tests/test_user_login.py`, `automation/README.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Testes de MFA passaram a concluir o fluxo real de OTP, sem forjar estado no banco, e foram adicionados cenários de código errado, expiração, uso único e vínculo de ação.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usadas apenas contas sintéticas descartáveis.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Substituir a pré-condição que gravava `trusted`/`verified_at` diretamente no banco, que mascarava a ausência de cobertura real do MFA.
+- **Etapa da atividade:** Revisão crítica da qualidade dos testes e ampliação da cobertura de segurança.
+- **Tipo de contribuição da IA:** Recuperação do código de seis dígitos a partir do hash armazenado, execução do fluxo real em `/auth/2fa/verify`, criação de 12 cenários de MFA e validação por mutação do backend.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo

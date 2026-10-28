@@ -8,6 +8,8 @@ import psycopg
 import pytest
 import requests
 from pathlib import Path
+from psycopg.rows import dict_row
+
 from automation.tests.api.config.settings import Endpoints as endpoints
 
 # Created by AI.
@@ -59,20 +61,18 @@ def login_payload(email, password, purpose):
 # Created by AI.
 # Updated by AI.
 def require_session(response):
-    """Return an access token or skip when interactive MFA is required."""
+    """Return an access token, failing when interactive MFA is still pending."""
     assert_mfa_schema(response)
     if response.status_code == 429:
         pytest.skip(
             "Login bloqueado pelo cooldown de OTP. Aguarde 60 segundos "
             "antes de repetir o cenário."
         )
-    data = response.json()
-    if data.get("mfaRequired"):
-        pytest.skip(
-            "Login exigiu OTP para este dispositivo. Confie o dispositivo no "
-            "banco (fixture `database`) ou defina FISCALIZE_TEST_TOKEN."
-        )
     response.raise_for_status()
+    data = response.json()
+    assert not data.get("mfaRequired"), (
+        "Login ainda exige OTP. Use `login_with_mfa` para concluir o desafio."
+    )
     return data["token"]
 
 # Created by AI.
@@ -108,7 +108,7 @@ def _database_url():
     if not env_path.exists():
         pytest.skip(
             "backend/.env não encontrado. Defina FISCALIZE_DATABASE_URL para "
-            "pré-confiar dispositivos nos testes de API."
+            "recuperar o código MFA nos testes de API."
         )
 
     for line in env_path.read_text(encoding="utf-8").splitlines():
@@ -121,40 +121,67 @@ def _database_url():
 # Created by AI.
 @pytest.fixture(scope="session")
 def database():
-    """Conexão direta ao PostgreSQL usada para preparar as pré-condições de MFA."""
+    """Conexão somente leitura usada para recuperar o código MFA em teste."""
     try:
         connection = psycopg.connect(_database_url(), connect_timeout=5)
     except psycopg.Error as error:
-        pytest.skip(f"Banco indisponível para preparar dispositivos confiáveis: {error}")
+        pytest.skip(f"Banco indisponível para recuperar o código MFA: {error}")
 
     with connection:
         yield connection
 
 # Created by AI.
-def hash_device_id(device_id):
-    """Reproduz o hash SHA-256 que o backend aplica ao identificador do dispositivo."""
-    return hashlib.sha256(device_id.strip().encode("utf-8")).hexdigest()
+def challenge_row(connection, challenge_token):
+    """Lê o estado persistido do desafio correspondente ao token."""
+    with connection.cursor(row_factory=dict_row) as cursor:
+        cursor.execute(
+            """
+            SELECT code_hash, attempts, expires_at, verified_at, consumed_at
+            FROM otp_challenges
+            WHERE challenge_hash = %s
+            """,
+            (hashlib.sha256(challenge_token.encode("utf-8")).hexdigest(),),
+        )
+        return cursor.fetchone()
 
 # Created by AI.
-def trust_device(connection, email, device_id):
-    """Pré-confia o dispositivo para que o login dispense o código por e-mail."""
+def recover_otp_code(connection, challenge_token):
+    """Recupera o código de seis dígitos a partir do hash guardado pelo backend.
+
+    O teste não lê a caixa de e-mail, mas o backend persiste apenas o SHA-256 de
+    um código numérico de seis dígitos. O espaço de busca (900 mil) é pequeno o
+    bastante para recuperar exatamente o código que seria enviado, sem alterar
+    nenhum estado do desafio.
+    """
+    row = challenge_row(connection, challenge_token)
+    if row is None:
+        pytest.skip(
+            "Desafio MFA não encontrado no banco. Aplique a migração "
+            "`20261019193000_add_mfa_otp` antes dos testes de API."
+        )
+
+    code_hash = row["code_hash"]
+    sha256 = hashlib.sha256
+    for candidate in range(100000, 1000000):
+        code = str(candidate)
+        if sha256(code.encode("utf-8")).hexdigest() == code_hash:
+            return code
+
+    pytest.fail("Nenhum código de seis dígitos corresponde ao hash armazenado.")
+
+# Created by AI.
+def expire_challenge(connection, challenge_token):
+    """Move a expiração do desafio para o passado, simulando a passagem do tempo."""
     with connection.cursor() as cursor:
         cursor.execute(
             """
-            INSERT INTO usuario_dispositivos (usuario_id, device_hash, device_name, trusted)
-            SELECT id, %s, %s, true FROM usuario WHERE email = %s
-            ON CONFLICT (usuario_id, device_hash)
-            DO UPDATE SET trusted = true, last_used_at = now()
+            UPDATE otp_challenges
+            SET expires_at = now() - interval '1 second'
+            WHERE challenge_hash = %s
             """,
-            (hash_device_id(device_id), "API tests", email),
+            (hashlib.sha256(challenge_token.encode("utf-8")).hexdigest(),),
         )
-        affected = cursor.rowcount
     connection.commit()
-
-    if affected == 0:
-        pytest.skip(
-            f"Usuário {email} não encontrado no banco para pré-confiar o dispositivo."
-        )
 
 # Created by AI.
 def register_account(email, password, name="Titular de Teste"):
@@ -172,37 +199,61 @@ def register_account(email, password, name="Titular de Teste"):
     return response
 
 # Created by AI.
-def login_trusted(connection, email, password, purpose):
-    """Autentica a partir de um dispositivo já confiado e devolve a resposta JSON."""
-    trust_device(connection, email, device_id_for(purpose))
-    response = requests.post(endpoints.LOGIN, json=login_payload(email, password, purpose))
-    require_session(response)
-    return response.json()
+def request_login_challenge(email, password, device_id):
+    """Executa o login de um dispositivo novo e devolve o token do desafio."""
+    response = requests.post(
+        endpoints.LOGIN,
+        json={
+            "email": email,
+            "senha": password,
+            "deviceId": device_id,
+            "deviceName": "API tests",
+        },
+    )
+    assert_mfa_schema(response)
+    if response.status_code == 429:
+        pytest.skip(
+            "Cooldown de OTP ativo. Aguarde 60 segundos antes de repetir o cenário."
+        )
+    assert response.status_code == 200, response.text
+
+    data = response.json()
+    assert data.get("mfaRequired") is True, "Esperado desafio MFA para dispositivo novo."
+    assert isinstance(data.get("challengeToken"), str)
+    return data["challengeToken"]
 
 # Created by AI.
-def complete_mfa_challenge(connection, challenge_token):
-    """Marca o desafio como verificado, como se o usuário tivesse digitado o código."""
-    with connection.cursor() as cursor:
-        cursor.execute(
-            """
-            UPDATE otp_challenges
-            SET verified_at = now()
-            WHERE challenge_hash = %s AND consumed_at IS NULL
-            """,
-            (hashlib.sha256(challenge_token.encode("utf-8")).hexdigest(),),
-        )
-        affected = cursor.rowcount
-    connection.commit()
-
-    if affected != 1:
+def login_with_mfa(connection, email, password, purpose):
+    """Conclui o login real, respondendo ao desafio OTP quando ele é exigido."""
+    payload = login_payload(email, password, purpose)
+    response = requests.post(endpoints.LOGIN, json=payload)
+    assert_mfa_schema(response)
+    if response.status_code == 429:
         pytest.skip(
-            "Desafio MFA não encontrado no banco. Aplique a migração "
-            "`20261019193000_add_mfa_otp` antes dos testes de API."
+            "Cooldown de OTP ativo. Aguarde 60 segundos antes de repetir o cenário."
         )
+    assert response.status_code == 200, response.text
+
+    data = response.json()
+    if not data.get("mfaRequired"):
+        return data
+
+    challenge_token = data["challengeToken"]
+    code = recover_otp_code(connection, challenge_token)
+    verification = requests.post(
+        endpoints.MFA_VERIFY,
+        json={
+            "challengeToken": challenge_token,
+            "code": code,
+            "deviceId": payload["deviceId"],
+        },
+    )
+    assert verification.status_code == 200, verification.text
+    return verification.json()
 
 # Created by AI.
 def critical_mfa_token(connection, headers, action):
-    """Solicita o OTP de ação crítica e devolve o token já verificado."""
+    """Solicita e conclui o OTP de ação crítica, devolvendo o token verificado."""
     response = requests.post(
         endpoints.MFA_REQUEST_CRITICAL,
         headers=headers,
@@ -217,8 +268,13 @@ def critical_mfa_token(connection, headers, action):
     assert response.status_code == 200, response.text
 
     challenge_token = response.json()["challengeToken"]
-    complete_mfa_challenge(connection, challenge_token)
-    return challenge_token
+    code = recover_otp_code(connection, challenge_token)
+    verification = requests.post(
+        endpoints.MFA_VERIFY,
+        json={"challengeToken": challenge_token, "code": code},
+    )
+    assert verification.status_code == 200, verification.text
+    return verification.json()["verificationToken"]
 
 # Updated by AI.
 @pytest.fixture
@@ -254,7 +310,7 @@ def authenticate_user(credentials, database):
     if configured_token:
         return configured_token
 
-    session = login_trusted(
+    session = login_with_mfa(
         database,
         credentials["email"],
         credentials["password"],
