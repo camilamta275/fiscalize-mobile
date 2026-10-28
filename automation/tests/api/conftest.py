@@ -98,17 +98,19 @@ def _sanitize_database_url(url):
     return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(query), parts.fragment))
 
 # Created by AI.
+# Updated by AI.
 def _database_url():
     """Resolve a URL do PostgreSQL a partir do ambiente ou de backend/.env."""
-    configured = os.getenv("FISCALIZE_DATABASE_URL")
-    if configured:
-        return _sanitize_database_url(configured)
+    for variable in ("FISCALIZE_DATABASE_URL", "DATABASE_URL"):
+        configured = os.getenv(variable)
+        if configured:
+            return _sanitize_database_url(configured)
 
     env_path = Path(__file__).resolve().parents[3] / "backend" / ".env"
     if not env_path.exists():
         pytest.skip(
-            "backend/.env não encontrado. Defina FISCALIZE_DATABASE_URL para "
-            "recuperar o código MFA nos testes de API."
+            "DATABASE_URL não definida e backend/.env não encontrado. Exporte "
+            "DATABASE_URL ou FISCALIZE_DATABASE_URL para recuperar o código MFA."
         )
 
     for line in env_path.read_text(encoding="utf-8").splitlines():
