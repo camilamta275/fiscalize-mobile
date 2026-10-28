@@ -1,10 +1,8 @@
 import os
-import uuid
 
-import pytest
 import requests
 from automation.tests.api.config.settings import Endpoints as endpoints
-from automation.tests.api.conftest import assert_mfa_schema
+from automation.tests.api.conftest import login_trusted
 
 # Created by AI.
 def device_fields():
@@ -15,23 +13,15 @@ def device_fields():
 
 # Login de usuário - /auth/login
 # Updated by AI.
-# Updated by AI.
-# Updated by AI.
-def test_login_user(credentials):
-    device = device_fields()
-    device["deviceId"] = f"{device['deviceId']}-{uuid.uuid4()}"
-    login_data = {
-        "email": credentials["email"],
-        "senha": credentials["password"],
-        **device,
-    }
-    resp = requests.post(endpoints.LOGIN, json=login_data)
-    assert_mfa_schema(resp)
-    if resp.status_code == 429:
-        pytest.skip("Cooldown de OTP ativo; aguarde 60 segundos para repetir.")
-    assert resp.status_code == 200
-    data = resp.json()
-    assert ("token" in data) or data.get("mfaRequired") is True
+def test_login_user(credentials, database):
+    session = login_trusted(
+        database,
+        credentials["email"],
+        credentials["password"],
+        os.getenv("FISCALIZE_TEST_DEVICE_ID", "shared"),
+    )
+    assert "token" in session
+    assert "refreshToken" in session
   
 # --- Testes para casos de erro no login do usuário ---  
 # Login de usuário com email inválido

@@ -4,9 +4,11 @@ import requests
 
 from automation.tests.api.config.settings import Endpoints as endpoints
 from automation.tests.api.conftest import (
-    assert_mfa_schema,
+    critical_mfa_token,
     login_payload,
+    login_trusted,
     profile_fields,
+    register_account,
     require_session,
 )
 
@@ -86,26 +88,13 @@ def test_login_locks_account_after_five_consecutive_failures(credentials, auth_s
 
 # Created by AI.
 # Updated by AI.
-def test_refresh_token_rotates_and_rejects_reuse(auth_security_data):
+def test_refresh_token_rotates_and_rejects_reuse(auth_security_data, database):
     # Login retorna um refresh token e a primeira renovação emite outro token.
     email = f"refresh-{uuid.uuid4()}@example.com"
-    registration = requests.post(
-        endpoints.REGISTER,
-        json={
-            "nome": f"Usuário {uuid.uuid4()}",
-            "email": email,
-            "senha": auth_security_data["valid_password"],
-            **profile_fields(),
-        },
-    )
-    assert registration.status_code == 201, registration.text
+    register_account(email, auth_security_data["valid_password"])
 
-    login_response = requests.post(
-        endpoints.LOGIN,
-        json=login_payload(email, auth_security_data["valid_password"], "refresh"),
-    )
-    require_session(login_response)
-    first_refresh_token = login_response.json()["refreshToken"]
+    session = login_trusted(database, email, auth_security_data["valid_password"], "refresh")
+    first_refresh_token = session["refreshToken"]
 
     first_refresh_response = requests.post(
         endpoints.REFRESH,
@@ -133,27 +122,14 @@ def test_refresh_token_rotates_and_rejects_reuse(auth_security_data):
 # Created by AI.
 # Updated by AI.
 @pytest.fixture
-def rights_portal_auth(auth_security_data):
+def rights_portal_auth(auth_security_data, database):
     """Cria uma conta temporária autenticada para cada teste do portal."""
     password = auth_security_data["valid_password"]
     email = f"rights-{uuid.uuid4()}@example.com"
-    registration = requests.post(
-        endpoints.REGISTER,
-        json={
-            "nome": "Titular de Teste",
-            "email": email,
-            "senha": password,
-            **profile_fields(),
-        },
-    )
-    assert registration.status_code == 201, registration.text
+    register_account(email, password)
 
-    login_response = requests.post(
-        endpoints.LOGIN,
-        json=login_payload(email, password, "rights"),
-    )
-    token = require_session(login_response)
-    headers = {"Authorization": f"Bearer {token}"}
+    session = login_trusted(database, email, password, "rights")
+    headers = {"Authorization": f"Bearer {session['token']}"}
     return email, password, headers
 
 # Created by AI.
@@ -187,30 +163,36 @@ def test_rights_portal_updates_profile(rights_portal_auth):
     assert persisted_profile_response.json()["nome"] == "Titular Atualizado"
 
 # Created by AI.
-def test_rights_portal_exports_personal_data(rights_portal_auth):
+# Updated by AI.
+def test_rights_portal_exports_personal_data(rights_portal_auth, database):
     # O titular exporta seus dados em formato estruturado sem expor a senha.
     email, _password, headers = rights_portal_auth
-    export_response = requests.get(
-        endpoints.EXPORT_USER, headers=headers
+    mfa_token = critical_mfa_token(database, headers, "export")
+    export_response = requests.post(
+        endpoints.EXPORT_USER, headers=headers, json={"mfaToken": mfa_token}
     )
     assert export_response.status_code == 200, export_response.text
     assert export_response.json()["data"]["email"] == email
     assert "senha" not in export_response.json()["data"]
 
 # Created by AI.
-def test_rights_portal_anonymizes_personal_data(rights_portal_auth):
+# Updated by AI.
+def test_rights_portal_anonymizes_personal_data(rights_portal_auth, database):
     # O titular ativa e desativa a preferência de anonimização sem excluir a conta.
     _email, password, headers = rights_portal_auth
+    anonymize_token = critical_mfa_token(database, headers, "anonymization")
     anonymize_response = requests.patch(
         endpoints.ANONYMIZATION,
         headers=headers,
-        json={"enabled": True, "senha": password},
+        json={"enabled": True, "senha": password, "mfaToken": anonymize_token},
     )
     assert anonymize_response.status_code == 204, anonymize_response.text
+
+    disable_token = critical_mfa_token(database, headers, "anonymization")
     disable_response = requests.patch(
         endpoints.ANONYMIZATION,
         headers=headers,
-        json={"enabled": False},
+        json={"enabled": False, "mfaToken": disable_token},
     )
     assert disable_response.status_code == 204, disable_response.text
     assert requests.get(endpoints.GET_USER, headers=headers).status_code == 200
@@ -218,10 +200,11 @@ def test_rights_portal_anonymizes_personal_data(rights_portal_auth):
 
 # Created by AI.
 # Updated by AI.
-def test_user_can_change_password(rights_portal_auth):
+def test_user_can_change_password(rights_portal_auth, database):
     # O titular altera a senha e consegue autenticar com a nova credencial.
     email, old_password, headers = rights_portal_auth
     new_password = "NewStrong1!"
+    mfa_token = critical_mfa_token(database, headers, "password")
     response = requests.patch(
         endpoints.CHANGE_PASSWORD,
         headers=headers,
@@ -229,35 +212,28 @@ def test_user_can_change_password(rights_portal_auth):
             "senhaAtual": old_password,
             "novaSenha": new_password,
             "confirmarNovaSenha": new_password,
+            "mfaToken": mfa_token,
         },
     )
     assert response.status_code == 204, response.text
 
     old_login = requests.post(
         endpoints.LOGIN,
-        json={
-            "email": email,
-            "senha": old_password,
-            "deviceId": f"rights-{email}",
-            "deviceName": "API tests",
-        },
+        json=login_payload(email, old_password, "rights"),
     )
     assert old_login.status_code == 401, old_login.text
     new_login = requests.post(
         endpoints.LOGIN,
-        json={
-            "email": email,
-            "senha": new_password,
-            "deviceId": f"rights-{email}",
-            "deviceName": "API tests",
-        },
+        json=login_payload(email, new_password, "rights"),
     )
     assert new_login.status_code == 200, new_login.text
 
 
 # Created by AI.
-def test_change_password_rejects_invalid_current_password(rights_portal_auth):
+# Updated by AI.
+def test_change_password_rejects_invalid_current_password(rights_portal_auth, database):
     _email, old_password, headers = rights_portal_auth
+    mfa_token = critical_mfa_token(database, headers, "password")
     response = requests.patch(
         endpoints.CHANGE_PASSWORD,
         headers=headers,
@@ -265,15 +241,17 @@ def test_change_password_rejects_invalid_current_password(rights_portal_auth):
             "senhaAtual": "WrongCurrent1!",
             "novaSenha": "NewStrong1!",
             "confirmarNovaSenha": "NewStrong1!",
+            "mfaToken": mfa_token,
         },
     )
     assert response.status_code == 401, response.text
     assert old_password != "WrongCurrent1!"
 
-
 # Created by AI.
-def test_change_password_rejects_mismatched_confirmation(rights_portal_auth):
+# Updated by AI.
+def test_change_password_rejects_mismatched_confirmation(rights_portal_auth, database):
     _email, old_password, headers = rights_portal_auth
+    mfa_token = critical_mfa_token(database, headers, "password")
     response = requests.patch(
         endpoints.CHANGE_PASSWORD,
         headers=headers,
@@ -281,14 +259,17 @@ def test_change_password_rejects_mismatched_confirmation(rights_portal_auth):
             "senhaAtual": old_password,
             "novaSenha": "NewStrong1!",
             "confirmarNovaSenha": "Different1!",
+            "mfaToken": mfa_token,
         },
     )
     assert response.status_code == 400, response.text
 
 
 # Created by AI.
-def test_change_password_rejects_weak_new_password(rights_portal_auth):
+# Updated by AI.
+def test_change_password_rejects_weak_new_password(rights_portal_auth, database):
     _email, old_password, headers = rights_portal_auth
+    mfa_token = critical_mfa_token(database, headers, "password")
     response = requests.patch(
         endpoints.CHANGE_PASSWORD,
         headers=headers,
@@ -296,6 +277,7 @@ def test_change_password_rejects_weak_new_password(rights_portal_auth):
             "senhaAtual": old_password,
             "novaSenha": "weak",
             "confirmarNovaSenha": "weak",
+            "mfaToken": mfa_token,
         },
     )
     assert response.status_code == 400, response.text
@@ -303,13 +285,15 @@ def test_change_password_rejects_weak_new_password(rights_portal_auth):
 
 
 # Created by AI.
-def test_rights_portal_deletes_account(rights_portal_auth):
+# Updated by AI.
+def test_rights_portal_deletes_account(rights_portal_auth, database):
     # O titular solicita a exclusão permanente da própria conta.
     _email, password, headers = rights_portal_auth
+    mfa_token = critical_mfa_token(database, headers, "delete")
     delete_response = requests.delete(
         endpoints.GET_USER,
         headers=headers,
-        json={"senha": password, "mode": "delete"},
+        json={"senha": password, "mode": "delete", "mfaToken": mfa_token},
     )
     assert delete_response.status_code == 204, delete_response.text
 

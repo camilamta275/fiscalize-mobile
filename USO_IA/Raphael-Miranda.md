@@ -553,3 +553,15 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Correção final e validação.
 - **Tipo de contribuição da IA:** Análise do erro NameError, ajuste de imports e tratamento consistente de rate limit.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0046
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `backend/.env.example`, `backend/README.md`, `backend/prisma/schema.prisma`, `backend/prisma/migrations/20261019193000_add_mfa_otp/migration.sql`, `backend/src/config/env.ts`, `backend/src/controllers/authController.ts`, `backend/src/routes/authRoutes.ts`, `backend/src/services/authService.ts`, `backend/src/services/otpService.ts`, `automation/requirements.txt`, `automation/README.md`, `automation/tests/api/conftest.py`, `automation/tests/api/tests/test_auth_security.py`, `automation/tests/api/tests/test_mfa_otp.py`, `automation/tests/api/tests/test_user_login.py`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Registro do MFA no backend, atribuições inline, correção do HTTP 500 ao faltar mfaToken e pré-condição de dispositivo confiável nos testes de API.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados apenas dados sintéticos e contas temporárias de teste.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Versionar a implementação de MFA que existia apenas no diretório de trabalho, adequá-la às regras de atribuição do AGENTS.md e tornar os cenários autenticados da suíte realmente executáveis.
+- **Etapa da atividade:** Consolidação, conformidade e validação de testes de integração.
+- **Tipo de contribuição da IA:** Inserção das atribuições inline, correção do erro 500 em `consumeMfaVerification`, criação de fixtures com acesso direto ao PostgreSQL para pré-confiar dispositivos e concluir desafios de ação crítica, atualização do README e execução da suíte completa.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo

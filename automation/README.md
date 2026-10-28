@@ -114,6 +114,28 @@ cd ../backend
 npx prisma migrate deploy
 ```
 
+### MFA preconditions
+
+Every login now requires a `deviceId`, and the first login from an unknown
+device returns `mfaRequired` with an emailed six-digit code. To keep the
+authenticated scenarios automated, the fixtures in `tests/api/conftest.py`
+connect directly to PostgreSQL and pre-trust the device used by each scenario
+(`usuario_dispositivos`). The same helpers mark a critical-action challenge as
+verified, which is exactly the state produced when the user types the code.
+
+This requires:
+
+- the `psycopg` driver (`pip install -r requirements.txt`);
+- `DATABASE_URL` available in `backend/.env`, or exported as
+  `FISCALIZE_DATABASE_URL` (the Prisma-only `?schema=` parameter is stripped
+  automatically).
+
+When the database is unreachable or the MFA migration is missing, the affected
+scenarios are skipped with an actionable message instead of failing. Set
+`FISCALIZE_TEST_TOKEN` to reuse a token obtained manually, and
+`FISCALIZE_TEST_DEVICE_ID` to change the device identifier suffix used by the
+fixtures.
+
 Run a single test file:
 
 ```bash
