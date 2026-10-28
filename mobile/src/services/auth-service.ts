@@ -8,7 +8,12 @@ import { request } from '@/services/api-client';
 
 // Created by AI.
 // Updated by AI.
-type LoginResponse = Usuario & { token: string; refreshToken: string };
+export type LoginResponse = Usuario & { token: string; refreshToken: string };
+export type MfaChallenge = {
+  mfaRequired: true;
+  challengeToken: string;
+  destination: string;
+};
 
 /**
  * The backend hardcodes `perfil: 'Cidadao'` for every account created here
@@ -34,8 +39,45 @@ export function register(data: {
   return request<Usuario>('/auth/register', { method: 'POST', body: data });
 }
 
-export function login(email: string, senha: string): Promise<LoginResponse> {
-  return request<LoginResponse>('/auth/login', { method: 'POST', body: { email, senha } });
+export function login(
+  email: string,
+  senha: string,
+  deviceId: string,
+  deviceName: string
+): Promise<LoginResponse | MfaChallenge> {
+  return request<LoginResponse | MfaChallenge>('/auth/login', {
+    method: 'POST',
+    body: { email, senha, deviceId, deviceName },
+  });
+}
+
+export function verifyOtp(
+  challengeToken: string,
+  code: string,
+  deviceId: string
+): Promise<LoginResponse> {
+  return request<LoginResponse>('/auth/2fa/verify', {
+    method: 'POST',
+    body: { challengeToken, code, deviceId },
+    skipRefresh: true,
+  });
+}
+
+export function requestCriticalOtp(
+  action: 'password' | 'export' | 'delete' | 'anonymization'
+): Promise<{ challengeToken: string; destination: string }> {
+  return request('/auth/2fa/request-critical', { method: 'POST', body: { action } });
+}
+
+export function verifyCriticalOtp(
+  challengeToken: string,
+  code: string
+): Promise<{ verificationToken: string }> {
+  return request<{ verificationToken: string }>('/auth/2fa/verify', {
+    method: 'POST',
+    body: { challengeToken, code },
+    skipRefresh: true,
+  });
 }
 
 // Created by AI.
@@ -68,28 +110,28 @@ export function updateMe(data: {
 }
 
 // Created by AI.
-export function exportMe(): Promise<unknown> {
-  return request<unknown>('/auth/me/export');
+export function exportMe(mfaToken: string): Promise<unknown> {
+  return request<unknown>('/auth/me/export', { method: 'POST', body: { mfaToken } });
 }
 
 // Created by AI.
-export function deleteMe(senha: string, mode: 'delete' | 'anonymize'): Promise<void> {
-  return request<void>('/auth/me', { method: 'DELETE', body: { senha, mode } });
+export function deleteMe(senha: string, mode: 'delete' | 'anonymize', mfaToken: string): Promise<void> {
+  return request<void>('/auth/me', { method: 'DELETE', body: { senha, mode, mfaToken } });
 }
 
 // Created by AI.
-export function setAnonymization(enabled: boolean, senha?: string): Promise<void> {
+export function setAnonymization(enabled: boolean, senha: string | undefined, mfaToken: string): Promise<void> {
   return request<void>('/auth/me/anonymization', {
     method: 'PATCH',
-    body: { enabled, ...(senha ? { senha } : {}) },
+    body: { enabled, mfaToken, ...(senha ? { senha } : {}) },
   });
 }
 
 // Created by AI.
-export function changePassword(senhaAtual: string, novaSenha: string, confirmarNovaSenha: string): Promise<void> {
+export function changePassword(senhaAtual: string, novaSenha: string, confirmarNovaSenha: string, mfaToken: string): Promise<void> {
   return request<void>('/auth/me/password', {
     method: 'PATCH',
-    body: { senhaAtual, novaSenha, confirmarNovaSenha },
+    body: { senhaAtual, novaSenha, confirmarNovaSenha, mfaToken },
   });
 }
 

@@ -457,3 +457,99 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Reversão pontual e validação.
 - **Tipo de contribuição da IA:** Remoção do helper e restauração dos payloads inline sem reverter correções anteriores.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0038
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/config/settings.py`, `automation/tests/api/conftest.py`, `automation/tests/api/tests/test_user_login.py`, `automation/tests/api/tests/test_mfa_otp.py`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Testes MFA alinhados às regras de atribuição do AGENTS.md e registro movido ao arquivo individual.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados dados sintéticos nos testes.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Adequar os testes de API e a declaração de uso de IA às regras do repositório.
+- **Etapa da atividade:** Revisão, conformidade e validação dos testes.
+- **Tipo de contribuição da IA:** Inserção de atribuições inline, correção do histórico de IA e revisão estrutural dos testes.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0039
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/conftest.py`, `automation/README.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Suíte de API passou a verificar o backend e ignorar testes com mensagem clara quando localhost:3000 está indisponível.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados somente dados sintéticos e endpoint de health.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Corrigir a experiência de execução da suíte quando a API não está iniciada.
+- **Etapa da atividade:** Diagnóstico, ajuste de testes e documentação.
+- **Tipo de contribuição da IA:** Análise do traceback, criação de fixture de pré-condição, atualização do README e validação.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0040
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/conftest.py`, `automation/tests/api/tests/test_auth_security.py`, `automation/README.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Testes ajustados ao deviceId e a ausência da migração MFA agora gera orientação clara para aplicar o schema.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados dados sintéticos nos testes.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Diagnosticar falhas de integração e alinhar a suíte ao novo contrato MFA.
+- **Etapa da atividade:** Diagnóstico, correção de testes e documentação.
+- **Tipo de contribuição da IA:** Análise do traceback, atualização de payloads, detecção explícita de P2021 e instrução de migração.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0041
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/tests/test_mfa_otp.py`, `automation/tests/api/tests/test_user_login.py`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Testes passaram a tratar P2021 e enviar deviceId nos cenários de login.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados dados sintéticos nos testes.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Corrigir falhas observadas na execução da suíte após a ativação do MFA.
+- **Etapa da atividade:** Diagnóstico e ajuste de testes de integração.
+- **Tipo de contribuição da IA:** Análise de respostas HTTP, criação de helper de payload e tratamento explícito de migração ausente.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0042
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/tests/test_user_login.py`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Login principal passou a sinalizar a migração MFA ausente em vez de falhar com HTTP 500.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados dados sintéticos nos testes.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Completar o tratamento da falha P2021 na suíte de API.
+- **Etapa da atividade:** Validação focada e correção de teste.
+- **Tipo de contribuição da IA:** Aplicação do helper de pré-condição ao cenário de login principal.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0043
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/conftest.py`, `automation/tests/api/tests/test_mfa_otp.py`, `automation/tests/api/tests/test_auth_security.py`, `automation/tests/api/tests/test_user_login.py`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Testes ajustados para cooldown OTP e respostas mfaRequired, evitando 429 e KeyError quando a verificação é interativa.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados dados sintéticos nos testes.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Corrigir a suíte de integração após a ativação efetiva do cooldown e do MFA.
+- **Etapa da atividade:** Diagnóstico e correção dos testes.
+- **Tipo de contribuição da IA:** Análise do resumo de falhas, criação de helpers de login e adaptação de cenários dependentes de sessão.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0044
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/conftest.py`, `automation/tests/api/tests/test_user_login.py`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Testes autenticados agora tratam explicitamente o cooldown OTP de 60 segundos como pré-condição temporária.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados dados sintéticos nos testes.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Eliminar falhas intermitentes causadas pelo limite de reenvio do OTP.
+- **Etapa da atividade:** Validação e ajuste da suíte de integração.
+- **Tipo de contribuição da IA:** Identificação do status 429, criação de skip orientativo e aplicação no login principal.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0045
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/tests/test_mfa_otp.py`, `automation/tests/api/tests/test_user_login.py`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Corrigido import do pytest e aplicado skip ao cenário MFA quando o cooldown retorna 429.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados dados sintéticos nos testes.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Completar a estabilização dos testes após a execução real da API.
+- **Etapa da atividade:** Correção final e validação.
+- **Tipo de contribuição da IA:** Análise do erro NameError, ajuste de imports e tratamento consistente de rate limit.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo

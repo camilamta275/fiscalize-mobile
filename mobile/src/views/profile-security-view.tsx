@@ -19,36 +19,38 @@ export function ProfileSecurityView() {
   const [newPassword, setNewPassword] = useState('');
   const [newPasswordConfirmation, setNewPasswordConfirmation] = useState('');
   const [modal, setModal] = useState<'anonymize' | 'delete' | 'change-password' | null>(null);
+  const [mfaToken, setMfaToken] = useState<string | null>(null);
+  const [mfaCode, setMfaCode] = useState('');
+  const [mfaDestination, setMfaDestination] = useState('');
+  const [anonymizationValue, setAnonymizationValue] = useState(true);
   const [enabled, setEnabled] = useState(usuario?.anonimizar_dados ?? false);
   const [busy, setBusy] = useState(false);
 
   if (!usuario) return null;
 
   const changeAnonymization = async (value: boolean) => {
-    if (value) {
-      setModal('anonymize');
-      return;
-    }
-    setBusy(true);
-    try {
-      await authService.setAnonymization(false);
-      setEnabled(false);
-      setUsuario({ ...usuario, anonimizar_dados: false });
-    } catch (error) {
-      Alert.alert('Não foi possível alterar a anonimização', error instanceof Error ? error.message : 'Tente novamente.');
-    } finally {
-      setBusy(false);
-    }
+    setAnonymizationValue(value);
+    setModal('anonymize');
   };
 
   const confirmAnonymization = async () => {
     setBusy(true);
     try {
-      await authService.setAnonymization(true, password);
-      setEnabled(true);
-      setUsuario({ ...usuario, anonimizar_dados: true });
+      if (!mfaToken) {
+        const challenge = await authService.requestCriticalOtp('anonymization');
+        setMfaToken(challenge.challengeToken);
+        setMfaDestination(challenge.destination);
+        return;
+      }
+      const verified = await authService.verifyCriticalOtp(mfaToken, mfaCode);
+      await authService.setAnonymization(anonymizationValue, password, verified.verificationToken);
+      setEnabled(anonymizationValue);
+      setUsuario({ ...usuario, anonimizar_dados: anonymizationValue });
       setModal(null);
       setPassword('');
+      setMfaToken(null);
+      setMfaCode('');
+      setMfaDestination('');
     } catch (error) {
       Alert.alert('Não foi possível ativar a anonimização', error instanceof Error ? error.message : 'Tente novamente.');
     } finally {
@@ -59,14 +61,20 @@ export function ProfileSecurityView() {
   const deleteAccount = async () => {
     setBusy(true);
     try {
-      await authService.deleteMe(password, 'delete');
+      if (!mfaToken) {
+        const challenge = await authService.requestCriticalOtp('delete');
+        setMfaToken(challenge.challengeToken);
+        setMfaDestination(challenge.destination);
+        return;
+      }
+      const verified = await authService.verifyCriticalOtp(mfaToken, mfaCode);
+      await authService.deleteMe(password, 'delete', verified.verificationToken);
       signOut();
       router.replace('/login');
     } catch (error) {
       Alert.alert('Não foi possível excluir a conta', error instanceof Error ? error.message : 'Tente novamente.');
     } finally {
       setBusy(false);
-      setModal(null);
       setPassword('');
     }
   };
@@ -79,12 +87,22 @@ export function ProfileSecurityView() {
     }
     setBusy(true);
     try {
-      await authService.changePassword(currentPassword, newPassword, newPasswordConfirmation);
+      if (!mfaToken) {
+        const challenge = await authService.requestCriticalOtp('password');
+        setMfaToken(challenge.challengeToken);
+        setMfaDestination(challenge.destination);
+        return;
+      }
+      const verified = await authService.verifyCriticalOtp(mfaToken, mfaCode);
+      await authService.changePassword(currentPassword, newPassword, newPasswordConfirmation, verified.verificationToken);
       Alert.alert('Senha alterada', 'Sua senha foi alterada com sucesso.');
       setModal(null);
       setCurrentPassword('');
       setNewPassword('');
       setNewPasswordConfirmation('');
+      setMfaToken(null);
+      setMfaCode('');
+      setMfaDestination('');
     } catch (error) {
       Alert.alert('Não foi possível alterar a senha', error instanceof Error ? error.message : 'Tente novamente.');
     } finally {
@@ -98,6 +116,9 @@ export function ProfileSecurityView() {
     setCurrentPassword('');
     setNewPassword('');
     setNewPasswordConfirmation('');
+    setMfaToken(null);
+    setMfaCode('');
+    setMfaDestination('');
   };
 
   return (
@@ -121,10 +142,27 @@ export function ProfileSecurityView() {
                 <TextInput accessibilityLabel="Senha de confirmação" onChangeText={setPassword} placeholder="Digite sua senha" placeholderTextColor={theme.textSecondary} secureTextEntry style={[styles.input, { backgroundColor: theme.backgroundElement, color: theme.text }]} value={password} />
               </>
             )}
+            {mfaToken ? (
+              <>
+                <ThemedText themeColor="textSecondary">
+                  Enviamos um código para {mfaDestination}. Informe-o para concluir a ação.
+                </ThemedText>
+                <TextInput
+                  accessibilityLabel="Código de verificação"
+                  keyboardType="number-pad"
+                  maxLength={6}
+                  onChangeText={(value) => setMfaCode(value.replace(/\D/g, ''))}
+                  placeholder="Código de 6 dígitos"
+                  placeholderTextColor={theme.textSecondary}
+                  style={[styles.input, { backgroundColor: theme.backgroundElement, color: theme.text }]}
+                  value={mfaCode}
+                />
+              </>
+            ) : null}
             {modal === 'change-password' ? (
               <>
                 <Pressable
-                  disabled={busy || !currentPassword || !newPassword || !newPasswordConfirmation}
+                  disabled={busy || !currentPassword || !newPassword || !newPasswordConfirmation || (!!mfaToken && mfaCode.length !== 6)}
                   onPress={() => void confirmPasswordChange()}
                   style={[styles.button, { backgroundColor: theme.backgroundSelected }]}>
                   <ThemedText type="smallBold">Confirmar</ThemedText>
@@ -139,7 +177,7 @@ export function ProfileSecurityView() {
                   <ThemedText type="smallBold">Cancelar</ThemedText>
                 </Pressable>
                 <Pressable
-                  disabled={busy || !password}
+                  disabled={busy || !password || (!!mfaToken && mfaCode.length !== 6)}
                   onPress={() => void (modal === 'delete' ? deleteAccount() : confirmAnonymization())}
                   style={[styles.button, { backgroundColor: theme.backgroundSelected }]}>
                   <ThemedText type="smallBold">{modal === 'delete' ? 'Excluir conta' : 'Confirmar anonimização'}</ThemedText>

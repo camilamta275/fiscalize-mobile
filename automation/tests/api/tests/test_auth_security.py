@@ -3,7 +3,12 @@ import pytest
 import requests
 
 from automation.tests.api.config.settings import Endpoints as endpoints
-from automation.tests.api.conftest import profile_fields
+from automation.tests.api.conftest import (
+    assert_mfa_schema,
+    login_payload,
+    profile_fields,
+    require_session,
+)
 
 # Created by AI.
 @pytest.fixture(scope="module", autouse=True)
@@ -34,6 +39,7 @@ def test_register_rejects_password_outside_policy(auth_security_data):
 
 
 # Created by AI.
+# Updated by AI.
 def test_login_locks_account_after_five_consecutive_failures(credentials, auth_security_data):
     # Cadastro de uma conta temporária para testar o bloqueio
     email = f"security-{uuid.uuid4()}@example.com"
@@ -53,6 +59,8 @@ def test_login_locks_account_after_five_consecutive_failures(credentials, auth_s
         response = requests.post(endpoints.LOGIN, json={
             "email": email,
             "senha": credentials["incorrect_password"],
+            "deviceId": f"lockout-{email}",
+            "deviceName": "API tests",
         })
         assert response.status_code == 401, response.text
 
@@ -60,6 +68,8 @@ def test_login_locks_account_after_five_consecutive_failures(credentials, auth_s
     fifth_attempt = requests.post(endpoints.LOGIN, json={
         "email": email,
         "senha": credentials["incorrect_password"],
+        "deviceId": f"lockout-{email}",
+        "deviceName": "API tests",
     })
     assert fifth_attempt.status_code == 423
     assert "bloqueada" in fifth_attempt.json()["error"].lower()
@@ -68,12 +78,14 @@ def test_login_locks_account_after_five_consecutive_failures(credentials, auth_s
     valid_password_while_locked = requests.post(endpoints.LOGIN, json={
         "email": email,
         "senha": auth_security_data["valid_password"],
-        **profile_fields(),
+        "deviceId": f"lockout-{email}",
+        "deviceName": "API tests",
     })
     assert valid_password_while_locked.status_code == 423
 
 
 # Created by AI.
+# Updated by AI.
 def test_refresh_token_rotates_and_rejects_reuse(auth_security_data):
     # Login retorna um refresh token e a primeira renovação emite outro token.
     email = f"refresh-{uuid.uuid4()}@example.com"
@@ -90,12 +102,9 @@ def test_refresh_token_rotates_and_rejects_reuse(auth_security_data):
 
     login_response = requests.post(
         endpoints.LOGIN,
-        json={
-            "email": email,
-            "senha": auth_security_data["valid_password"],
-        },
+        json=login_payload(email, auth_security_data["valid_password"], "refresh"),
     )
-    assert login_response.status_code == 200, login_response.text
+    require_session(login_response)
     first_refresh_token = login_response.json()["refreshToken"]
 
     first_refresh_response = requests.post(
@@ -122,6 +131,7 @@ def test_refresh_token_rotates_and_rejects_reuse(auth_security_data):
 
 
 # Created by AI.
+# Updated by AI.
 @pytest.fixture
 def rights_portal_auth(auth_security_data):
     """Cria uma conta temporária autenticada para cada teste do portal."""
@@ -139,11 +149,11 @@ def rights_portal_auth(auth_security_data):
     assert registration.status_code == 201, registration.text
 
     login_response = requests.post(
-        endpoints.LOGIN, json={"email": email, "senha": password}
+        endpoints.LOGIN,
+        json=login_payload(email, password, "rights"),
     )
-    assert login_response.status_code == 200, login_response.text
-    login_data = login_response.json()
-    headers = {"Authorization": f"Bearer {login_data['token']}"}
+    token = require_session(login_response)
+    headers = {"Authorization": f"Bearer {token}"}
     return email, password, headers
 
 # Created by AI.
@@ -207,6 +217,7 @@ def test_rights_portal_anonymizes_personal_data(rights_portal_auth):
 
 
 # Created by AI.
+# Updated by AI.
 def test_user_can_change_password(rights_portal_auth):
     # O titular altera a senha e consegue autenticar com a nova credencial.
     email, old_password, headers = rights_portal_auth
@@ -222,9 +233,25 @@ def test_user_can_change_password(rights_portal_auth):
     )
     assert response.status_code == 204, response.text
 
-    old_login = requests.post(endpoints.LOGIN, json={"email": email, "senha": old_password})
+    old_login = requests.post(
+        endpoints.LOGIN,
+        json={
+            "email": email,
+            "senha": old_password,
+            "deviceId": f"rights-{email}",
+            "deviceName": "API tests",
+        },
+    )
     assert old_login.status_code == 401, old_login.text
-    new_login = requests.post(endpoints.LOGIN, json={"email": email, "senha": new_password})
+    new_login = requests.post(
+        endpoints.LOGIN,
+        json={
+            "email": email,
+            "senha": new_password,
+            "deviceId": f"rights-{email}",
+            "deviceName": "API tests",
+        },
+    )
     assert new_login.status_code == 200, new_login.text
 
 

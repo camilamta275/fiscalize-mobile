@@ -87,10 +87,31 @@ registradas.
 
 ## 6. Running API tests
 
-From `automation/`, with the backend running:
+From `automation/`, with the backend running at `http://localhost:3000`:
 
 ```bash
+cd ../backend
+npm run dev
+```
+
+Then, in another terminal:
+
+```bash
+cd automation
 pytest tests/api/tests
+```
+
+The API test session checks `/health` once before running. If the backend is
+unavailable, tests are marked as skipped with an actionable message instead of
+failing with repeated connection errors. To use another URL, update
+`Endpoints.BASE_URL` in `tests/api/config/settings.py`.
+
+After creating or updating the backend schema, apply migrations before running
+the suite:
+
+```bash
+cd ../backend
+npx prisma migrate deploy
 ```
 
 Run a single test file:
