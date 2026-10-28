@@ -8,6 +8,7 @@ import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useSession } from '@/contexts/session-context';
 
+// Created by AI.
 export function OtpVerificationView() {
   const { pendingMfa, verifyMfa, error } = useSession();
   const theme = useTheme();
@@ -61,6 +62,7 @@ export function OtpVerificationView() {
   );
 }
 
+// Created by AI.
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
   container: {

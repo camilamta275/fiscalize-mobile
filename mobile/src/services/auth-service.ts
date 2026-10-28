@@ -9,6 +9,7 @@ import { request } from '@/services/api-client';
 // Created by AI.
 // Updated by AI.
 export type LoginResponse = Usuario & { token: string; refreshToken: string };
+// Created by AI.
 export type MfaChallenge = {
   mfaRequired: true;
   challengeToken: string;
@@ -39,6 +40,7 @@ export function register(data: {
   return request<Usuario>('/auth/register', { method: 'POST', body: data });
 }
 
+// Updated by AI.
 export function login(
   email: string,
   senha: string,
@@ -51,6 +53,7 @@ export function login(
   });
 }
 
+// Created by AI.
 export function verifyOtp(
   challengeToken: string,
   code: string,
@@ -63,12 +66,14 @@ export function verifyOtp(
   });
 }
 
+// Created by AI.
 export function requestCriticalOtp(
   action: 'password' | 'export' | 'delete' | 'anonymization'
 ): Promise<{ challengeToken: string; destination: string }> {
   return request('/auth/2fa/request-critical', { method: 'POST', body: { action } });
 }
 
+// Created by AI.
 export function verifyCriticalOtp(
   challengeToken: string,
   code: string
@@ -110,16 +115,19 @@ export function updateMe(data: {
 }
 
 // Created by AI.
+// Updated by AI.
 export function exportMe(mfaToken: string): Promise<unknown> {
   return request<unknown>('/auth/me/export', { method: 'POST', body: { mfaToken } });
 }
 
 // Created by AI.
+// Updated by AI.
 export function deleteMe(senha: string, mode: 'delete' | 'anonymize', mfaToken: string): Promise<void> {
   return request<void>('/auth/me', { method: 'DELETE', body: { senha, mode, mfaToken } });
 }
 
 // Created by AI.
+// Updated by AI.
 export function setAnonymization(enabled: boolean, senha: string | undefined, mfaToken: string): Promise<void> {
   return request<void>('/auth/me/anonymization', {
     method: 'PATCH',
@@ -128,6 +136,7 @@ export function setAnonymization(enabled: boolean, senha: string | undefined, mf
 }
 
 // Created by AI.
+// Updated by AI.
 export function changePassword(senhaAtual: string, novaSenha: string, confirmarNovaSenha: string, mfaToken: string): Promise<void> {
   return request<void>('/auth/me/password', {
     method: 'PATCH',

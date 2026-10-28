@@ -40,6 +40,7 @@ const TOKEN_KEY = 'fiscalize.token';
 // Created by AI.
 const REFRESH_TOKEN_KEY = 'fiscalize.refresh-token';
 
+// Updated by AI.
 export function SessionProvider({ children }: PropsWithChildren) {
   const [[isRestoringToken, token], setToken] = useStorageState(TOKEN_KEY);
   const [[isRestoringRefreshToken, storedRefreshToken], setStoredRefreshToken] =
@@ -95,6 +96,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
     setStoredRefreshToken,
   ]);
 
+  // Updated by AI.
   const signIn = async (email: string, senha: string): Promise<boolean> => {
     setError(null);
     try {
@@ -118,6 +120,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
     }
   };
 
+  // Created by AI.
   const verifyMfa = async (code: string) => {
     if (!pendingMfa) throw new Error('Nenhuma verificação pendente.');
     setError(null);

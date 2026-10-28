@@ -11,6 +11,7 @@ import { useSession } from '@/contexts/session-context';
 import * as authService from '@/services/auth-service';
 
 // Created by AI.
+// Updated by AI.
 export function ProfileSecurityView() {
   const { usuario, setUsuario, signOut } = useSession();
   const theme = useTheme();
@@ -207,6 +208,7 @@ export function ProfileSecurityView() {
   );
 }
 
+// Created by AI.
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
   container: { gap: Spacing.three, padding: Spacing.three },

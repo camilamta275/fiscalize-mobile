@@ -17,6 +17,7 @@ export function useLoginViewModel() {
   const [fieldErrors, setFieldErrors] = useState<{ email?: string; senha?: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Updated by AI.
   const submit = useCallback(async () => {
     const errors = validate(email, senha);
     setFieldErrors(errors);

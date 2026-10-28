@@ -565,3 +565,15 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Consolidação, conformidade e validação de testes de integração.
 - **Tipo de contribuição da IA:** Inserção das atribuições inline, correção do erro 500 em `consumeMfaVerification`, criação de fixtures com acesso direto ao PostgreSQL para pré-confiar dispositivos e concluir desafios de ação crítica, atualização do README e execução da suíte completa.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0047
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `mobile/package.json`, `mobile/package-lock.json`, `mobile/src/services/device-service.ts`, `mobile/src/services/auth-service.ts`, `mobile/src/contexts/session-context.tsx`, `mobile/src/viewmodels/use-login-view-model.ts`, `mobile/src/views/otp-verification-view.tsx`, `mobile/src/views/profile-security-view.tsx`, `mobile/src/app/verify-otp.tsx`, `mobile/src/app/_layout.tsx`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Identificador de dispositivo passou a usar expo-crypto e foram adicionadas as atribuições inline exigidas pelo AGENTS.md no app mobile.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais; o identificador gerado é aleatório e armazenado apenas no SecureStore do próprio dispositivo.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Eliminar falha de login no primeiro acesso, já que o React Native 0.86 e o Expo SDK 57 não expõem `globalThis.crypto`, e regularizar as atribuições de código.
+- **Etapa da atividade:** Correção de defeito e conformidade com as regras do repositório.
+- **Tipo de contribuição da IA:** Substituição de `globalThis.crypto.randomUUID` por `Crypto.randomUUID()` do expo-crypto, instalação da dependência, inserção das atribuições e validação com `tsc` e `eslint`.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
