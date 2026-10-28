@@ -601,3 +601,15 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Diagnóstico de falha de CI e correção de pré-condição.
 - **Tipo de contribuição da IA:** Leitura de `DATABASE_URL` do ambiente antes do arquivo, mensagem de skip mais precisa e validação do caminho do CI simulando a ausência de `backend/.env`.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0050
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `.github/workflows/regressao.yml`, `.gitignore`, `automation/scripts/junit_summary.py`, `automation/scripts/jest_to_junit.py`, `automation/README.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** CI passou a gerar relatórios JUnit XML e HTML, publicá-los como artefatos, exibir resumo no job summary e abrir ou atualizar issue automática quando um job falha.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; apenas resultados de testes com contas sintéticas.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Dar rastreabilidade das execuções de teste e tornar falhas visíveis sem exigir leitura manual dos logs do GitHub Actions.
+- **Etapa da atividade:** Observabilidade e resposta a falhas no pipeline de CI.
+- **Tipo de contribuição da IA:** Relatórios JUnit/HTML por job, scripts de resumo e de conversão do JSON do Jest, upload de artefatos e criação/deduplicação de issues com a etiqueta `falha-ci`.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo

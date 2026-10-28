@@ -132,7 +132,7 @@ into the past to cover the expiry rule.
 This requires:
 
 - the `psycopg` driver (`pip install -r requirements.txt`);
-- `DATABASE_URL` available in `backend/.env`, or exported as
+- `DATABASE_URL` available in `backend/.env`, or exported as `DATABASE_URL` or
   `FISCALIZE_DATABASE_URL` (the Prisma-only `?schema=` parameter is stripped
   automatically).
 
@@ -162,6 +162,26 @@ pytest tests/api/tests -v
 
 `pytest.ini` enables verbose console logging and writes the self-contained HTML
 report to `automation/report.html`.
+
+### Execution reports
+
+The GitHub Actions workflow writes JUnit XML and self-contained HTML reports to
+`automation/reports/` (ignored by git) and publishes them as run artifacts. To
+reproduce locally:
+
+```bash
+cd automation
+mkdir -p reports
+pytest tests/api/tests \
+  --junitxml=reports/api-junit.xml \
+  --html=reports/api-report.html \
+  --self-contained-html
+```
+
+`scripts/junit_summary.py` renders those XML files as a Markdown table (used in
+the workflow step summary) and `scripts/jest_to_junit.py` converts the Jest JSON
+output of the backend unit tests into JUnit XML. The workflow also opens or
+updates a `falha-ci` issue when any job fails, linking the run and its artifacts.
 
 See [tests/api/README.md](tests/api/README.md) for the API-specific setup and
 run commands.

@@ -79,6 +79,8 @@ build_output.txt
 
 *.venv/
 *report.html
+# Relatórios JUnit XML e HTML gerados pela suíte e pelo CI
+automation/reports/
 *__pycache__
 *.pytest_cache/
 
