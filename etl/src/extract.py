@@ -1,22 +1,22 @@
 import io
-import os
 import zipfile
 
 import pandas as pd
 import requests
-from dotenv import load_dotenv
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 
+from src.config import MONGO_DATABASE, MONGODB_URI
 
-load_dotenv()
 
+# Updated by AI.
 class Extract:
     """
         Responsável por extrair dados climáticos da API Open-Meteo
         e ler dados previamente armazenados no MongoDB.
     """
 
+    # Updated by AI.
     def __init__(self):
          # Open-Meteo
         self.clima_url = "https://archive-api.open-meteo.com/v1/archive"
@@ -35,17 +35,19 @@ class Extract:
         )
 
         # MongoDB
-        self.mongo_uri = os.getenv("MONGODB_URI")
+        self.mongo_uri = MONGODB_URI
         self.client = MongoClient(
             self.mongo_uri,
             server_api=ServerApi("1")
         )
 
 
+    # Updated by AI.
     def close(self) -> None:
         """Encerra a conexão com o MongoDB."""
         self.client.close()
 
+    # Updated by AI.
     def clima(
         self,
         latitude: float,
@@ -75,7 +77,8 @@ class Extract:
                 "end_date": data_fim,
                 "daily": "temperature_2m_mean,precipitation_sum",
                 "timezone": "America/Recife"
-            }
+            },
+            timeout=60,
         )
 
         response.raise_for_status()
@@ -84,6 +87,7 @@ class Extract:
 
         return response.json()
 
+    # Updated by AI.
     def populacao_bairros(self) -> pd.DataFrame:
         """
         Baixa os dados demográficos por bairro do Censo 2022
@@ -100,7 +104,7 @@ class Extract:
             5. Retorna o DataFrame com os dados demográficos.
         """
 
-        response = requests.get(self.ibge_bairros_url)
+        response = requests.get(self.ibge_bairros_url, timeout=120)
 
         response.raise_for_status()
 
@@ -112,13 +116,16 @@ class Extract:
             df = pd.read_csv(
                 arquivo,
                 sep=";",
-                encoding="latin1"
+                encoding="latin1",
+                na_values=["", "-", "N/A", "NA", "..."],
+                keep_default_na=True,
             )
 
         print("Dados de população extraídos com sucesso do IBGE!")
 
         return df
 
+    # Updated by AI.
     def extract_collection_from_mongo(self, collection_name: str) -> pd.DataFrame:
         """
         Extrai dados de uma coleção do MongoDB e retorna como DataFrame.
@@ -130,12 +137,40 @@ class Extract:
             DataFrame contendo os dados extraídos da coleção.
         """
 
-        db = self.client["FISCALIZE_ETL"]
+        db = self.client[MONGO_DATABASE]
         collection = db[collection_name]
 
         data = list(collection.find())
+        if not data:
+            return pd.DataFrame()
 
-        df = pd.DataFrame(data)
+        marked_data = [
+            item
+            for item in data
+            if "data_extracao" in item
+        ]
+        if not marked_data:
+            raise ValueError(
+                f"A coleção '{collection_name}' possui dados sem "
+                "data_extracao. Execute uma nova carga bruta antes da "
+                "transformação."
+            )
+
+        latest_extraction = max(
+            item["data_extracao"]
+            for item in marked_data
+        )
+        latest_data = [
+            item
+            for item in marked_data
+            if item["data_extracao"] == latest_extraction
+        ]
+
+        df = pd.DataFrame(latest_data)
+        print(
+            f"Carga mais recente de {collection_name}: "
+            f"{len(df)} registros em {latest_extraction}."
+        )
 
         print(
             f"Dados extraídos com sucesso da coleção "
