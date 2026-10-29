@@ -68,8 +68,25 @@ O workflow de regressão em
 como Quality Gate para alterações propostas. Os jobs obrigatórios são:
 
 - **Testes unitários**
-- **Testes de API**
-- **Smoke test**, executado nas verificações de pull request
+- **Testes de API**, que em pull requests executa antes o **smoke test E2E**
+
+O smoke test E2E percorre a jornada do cidadão pela API (login, abertura de
+chamado e consulta de perfil) com os testes `test_login_user`,
+`test_create_demand` e `test_get_user_profile`. Como ele roda dentro do job
+`Testes de API`, uma falha no smoke bloqueia o merge sem exigir um check extra
+no ruleset.
+
+| Evento | Jobs executados | Testes |
+| :--- | :--- | :--- |
+| `push` (qualquer branch) | Testes unitários · Testes de API | Unitários do backend + `pytest tests/api/tests` |
+| `pull_request` | Testes unitários · Testes de API | Os mesmos + smoke test E2E (executado primeiro) |
+| `schedule` (`23 6 * * *` = 03:23 em Recife) e `workflow_dispatch` | Suíte completa de regressão | Unitários do backend + `pytest tests` |
+
+O agendamento do GitHub Actions é *best-effort*: o horário pode atrasar ou a
+execução pode não ocorrer em períodos de alta demanda. Por isso o cron usa um
+minuto fora da hora cheia, e a regressão também pode ser disparada manualmente
+em **Actions > Regressão > Run workflow**. Os relatórios de cada execução e a
+issue automática de falha estão descritos em [Execution reports](#execution-reports).
 
 Configure a proteção da branch principal no GitHub em **Settings > Branches >
 Branch protection rules** (ou em **Rulesets**) com as seguintes opções:

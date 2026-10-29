@@ -1,11 +1,14 @@
 name: Regressão
 
+# Updated by AI.
 on:
   push:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
+  # 06:23 UTC = 03:23 em Recife: fora do expediente e fora da hora cheia, que
+  # concentra a fila do agendamento best-effort do GitHub Actions.
   schedule:
-    - cron: "0 3 * * *"
+    - cron: "23 6 * * *"
   workflow_dispatch:
 
 permissions:
@@ -21,8 +24,11 @@ env:
   REPORTS_DIR: automation/reports
 
 jobs:
+  # Updated by AI.
   unit:
     name: Testes unitários
+    # No agendamento e na execução manual, a suíte roda no job de regressão.
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -94,8 +100,11 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+  # Updated by AI.
   api:
     name: Testes de API
+    # No agendamento e na execução manual, a suíte roda no job de regressão.
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -167,23 +176,28 @@ jobs:
         run: mkdir -p "$REPORTS_DIR"
 
       # Updated by AI.
+      # Jornada do cidadão (login, abertura de chamado e consulta de perfil).
+      # Roda antes da suíte de API para falhar rápido e, por estar neste job,
+      # é bloqueado pelo check obrigatório "Testes de API" do Quality Gate.
+      - name: Executar smoke test E2E antes do merge
+        if: github.event_name == 'pull_request'
+        working-directory: automation
+        run: >-
+          python -m pytest
+          tests/api/tests/test_user_login.py::test_login_user
+          tests/api/tests/test_cidadao.py::test_create_demand
+          tests/api/tests/test_get_user.py::test_get_user_profile
+          --junitxml="$GITHUB_WORKSPACE/$REPORTS_DIR/api-smoke-junit.xml"
+          --html="$GITHUB_WORKSPACE/$REPORTS_DIR/api-smoke-report.html"
+          --self-contained-html
+
+      # Updated by AI.
       - name: Executar testes de API
         working-directory: automation
         run: >-
           python -m pytest tests/api/tests
           --junitxml="$GITHUB_WORKSPACE/$REPORTS_DIR/api-junit.xml"
           --html="$GITHUB_WORKSPACE/$REPORTS_DIR/api-report.html"
-          --self-contained-html
-
-      # Updated by AI.
-      - name: Executar smoke test antes do merge
-        if: github.event_name == 'pull_request' || github.event_name == 'schedule'
-        working-directory: automation
-        run: >-
-          python -m pytest tests/api/tests/test_cidadao.py::test_api
-          --maxfail=1
-          --junitxml="$GITHUB_WORKSPACE/$REPORTS_DIR/api-smoke-junit.xml"
-          --html="$GITHUB_WORKSPACE/$REPORTS_DIR/api-smoke-report.html"
           --self-contained-html
 
       # Created by AI.
@@ -217,9 +231,10 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+  # Updated by AI.
   regression:
     name: Suíte completa de regressão
-    if: github.event_name == 'schedule'
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     services:
       postgres:
