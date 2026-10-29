@@ -125,6 +125,29 @@ O workflow `Regressão` já está ativo e protege a `main` pelo ruleset **"Quali
 
 > As execuções agendadas para 03:00 UTC começaram entre 07:50 e 08:34 UTC. Isso confirma na prática a política *best-effort* do agendamento do GitHub Actions.
 
+### 6.1 Atualização da pipeline (28/10/2026)
+
+A pipeline foi ajustada sem criar testes novos, reaproveitando os testes já implementados:
+
+| Evento | Jobs executados | Testes executados |
+| :--- | :--- | :--- |
+| `push` (qualquer branch) | Testes unitários · Testes de API | Unitários do backend (0) + `pytest tests/api/tests` |
+| `pull_request` | Testes unitários · Testes de API | Os mesmos + smoke test E2E: `test_login_user` (TC01), `test_create_demand` (TC03) e `test_get_user_profile` |
+| `schedule` (`23 6 * * *` = 03:23 em Recife) e `workflow_dispatch` | Suíte completa de regressão | Unitários + `pytest tests`, sem repetir os jobs de push |
+
+- O smoke deixou de ser apenas o *health check* e passou a percorrer a jornada do cidadão pela API, incluindo o login real com MFA. Ele roda dentro do job obrigatório `Testes de API`, então uma falha bloqueia o merge sem alterar o ruleset.
+- O cron saiu da hora cheia para reduzir o atraso do agendamento *best-effort*.
+- As evidências de cada execução continuam sendo os artifacts `relatorios-unit`, `relatorios-api` e `relatorios-regression` (JUnit, HTML e log da API), o resumo publicado na execução e a issue `falha-ci` aberta automaticamente quando algum job falha.
+
+**Limitações que continuam (exigem testes novos):** o job `Testes unitários` não executa testes (D5), o smoke é ponta a ponta na API e não na interface do app (D6/D7), e os casos TC04, TC05, TC06, TC08 e TC09 seguem sem automação.
+
+**Evidências de bloqueio de merge pelo Quality Gate:**
+
+| Execução | PR | Resultado |
+| :--- | :--- | :--- |
+| [#39428218862](https://github.com/camilamta275/fiscalize-mobile/actions/runs/39428218862) | PR #16 (`teste-quality-gate`), teste de login quebrado de propósito | ❌ `Testes de API` falhou e o merge ficou bloqueado |
+| [#40039402620](https://github.com/camilamta275/fiscalize-mobile/actions/runs/40039402620) | PR #18, submódulo `backend` 5 commits atrás da `main` | ❌ `Testes de API` falhou; o PR foi fechado e a entrega voltou no PR #19 com o submódulo corrigido |
+
 ---
 
 ## 7. Próximos passos (priorizados pelo backlog)
