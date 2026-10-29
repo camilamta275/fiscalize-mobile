@@ -1,12 +1,14 @@
 import { useLocalSearchParams } from 'expo-router';
 
-import { DemandFormView } from '@/views/demand-form-view';
+import { DemandDetailView } from '@/views/demand-detail-view';
 
 /**
  * Route — the expo-router entry for `/ocorrencias/[id]`, pushed by tapping a
- * card in the list. Reuses the same form as `new`, in edit mode.
+ * card in the list. Shows the read-only detail; editing lives in the nested
+ * `[id]/edit` route.
  */
-export default function EditOcorrenciaRoute() {
+// Updated by AI.
+export default function OcorrenciaDetailRoute() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  return <DemandFormView demandId={id} />;
+  return <DemandDetailView demandId={id} />;
 }

@@ -1,4 +1,4 @@
-import type { Demand, DemandListResult } from '@/models/demand';
+import type { Demand, DemandDetail, DemandListResult } from '@/models/demand';
 import { request } from '@/services/api-client';
 
 /**
@@ -30,8 +30,9 @@ export function list(params: ListDemandsParams = {}): Promise<DemandListResult> 
   return request<DemandListResult>(`/demands?${query.toString()}`);
 }
 
-export function getById(id: string): Promise<Demand> {
-  return request<Demand>(`/demands/${id}`);
+// Updated by AI.
+export function getById(id: string): Promise<DemandDetail> {
+  return request<DemandDetail>(`/demands/${id}`);
 }
 
 export type DemandInput = {
