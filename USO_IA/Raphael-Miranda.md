@@ -637,3 +637,15 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Definição de regras de governança do repositório.
 - **Tipo de contribuição da IA:** Nova seção normativa com lista de comandos proibidos sem permissão e esclarecimento de que a autorização não se estende a ações futuras.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0053
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/docs/Cobertura do Backlog de Automação.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Documento de cobertura atualizado para 53 testes, backend `b8d37cb`, suíte de MFA (17), relatórios JUnit/HTML, artefatos e issue automática; data e evidências revisadas.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; apenas resultados de testes com contas sintéticas.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Alinhar o documento de cobertura ao estado real da suíte após a implementação do MFA e das mudanças de CI.
+- **Etapa da atividade:** Atualização da documentação de cobertura de testes.
+- **Tipo de contribuição da IA:** Revisão de contagens e commits, nova subseção 4.1 para os 17 cenários de MFA, ajuste da matriz (TC01/TC18), da seção 6 (artefatos/issues) e inclusão do histórico de atualizações.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
