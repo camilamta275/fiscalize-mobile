@@ -625,3 +625,15 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Ajuste de usabilidade dos artefatos após revisão do usuário.
 - **Tipo de contribuição da IA:** Etapa de preparação que consolida relatórios e log em um único diretório antes do upload.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0052
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `AGENTS.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** AGENTS.md passou a proibir commit, push e abertura ou alteração de PR pela IA sem autorização explícita do responsável, exigida a cada ação.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Garantir que operações que alteram histórico ou remoto só ocorram com aprovação humana consciente.
+- **Etapa da atividade:** Definição de regras de governança do repositório.
+- **Tipo de contribuição da IA:** Nova seção normativa com lista de comandos proibidos sem permissão e esclarecimento de que a autorização não se estende a ações futuras.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
