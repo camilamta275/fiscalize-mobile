@@ -3,6 +3,8 @@ class Endpoints:
     """Configuration for Fiscalize backend API endpoints"""
     BASE_URL = "http://localhost:3000"
     LOGIN = f"{BASE_URL}/auth/login"
+    MFA_VERIFY = f"{BASE_URL}/auth/2fa/verify"
+    MFA_REQUEST_CRITICAL = f"{BASE_URL}/auth/2fa/request-critical"
     REFRESH = f"{BASE_URL}/auth/refresh"
     REGISTER = f"{BASE_URL}/auth/register"
     LOGOUT = f"{BASE_URL}/auth/logout"

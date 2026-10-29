@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 
 import { useSession } from '@/contexts/session-context';
+import { router } from 'expo-router';
 
 /**
  * ViewModel — owns the state and the actions of the sign-in screen.
@@ -16,6 +17,7 @@ export function useLoginViewModel() {
   const [fieldErrors, setFieldErrors] = useState<{ email?: string; senha?: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Updated by AI.
   const submit = useCallback(async () => {
     const errors = validate(email, senha);
     setFieldErrors(errors);
@@ -23,7 +25,8 @@ export function useLoginViewModel() {
 
     setIsSubmitting(true);
     try {
-      await signIn(email, senha);
+      const authenticated = await signIn(email, senha);
+      if (!authenticated) router.push('/verify-otp');
     } catch {
       // Already surfaced through `authError` below.
     } finally {

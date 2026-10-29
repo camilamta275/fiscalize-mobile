@@ -457,3 +457,183 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Reversão pontual e validação.
 - **Tipo de contribuição da IA:** Remoção do helper e restauração dos payloads inline sem reverter correções anteriores.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0038
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/config/settings.py`, `automation/tests/api/conftest.py`, `automation/tests/api/tests/test_user_login.py`, `automation/tests/api/tests/test_mfa_otp.py`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Testes MFA alinhados às regras de atribuição do AGENTS.md e registro movido ao arquivo individual.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados dados sintéticos nos testes.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Adequar os testes de API e a declaração de uso de IA às regras do repositório.
+- **Etapa da atividade:** Revisão, conformidade e validação dos testes.
+- **Tipo de contribuição da IA:** Inserção de atribuições inline, correção do histórico de IA e revisão estrutural dos testes.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0039
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/conftest.py`, `automation/README.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Suíte de API passou a verificar o backend e ignorar testes com mensagem clara quando localhost:3000 está indisponível.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados somente dados sintéticos e endpoint de health.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Corrigir a experiência de execução da suíte quando a API não está iniciada.
+- **Etapa da atividade:** Diagnóstico, ajuste de testes e documentação.
+- **Tipo de contribuição da IA:** Análise do traceback, criação de fixture de pré-condição, atualização do README e validação.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0040
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/conftest.py`, `automation/tests/api/tests/test_auth_security.py`, `automation/README.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Testes ajustados ao deviceId e a ausência da migração MFA agora gera orientação clara para aplicar o schema.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados dados sintéticos nos testes.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Diagnosticar falhas de integração e alinhar a suíte ao novo contrato MFA.
+- **Etapa da atividade:** Diagnóstico, correção de testes e documentação.
+- **Tipo de contribuição da IA:** Análise do traceback, atualização de payloads, detecção explícita de P2021 e instrução de migração.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0041
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/tests/test_mfa_otp.py`, `automation/tests/api/tests/test_user_login.py`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Testes passaram a tratar P2021 e enviar deviceId nos cenários de login.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados dados sintéticos nos testes.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Corrigir falhas observadas na execução da suíte após a ativação do MFA.
+- **Etapa da atividade:** Diagnóstico e ajuste de testes de integração.
+- **Tipo de contribuição da IA:** Análise de respostas HTTP, criação de helper de payload e tratamento explícito de migração ausente.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0042
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/tests/test_user_login.py`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Login principal passou a sinalizar a migração MFA ausente em vez de falhar com HTTP 500.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados dados sintéticos nos testes.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Completar o tratamento da falha P2021 na suíte de API.
+- **Etapa da atividade:** Validação focada e correção de teste.
+- **Tipo de contribuição da IA:** Aplicação do helper de pré-condição ao cenário de login principal.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0043
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/conftest.py`, `automation/tests/api/tests/test_mfa_otp.py`, `automation/tests/api/tests/test_auth_security.py`, `automation/tests/api/tests/test_user_login.py`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Testes ajustados para cooldown OTP e respostas mfaRequired, evitando 429 e KeyError quando a verificação é interativa.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados dados sintéticos nos testes.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Corrigir a suíte de integração após a ativação efetiva do cooldown e do MFA.
+- **Etapa da atividade:** Diagnóstico e correção dos testes.
+- **Tipo de contribuição da IA:** Análise do resumo de falhas, criação de helpers de login e adaptação de cenários dependentes de sessão.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0044
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/conftest.py`, `automation/tests/api/tests/test_user_login.py`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Testes autenticados agora tratam explicitamente o cooldown OTP de 60 segundos como pré-condição temporária.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados dados sintéticos nos testes.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Eliminar falhas intermitentes causadas pelo limite de reenvio do OTP.
+- **Etapa da atividade:** Validação e ajuste da suíte de integração.
+- **Tipo de contribuição da IA:** Identificação do status 429, criação de skip orientativo e aplicação no login principal.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0045
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/tests/test_mfa_otp.py`, `automation/tests/api/tests/test_user_login.py`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Corrigido import do pytest e aplicado skip ao cenário MFA quando o cooldown retorna 429.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados dados sintéticos nos testes.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Completar a estabilização dos testes após a execução real da API.
+- **Etapa da atividade:** Correção final e validação.
+- **Tipo de contribuição da IA:** Análise do erro NameError, ajuste de imports e tratamento consistente de rate limit.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0046
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `backend/.env.example`, `backend/README.md`, `backend/prisma/schema.prisma`, `backend/prisma/migrations/20261019193000_add_mfa_otp/migration.sql`, `backend/src/config/env.ts`, `backend/src/controllers/authController.ts`, `backend/src/routes/authRoutes.ts`, `backend/src/services/authService.ts`, `backend/src/services/otpService.ts`, `automation/requirements.txt`, `automation/README.md`, `automation/tests/api/conftest.py`, `automation/tests/api/tests/test_auth_security.py`, `automation/tests/api/tests/test_mfa_otp.py`, `automation/tests/api/tests/test_user_login.py`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Registro do MFA no backend, atribuições inline, correção do HTTP 500 ao faltar mfaToken e pré-condição de dispositivo confiável nos testes de API.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados apenas dados sintéticos e contas temporárias de teste.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Versionar a implementação de MFA que existia apenas no diretório de trabalho, adequá-la às regras de atribuição do AGENTS.md e tornar os cenários autenticados da suíte realmente executáveis.
+- **Etapa da atividade:** Consolidação, conformidade e validação de testes de integração.
+- **Tipo de contribuição da IA:** Inserção das atribuições inline, correção do erro 500 em `consumeMfaVerification`, criação de fixtures com acesso direto ao PostgreSQL para pré-confiar dispositivos e concluir desafios de ação crítica, atualização do README e execução da suíte completa.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0047
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `mobile/package.json`, `mobile/package-lock.json`, `mobile/src/services/device-service.ts`, `mobile/src/services/auth-service.ts`, `mobile/src/contexts/session-context.tsx`, `mobile/src/viewmodels/use-login-view-model.ts`, `mobile/src/views/otp-verification-view.tsx`, `mobile/src/views/profile-security-view.tsx`, `mobile/src/app/verify-otp.tsx`, `mobile/src/app/_layout.tsx`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Identificador de dispositivo passou a usar expo-crypto e foram adicionadas as atribuições inline exigidas pelo AGENTS.md no app mobile.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais; o identificador gerado é aleatório e armazenado apenas no SecureStore do próprio dispositivo.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Eliminar falha de login no primeiro acesso, já que o React Native 0.86 e o Expo SDK 57 não expõem `globalThis.crypto`, e regularizar as atribuições de código.
+- **Etapa da atividade:** Correção de defeito e conformidade com as regras do repositório.
+- **Tipo de contribuição da IA:** Substituição de `globalThis.crypto.randomUUID` por `Crypto.randomUUID()` do expo-crypto, instalação da dependência, inserção das atribuições e validação com `tsc` e `eslint`.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0048
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/conftest.py`, `automation/tests/api/tests/test_mfa_otp.py`, `automation/tests/api/tests/test_auth_security.py`, `automation/tests/api/tests/test_user_login.py`, `automation/README.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Testes de MFA passaram a concluir o fluxo real de OTP, sem forjar estado no banco, e foram adicionados cenários de código errado, expiração, uso único e vínculo de ação.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usadas apenas contas sintéticas descartáveis.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Substituir a pré-condição que gravava `trusted`/`verified_at` diretamente no banco, que mascarava a ausência de cobertura real do MFA.
+- **Etapa da atividade:** Revisão crítica da qualidade dos testes e ampliação da cobertura de segurança.
+- **Tipo de contribuição da IA:** Recuperação do código de seis dígitos a partir do hash armazenado, execução do fluxo real em `/auth/2fa/verify`, criação de 12 cenários de MFA e validação por mutação do backend.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0049
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/conftest.py`, `automation/requirements.txt`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Fixtures passaram a aceitar DATABASE_URL do ambiente, como no CI, e o driver psycopg foi fixado com o extra binary.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usadas apenas contas sintéticas.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Evitar que os cenários autenticados fossem silenciosamente ignorados no GitHub Actions, onde não existe `backend/.env`.
+- **Etapa da atividade:** Diagnóstico de falha de CI e correção de pré-condição.
+- **Tipo de contribuição da IA:** Leitura de `DATABASE_URL` do ambiente antes do arquivo, mensagem de skip mais precisa e validação do caminho do CI simulando a ausência de `backend/.env`.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0050
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `.github/workflows/regressao.yml`, `.gitignore`, `automation/scripts/junit_summary.py`, `automation/scripts/jest_to_junit.py`, `automation/README.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** CI passou a gerar relatórios JUnit XML e HTML, publicá-los como artefatos, exibir resumo no job summary e abrir ou atualizar issue automática quando um job falha.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; apenas resultados de testes com contas sintéticas.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Dar rastreabilidade das execuções de teste e tornar falhas visíveis sem exigir leitura manual dos logs do GitHub Actions.
+- **Etapa da atividade:** Observabilidade e resposta a falhas no pipeline de CI.
+- **Tipo de contribuição da IA:** Relatórios JUnit/HTML por job, scripts de resumo e de conversão do JSON do Jest, upload de artefatos e criação/deduplicação de issues com a etiqueta `falha-ci`.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0051
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `.github/workflows/regressao.yml`, `automation/README.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Artefatos do CI passaram a ser publicados em `fiscalize-mobile/reports/`, sem as pastas redundantes do runner, e o log da API foi movido para dentro de `reports`.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; apenas resultados de testes com contas sintéticas.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Corrigir a estrutura dos artefatos, que preservava o caminho absoluto do runner (`fiscalize-mobile/fiscalize-mobile/automation/reports` e `_temp`).
+- **Etapa da atividade:** Ajuste de usabilidade dos artefatos após revisão do usuário.
+- **Tipo de contribuição da IA:** Etapa de preparação que consolida relatórios e log em um único diretório antes do upload.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0052
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `AGENTS.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** AGENTS.md passou a proibir commit, push e abertura ou alteração de PR pela IA sem autorização explícita do responsável, exigida a cada ação.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Garantir que operações que alteram histórico ou remoto só ocorram com aprovação humana consciente.
+- **Etapa da atividade:** Definição de regras de governança do repositório.
+- **Tipo de contribuição da IA:** Nova seção normativa com lista de comandos proibidos sem permissão e esclarecimento de que a autorização não se estende a ações futuras.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo

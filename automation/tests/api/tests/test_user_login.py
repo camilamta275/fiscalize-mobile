@@ -1,32 +1,47 @@
+import os
+
 import requests
 from automation.tests.api.config.settings import Endpoints as endpoints
+from automation.tests.api.conftest import login_with_mfa
+
+# Created by AI.
+def device_fields():
+    return {
+        "deviceId": os.getenv("FISCALIZE_TEST_DEVICE_ID", "api-tests-device"),
+        "deviceName": "API tests",
+    }
 
 # Login de usuário - /auth/login
-def test_login_user(credentials):
-    login_data = {
-        "email": credentials["email"],
-        "senha": credentials["password"]
-    }
-    resp = requests.post(endpoints.LOGIN, json=login_data)
-    assert resp.status_code == 200
-    data = resp.json()
-    assert "token" in data
+# Updated by AI.
+def test_login_user(credentials, database):
+    session = login_with_mfa(
+        database,
+        credentials["email"],
+        credentials["password"],
+        os.getenv("FISCALIZE_TEST_DEVICE_ID", "shared"),
+    )
+    assert "token" in session
+    assert "refreshToken" in session
   
 # --- Testes para casos de erro no login do usuário ---  
 # Login de usuário com email inválido
+# Updated by AI.
 def test_login_user_invalid_email(credentials):
     login_data = {
         "email": "invalid_email@example.com",
-        "senha": credentials["password"]
+        "senha": credentials["password"],
+        **device_fields(),
     }
     resp = requests.post(endpoints.LOGIN, json=login_data)
     assert resp.status_code == 401
     
 # Login de usuário com senha inválida
+# Updated by AI.
 def test_login_user_invalid_password(credentials):
     login_data = {
         "email": credentials["email"],
-        "senha": credentials["incorrect_password"]
+        "senha": credentials["incorrect_password"],
+        **device_fields(),
     }
     resp = requests.post(endpoints.LOGIN, json=login_data)
     assert resp.status_code == 401

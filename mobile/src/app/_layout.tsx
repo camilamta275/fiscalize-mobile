@@ -26,6 +26,7 @@ export default function RootLayout() {
  * being resolved from SecureStore neither guard is trustworthy, so this
  * renders nothing — the splash overlay is what the user sees meanwhile.
  */
+// Updated by AI.
 function RootNavigator() {
   const { usuario, isLoading } = useSession();
 
@@ -39,6 +40,7 @@ function RootNavigator() {
 
       <Stack.Protected guard={!usuario}>
         <Stack.Screen name="login" />
+        <Stack.Screen name="verify-otp" />
         <Stack.Screen name="register" />
       </Stack.Protected>
     </Stack>

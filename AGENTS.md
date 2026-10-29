@@ -4,6 +4,26 @@ These rules apply to all AI-generated code in this repository, including new
 code and existing code that is updated, refactored, or materially modified by
 an AI.
 
+<!-- Created by AI. -->
+## Git operations require human approval
+
+The AI must never create commits, push to any remote, or open, update, or merge
+pull requests without explicit permission from the human responsible for the
+change. This applies to every action, every time:
+
+- Do not run `git commit`, `git push`, `git merge`, `git rebase`, `git reset`,
+  `git tag`, or any other command that writes to history or to a remote.
+- Do not run `gh pr create`, `gh pr edit`, `gh pr merge`, or equivalent commands
+  that create or change a pull request.
+- Preparing changes and showing the diff is allowed; writing to history or to a
+  remote requires permission.
+- A permission granted for one action does not authorize later actions. Ask
+  again for each commit, push, or pull request, unless the human explicitly
+  grants a broader authorization in the current conversation.
+
+Read-only inspection (`git status`, `git diff`, `git log`, `git show`,
+`git ls-remote`) remains allowed.
+
 ## Required AI attribution
 
 Every new or existing function, method, class, component, hook, type,
