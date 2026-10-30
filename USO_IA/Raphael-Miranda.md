@@ -649,3 +649,75 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Atualização da documentação de cobertura de testes.
 - **Tipo de contribuição da IA:** Revisão de contagens e commits, nova subseção 4.1 para os 17 cenários de MFA, ajuste da matriz (TC01/TC18), da seção 6 (artefatos/issues) e inclusão do histórico de atualizações.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0054
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `mobile/src/constants/theme.ts`, `mobile/src/constants/icons.ts`, `mobile/src/hooks/use-theme.ts`, `mobile/src/components/themed-text.tsx`, `mobile/src/components/profile-button.tsx`, `mobile/src/components/category-emoji.tsx`, `mobile/src/components/demand-card.tsx`, `mobile/src/components/ui/button.tsx`, `mobile/src/components/ui/card.tsx`, `mobile/src/components/ui/empty-state.tsx`, `mobile/src/components/ui/gradient-view.tsx`, `mobile/src/components/ui/icon.tsx`, `mobile/src/components/ui/inline-message.tsx`, `mobile/src/components/ui/screen-header.tsx`, `mobile/src/components/ui/stat-tile.tsx`, `mobile/src/components/ui/status-badge.tsx`, `mobile/src/components/ui/text-field.tsx`, `mobile/src/views/login-view.tsx`, `mobile/src/views/register-view.tsx`, `mobile/src/views/otp-verification-view.tsx`, `mobile/src/views/demands-list-view.tsx`, `mobile/src/views/demand-form-view.tsx`, `mobile/src/views/rights-portal-view.tsx`, `mobile/src/views/profile-edit-view.tsx`, `mobile/src/views/profile-security-view.tsx`, `mobile/src/app/_layout.tsx`, `mobile/src/app/(app)/_layout.tsx`, `.gitignore`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Telas do app móvel redesenhadas no padrão visual do projeto de referência citycare-routing-hub: tokens, componentes de UI, cabeçalho, cards, badges e formulários, mantendo Expo.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais; a verificação visual usa contas sintéticas do seed do backend.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Alinhar a identidade visual do aplicativo móvel à referência de design, sem trocar a stack Expo/React Native existente.
+- **Etapa da atividade:** Refatoração de interface do aplicativo móvel.
+- **Tipo de contribuição da IA:** Porte dos tokens de cor, tipografia, raios e sombras da referência; criação de primitivas de UI (card, botão, campo, cabeçalho, badge, mensagem, estado vazio, tile); reescrita das telas existentes (login, cadastro, OTP, lista, formulário, perfil, edição e segurança); verificação de tipos e empacotamento iOS.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0055
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `backend/src/config/env.ts`, `backend/src/services/otpService.ts`, `backend/src/server.ts`, `backend/.env.example`, `backend/README.md`, `backend/package.json`, `backend/package-lock.json`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Transporte de OTP por SMTP do Gmail, com seleção de provedor (gmail/brevo/resend), validação na inicialização e registro das falhas do provedor.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais. As credenciais do Gmail permanecem apenas no `.env` local, que está fora do controle de versão.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Permitir a entrega dos códigos MFA sem domínio próprio, usando o SMTP do Gmail enquanto a verificação de domínio não é concluída.
+- **Etapa da atividade:** Implementação do transporte de e-mail do MFA.
+- **Tipo de contribuição da IA:** Abstração de provedor no `otpService` com transportes Gmail, Brevo e Resend; SMTP via nodemailer com timeouts e pool; configuração e validação em `env.ts`; verificação na inicialização do servidor; atualização de `.env.example` e `README.md`.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0056
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `backend/src/config/env.ts`, `backend/src/services/otpService.ts`, `backend/src/server.ts`, `backend/.env.example`, `backend/README.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Remoção dos provedores Resend e Brevo, mantendo apenas o SMTP do Gmail como transporte dos códigos MFA.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais. As credenciais do Gmail permanecem apenas no `.env` local, fora do controle de versão.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Simplificar a configuração de e-mail do MFA conforme decisão do responsável pelo projeto.
+- **Etapa da atividade:** Simplificação do transporte de e-mail do MFA.
+- **Tipo de contribuição da IA:** Remoção das funções de envio por Resend e Brevo e das variáveis `EMAIL_PROVIDER`, `BREVO_API_KEY` e `RESEND_API_KEY`; validação restrita ao Gmail em `env.ts`; atualização de `.env.example` e `README.md`.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0057
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `backend/src/services/otpService.ts`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** OTP passou a resolver o IPv4 do `smtp.gmail.com` e conectar pelo IP, com nova tentativa automática, corrigindo o erro EDNS que impedia a entrega.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais. O teste de entrega usou o próprio endereço Gmail configurado no `.env` local.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Corrigir a falha de entrega do código MFA causada por resolução DNS lenta e IPv6 indisponível na rede local.
+- **Etapa da atividade:** Correção de defeito no transporte de e-mail do MFA.
+- **Tipo de contribuição da IA:** Resolução prévia do IPv4 via `dns.lookup` com cache de 10 minutos, conexão por IP com `servername` explícito para SNI/TLS, reconfiguração do transporte e nova tentativa em falhas de conexão.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0058
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `backend/src/services/demandService.ts`, `mobile/src/models/demand.ts`, `mobile/src/services/demand-service.ts`, `mobile/src/components/demand-card.tsx`, `mobile/src/components/demand-timeline.tsx`, `mobile/src/components/ui/priority-badge.tsx`, `mobile/src/components/ui/screen-header.tsx`, `mobile/src/constants/icons.ts`, `mobile/src/views/demand-detail-view.tsx`, `mobile/src/viewmodels/use-demand-detail-view-model.ts`, `mobile/src/app/(app)/[id].tsx`, `mobile/src/app/(app)/[id]/edit.tsx`, `mobile/src/app/(app)/_layout.tsx`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Tela de detalhe da ocorrência criada no padrão da referência citycare-routing-hub, com foto, card de informações, prazo, progresso e histórico; edição movida para rota própria.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais; a verificação funcional usou contas e chamados sintéticos do seed do backend.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Alinhar a tela interna de ocorrências do aplicativo móvel ao layout de detalhe da referência de design.
+- **Etapa da atividade:** Implementação de interface e ampliação do contrato da API de detalhe.
+- **Tipo de contribuição da IA:** Criação da view de detalhe e do viewmodel; componentes de prioridade e linha do tempo; ajuste do cabeçalho para título compacto; exposição de órgão, prioridade, SLA, foto, resolução e timeline no `GET /demands/:id`; rota aninhada de edição; verificação de tipos, lint e empacotamento iOS.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0059
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `mobile/.npmrc`, `backend/.npmrc`, `mobile/package-lock.json`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Registro npm fixado no servidor público e dependências opcionais reinstaladas, corrigindo o `expo start --tunnel`, que falhava por binário do ngrok ausente.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais; apenas configuração de registro de pacotes e reinstalação de dependências de desenvolvimento.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Restabelecer a instalação de dependências e o túnel de desenvolvimento do aplicativo móvel em uma rede sem acesso ao registro corporativo.
+- **Etapa da atividade:** Configuração do ambiente de desenvolvimento.
+- **Tipo de contribuição da IA:** Criação dos arquivos `.npmrc` com o registro público; reinstalação de `@expo/ngrok-bin-darwin-arm64` e `@expo/ws-tunnel`; correção da URL `resolved` do `expo-crypto` no lockfile; validação do túnel alternativo via `EXPO_UNSTABLE_TUNNEL_V2`.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo

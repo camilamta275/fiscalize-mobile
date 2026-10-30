@@ -1,22 +1,35 @@
-import { Link } from 'expo-router';
-import { useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
   Pressable,
   RefreshControl,
+  ScrollView,
   StyleSheet,
   TextInput,
+  View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { DemandCard } from '@/components/demand-card';
+import { ProfileButton } from '@/components/profile-button';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Spacing } from '@/constants/theme';
+import { EmptyState } from '@/components/ui/empty-state';
+import { GradientView } from '@/components/ui/gradient-view';
+import { Icon } from '@/components/ui/icon';
+import { InlineMessage } from '@/components/ui/inline-message';
+import { StatTile } from '@/components/ui/stat-tile';
+import { STATUS_TONES } from '@/components/ui/status-badge';
+import { Icons } from '@/constants/icons';
+import { Gradients, Radius, Shadows, Spacing } from '@/constants/theme';
+import { useSession } from '@/contexts/session-context';
 import { useTheme } from '@/hooks/use-theme';
-import type { Demand, DemandStatus } from '@/models/demand';
+import type { DemandStatus } from '@/models/demand';
 import { useDemandsListViewModel } from '@/viewmodels/use-demands-list-view-model';
 
+// Created by AI.
 const ALL_STATUSES: DemandStatus[] = [
   'Aberto',
   'Em Análise',
@@ -26,11 +39,13 @@ const ALL_STATUSES: DemandStatus[] = [
   'Fechado',
 ];
 
+// Created by AI.
+const SUMMARY_STATUSES: DemandStatus[] = ['Aberto', 'Em Análise', 'Em Andamento'];
+
 /**
- * View — the demands list. Holds no state of its own except the search
- * box's draft text (applied to the ViewModel only on submit, so typing
- * doesn't re-query on every keystroke); everything else comes from the
- * ViewModel.
+ * View — the demands list, laid out like the reference's citizen dashboard:
+ * gradient header with greeting and search, status chips and summary counts
+ * on an overlapping sheet, then the ticket cards and a floating action button.
  */
 // Updated by AI.
 export function DemandsListView() {
@@ -46,166 +61,292 @@ export function DemandsListView() {
     refresh,
     loadMore,
   } = useDemandsListViewModel();
+  const { usuario } = useSession();
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const [searchDraft, setSearchDraft] = useState('');
+  const [isFocused, setIsFocused] = useState(true);
 
-  return (
-    <SafeAreaView style={styles.safeArea}>
-      <ThemedView style={styles.header}>
-        <Link href="/profile" asChild>
-          <Pressable accessibilityRole="button">
-            <ThemedText type="link">Meus dados e privacidade</ThemedText>
-          </Pressable>
-        </Link>
-        <TextInput
-          onChangeText={setSearchDraft}
-          onSubmitEditing={() => setSearch(searchDraft)}
-          placeholder="Buscar por endereço..."
-          placeholderTextColor={theme.textSecondary}
-          returnKeyType="search"
-          style={[styles.input, { backgroundColor: theme.backgroundElement, color: theme.text }]}
-          value={searchDraft}
-        />
-
-        <FlatList
-          contentContainerStyle={styles.chipsRow}
-          data={ALL_STATUSES}
-          horizontal
-          keyExtractor={(status) => status}
-          renderItem={({ item: status }) => {
-            const selected = statusFilter === status;
-            return (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityState={{ selected }}
-                onPress={() => setStatusFilter(selected ? null : status)}
-                style={[
-                  styles.chip,
-                  { backgroundColor: selected ? theme.backgroundSelected : theme.backgroundElement },
-                ]}>
-                <ThemedText type="small">{status}</ThemedText>
-              </Pressable>
-            );
-          }}
-          showsHorizontalScrollIndicator={false}
-        />
-      </ThemedView>
-
-      {error ? (
-        <ThemedText style={styles.feedback} themeColor="textSecondary">
-          {error}
-        </ThemedText>
-      ) : null}
-
-      {isLoading ? (
-        <ActivityIndicator color={theme.text} style={styles.feedback} />
-      ) : (
-        <FlatList
-          contentContainerStyle={styles.listContent}
-          data={demands}
-          ItemSeparatorComponent={() => <ThemedView style={styles.separator} />}
-          keyExtractor={(item) => item.id}
-          ListEmptyComponent={
-            <ThemedText style={styles.feedback} themeColor="textSecondary">
-              Nenhuma ocorrência encontrada.
-            </ThemedText>
-          }
-          ListFooterComponent={
-            isLoadingMore ? <ActivityIndicator color={theme.text} style={styles.feedback} /> : null
-          }
-          onEndReached={loadMore}
-          onEndReachedThreshold={0.4}
-          refreshControl={
-            <RefreshControl onRefresh={refresh} refreshing={isRefreshing} tintColor={theme.text} />
-          }
-          renderItem={({ item }) => <DemandListItem demand={item} />}
-        />
-      )}
-
-      <Link href="/new" asChild>
-        <Pressable
-          accessibilityRole="button"
-          style={StyleSheet.flatten([styles.fab, { backgroundColor: theme.backgroundSelected }])}>
-          <ThemedText type="smallBold">+ Nova</ThemedText>
-        </Pressable>
-      </Link>
-    </SafeAreaView>
+  useFocusEffect(
+    useCallback(() => {
+      setIsFocused(true);
+      return () => setIsFocused(false);
+    }, [])
   );
-}
 
-function DemandListItem({ demand }: { demand: Demand }) {
+  const firstName = usuario?.nome.trim().split(' ')[0] ?? '';
+
   return (
-    <Link href={{ pathname: '/[id]', params: { id: demand.id } }} asChild>
-      <Pressable accessibilityRole="button">
-        <ThemedView style={styles.card} type="backgroundElement">
-          <ThemedView style={styles.cardTopRow} type="backgroundElement">
-            <ThemedText type="smallBold">{demand.protocolo}</ThemedText>
-            <ThemedText type="small" themeColor="textSecondary">
-              {demand.status}
-            </ThemedText>
-          </ThemedView>
-          <ThemedText numberOfLines={1} type="default">
-            {demand.title}
-          </ThemedText>
-          <ThemedText numberOfLines={2} themeColor="textSecondary" type="small">
-            {demand.location}
-          </ThemedText>
-        </ThemedView>
+    <View style={[styles.root, { backgroundColor: theme.background }]}>
+      <StatusBar style={isFocused ? 'light' : 'dark'} />
+
+      <FlatList
+        contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
+        data={demands}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        keyExtractor={(item) => item.id}
+        ListEmptyComponent={
+          isLoading ? (
+            <ActivityIndicator color={theme.primary} style={styles.loading} />
+          ) : (
+            <EmptyState
+              description="Assim que você registrar uma ocorrência, ela aparece aqui."
+              icon={Icons.document}
+              title="Nenhuma ocorrência encontrada"
+            />
+          )
+        }
+        ListFooterComponent={
+          isLoadingMore ? <ActivityIndicator color={theme.primary} style={styles.loading} /> : null
+        }
+        ListHeaderComponent={
+          <>
+            <GradientView
+              colors={Gradients.hero}
+              style={[styles.hero, { paddingTop: insets.top + Spacing.two }]}>
+              <View style={styles.heroTop}>
+                <View style={styles.greeting}>
+                  <ThemedText style={styles.greetingText} type="small">
+                    {firstName ? `Olá, ${firstName} 👋` : 'Olá 👋'}
+                  </ThemedText>
+                  <ThemedText style={styles.heroTitle} type="title">
+                    Meus Chamados
+                  </ThemedText>
+                </View>
+                <ProfileButton onGradient />
+              </View>
+
+              <View style={[styles.search, { backgroundColor: theme.card }]}>
+                <Icon color={theme.mutedForeground} name={Icons.search} size={16} />
+                <TextInput
+                  onChangeText={setSearchDraft}
+                  onSubmitEditing={() => setSearch(searchDraft)}
+                  placeholder="Buscar por endereço..."
+                  placeholderTextColor={theme.mutedForeground}
+                  returnKeyType="search"
+                  style={[styles.searchInput, { color: theme.text }]}
+                  value={searchDraft}
+                />
+                {searchDraft.length > 0 ? (
+                  <Pressable
+                    accessibilityLabel="Limpar busca"
+                    accessibilityRole="button"
+                    hitSlop={Spacing.two}
+                    onPress={() => {
+                      setSearchDraft('');
+                      setSearch('');
+                    }}>
+                    <Icon color={theme.mutedForeground} name={Icons.close} size={16} />
+                  </Pressable>
+                ) : null}
+              </View>
+            </GradientView>
+
+            <View style={[styles.sheet, { backgroundColor: theme.background }]}>
+              <ScrollView
+                contentContainerStyle={styles.chipsRow}
+                horizontal
+                showsHorizontalScrollIndicator={false}>
+                <StatusChip
+                  label="Todos"
+                  onPress={() => setStatusFilter(null)}
+                  selected={statusFilter === null}
+                />
+                {ALL_STATUSES.map((status) => (
+                  <StatusChip
+                    key={status}
+                    label={STATUS_TONES[status].label}
+                    onPress={() => setStatusFilter(statusFilter === status ? null : status)}
+                    selected={statusFilter === status}
+                  />
+                ))}
+              </ScrollView>
+
+              <View style={styles.statsRow}>
+                {SUMMARY_STATUSES.map((status) => {
+                  const tone = STATUS_TONES[status];
+                  return (
+                    <StatTile
+                      key={status}
+                      label={tone.label}
+                      tone={{ background: tone.background, foreground: tone.foreground }}
+                      value={demands.filter((demand) => demand.status === status).length}
+                    />
+                  );
+                })}
+              </View>
+
+              <View style={styles.sectionRow}>
+                <ThemedText type="subtitle">Ocorrências</ThemedText>
+                <ThemedText themeColor="mutedForeground" type="caption">
+                  {demands.length} {demands.length === 1 ? 'registro' : 'registros'}
+                </ThemedText>
+              </View>
+
+              {error ? <InlineMessage message={error} /> : null}
+            </View>
+          </>
+        }
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.4}
+        refreshControl={
+          <RefreshControl
+            colors={[theme.primary]}
+            onRefresh={refresh}
+            refreshing={isRefreshing}
+            tintColor={theme.primary}
+          />
+        }
+        renderItem={({ item }) => (
+          <View style={styles.cardWrap}>
+            <DemandCard demand={item} />
+          </View>
+        )}
+        showsVerticalScrollIndicator={false}
+        style={styles.list}
+      />
+
+      <Pressable
+        accessibilityLabel="Registrar nova ocorrência"
+        accessibilityRole="button"
+        onPress={() => router.push('/new')}
+        style={({ pressed }) => [
+          styles.fab,
+          Shadows.floating,
+          {
+            backgroundColor: theme.primary,
+            bottom: insets.bottom + Spacing.four,
+            shadowColor: theme.shadow,
+          },
+          pressed && styles.pressed,
+        ]}>
+        <Icon color={theme.primaryForeground} name={Icons.plus} size={26} />
       </Pressable>
-    </Link>
+    </View>
   );
 }
 
+// Created by AI.
+function StatusChip({
+  label,
+  onPress,
+  selected,
+}: {
+  label: string;
+  onPress: () => void;
+  selected: boolean;
+}) {
+  const theme = useTheme();
+
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ selected }}
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.chip,
+        {
+          backgroundColor: selected ? theme.primary : theme.card,
+          borderColor: selected ? theme.primary : theme.border,
+        },
+        pressed && styles.pressed,
+      ]}>
+      <ThemedText
+        style={{ color: selected ? theme.primaryForeground : theme.textSecondary }}
+        type="smallBold">
+        {label}
+      </ThemedText>
+    </Pressable>
+  );
+}
+
+// Updated by AI.
 const styles = StyleSheet.create({
-  safeArea: {
+  root: {
     flex: 1,
   },
-  header: {
-    gap: Spacing.two,
-    padding: Spacing.three,
+  list: {
+    flex: 1,
   },
-  input: {
-    borderRadius: Spacing.two,
-    fontSize: 16,
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
-  },
-  chipsRow: {
-    gap: Spacing.two,
-  },
-  chip: {
-    borderRadius: Spacing.five,
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.one,
-  },
-  feedback: {
-    marginTop: Spacing.three,
+  hero: {
+    gap: Spacing.three,
+    paddingBottom: Spacing.five,
     paddingHorizontal: Spacing.three,
   },
-  listContent: {
-    paddingBottom: Spacing.six,
-    paddingHorizontal: Spacing.three,
-  },
-  separator: {
-    height: Spacing.two,
-  },
-  card: {
-    borderRadius: Spacing.three,
-    gap: Spacing.one,
-    padding: Spacing.three,
-  },
-  cardTopRow: {
+  heroTop: {
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
+  greeting: {
+    gap: 2,
+  },
+  greetingText: {
+    color: 'rgba(255,255,255,0.82)',
+  },
+  heroTitle: {
+    color: '#FFFFFF',
+    fontSize: 26,
+  },
+  search: {
+    alignItems: 'center',
+    borderRadius: Radius.md,
+    flexDirection: 'row',
+    gap: Spacing.two,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: 10,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    padding: 0,
+  },
+  sheet: {
+    borderTopLeftRadius: Radius.xl,
+    borderTopRightRadius: Radius.xl,
+    gap: Spacing.three,
+    marginTop: -Spacing.three,
+    paddingHorizontal: Spacing.three,
+    paddingTop: Spacing.three,
+  },
+  chipsRow: {
+    gap: Spacing.two,
+    paddingRight: Spacing.three,
+  },
+  chip: {
+    borderRadius: Radius.pill,
+    borderWidth: 1,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: 6,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    gap: Spacing.two,
+  },
+  sectionRow: {
+    alignItems: 'baseline',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  separator: {
+    height: Spacing.two,
+  },
+  cardWrap: {
+    paddingHorizontal: Spacing.three,
+  },
+  loading: {
+    marginVertical: Spacing.five,
+  },
   fab: {
     alignItems: 'center',
-    borderRadius: Spacing.five,
-    bottom: Spacing.four,
-    paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.three,
+    borderRadius: Radius.pill,
+    height: 56,
+    justifyContent: 'center',
     position: 'absolute',
     right: Spacing.four,
+    width: 56,
+  },
+  pressed: {
+    opacity: 0.8,
   },
 });

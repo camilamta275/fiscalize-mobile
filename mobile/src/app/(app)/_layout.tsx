@@ -1,29 +1,31 @@
 import { Stack } from 'expo-router';
 
-import { ProfileButton } from '@/components/profile-button';
+import { useTheme } from '@/hooks/use-theme';
 
 /**
  * Route — the layout for every screen behind sign-in. Guarded by
  * `Stack.Protected` in src/app/_layout.tsx, so this file itself doesn't need
- * to know anything about auth. The ocorrências list is the app's only entry
- * point (no Home/tabs) — `new` and `[id]` push on top of it.
+ * to know anything about auth. Each screen renders its own `ScreenHeader`
+ * instead of the native one, so the header can carry the reference's styling
+ * (gradient on the dashboard, bordered card elsewhere).
  */
 // Updated by AI.
 export default function AppLayout() {
+  const theme = useTheme();
+
   return (
-    <Stack>
-      <Stack.Screen
-        name="index"
-        options={{
-          title: 'Ocorrências',
-          headerRight: () => <ProfileButton />,
-        }}
-      />
-      <Stack.Screen name="new" options={{ title: 'Nova ocorrência' }} />
-      <Stack.Screen name="[id]" options={{ title: 'Editar ocorrência' }} />
-      <Stack.Screen name="profile" options={{ title: 'Meus dados e privacidade' }} />
-      <Stack.Screen name="profile/edit" options={{ title: 'Editar meus dados' }} />
-      <Stack.Screen name="profile/security" options={{ title: 'Segurança' }} />
+    <Stack
+      screenOptions={{
+        contentStyle: { backgroundColor: theme.background },
+        headerShown: false,
+      }}>
+      <Stack.Screen name="index" />
+      <Stack.Screen name="new" />
+      <Stack.Screen name="[id]" />
+      <Stack.Screen name="[id]/edit" />
+      <Stack.Screen name="profile" />
+      <Stack.Screen name="profile/edit" />
+      <Stack.Screen name="profile/security" />
     </Stack>
   );
 }

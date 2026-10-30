@@ -1,21 +1,39 @@
 import { Image } from 'expo-image';
-import { Link } from 'expo-router';
+import { router } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, TextInput } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { CameraCapture } from '@/components/camera-capture';
+import { CategoryEmoji } from '@/components/category-emoji';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Spacing } from '@/constants/theme';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Icon } from '@/components/ui/icon';
+import { InlineMessage } from '@/components/ui/inline-message';
+import { ScreenHeader } from '@/components/ui/screen-header';
+import { TextField } from '@/components/ui/text-field';
+import { Icons, type IconName } from '@/constants/icons';
+import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useDemandFormViewModel } from '@/viewmodels/use-demand-form-view-model';
 
 /**
  * View — the create/edit form for a demand. Holds no state of its own;
  * everything comes from the ViewModel, which decides create-vs-edit from
- * whether a `demandId` was passed in.
+ * whether a `demandId` was passed in. The layout follows the reference's
+ * "new ticket" wizard: one card per step, with a category grid, a location
+ * card and a dashed photo slot.
  */
+// Updated by AI.
 export function DemandFormView({ demandId }: { demandId?: string }) {
   const {
     isEditing,
@@ -45,7 +63,13 @@ export function DemandFormView({ demandId }: { demandId?: string }) {
     submit,
   } = useDemandFormViewModel(demandId);
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const [isCameraOpen, setIsCameraOpen] = useState(false);
+
+  const goBack = () => {
+    if (router.canGoBack()) router.back();
+    else router.replace('/');
+  };
 
   if (isCameraOpen) {
     return (
@@ -61,274 +85,367 @@ export function DemandFormView({ demandId }: { demandId?: string }) {
 
   if (isLoadingCategories || isLoadingDemand) {
     return (
-      <SafeAreaView style={styles.safeArea}>
-        <ActivityIndicator color={theme.text} style={styles.centered} />
-      </SafeAreaView>
+      <View style={[styles.root, { backgroundColor: theme.background }]}>
+        <ScreenHeader
+          onBack={goBack}
+          subtitle={isEditing ? 'Carregando ocorrência…' : 'Nova ocorrência'}
+          title={isEditing ? 'Editar ocorrência' : 'Nova ocorrência'}
+        />
+        <ActivityIndicator color={theme.primary} style={styles.loading} />
+      </View>
     );
   }
 
   if (loadError) {
     return (
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedText style={styles.centered} themeColor="textSecondary">
-          {loadError}
-        </ThemedText>
-      </SafeAreaView>
+      <View style={[styles.root, { backgroundColor: theme.background }]}>
+        <ScreenHeader onBack={goBack} title="Ocorrência" />
+        <View style={styles.stateContainer}>
+          <InlineMessage message={loadError} />
+        </View>
+      </View>
     );
   }
 
   if (didSucceed) {
     return (
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.container}>
-          <ThemedText type="subtitle">
+      <View style={[styles.root, { backgroundColor: theme.background }]}>
+        <ScreenHeader onBack={goBack} title={isEditing ? 'Editar ocorrência' : 'Nova ocorrência'} />
+        <View style={styles.success}>
+          <View style={[styles.successIcon, { backgroundColor: theme.statusProgressBg }]}>
+            <Icon color={theme.statusProgress} name={Icons.checkCircle} size={34} />
+          </View>
+          <ThemedText style={styles.centered} type="heading">
             {isEditing ? 'Ocorrência atualizada!' : 'Ocorrência registrada!'}
           </ThemedText>
-          <Link href="/" asChild>
-            <Pressable
-              accessibilityRole="button"
-              style={StyleSheet.flatten([
-                styles.button,
-                { backgroundColor: theme.backgroundSelected },
-              ])}>
-              <ThemedText type="smallBold">Voltar para a lista</ThemedText>
-            </Pressable>
-          </Link>
-        </ThemedView>
-      </SafeAreaView>
+          <ThemedText style={styles.centered} themeColor="mutedForeground" type="small">
+            {isEditing
+              ? 'As alterações já estão salvas.'
+              : 'Agora é só acompanhar o andamento em Meus Chamados.'}
+          </ThemedText>
+          <Button
+            icon={Icons.arrowLeft}
+            onPress={() => router.replace('/')}
+            style={styles.successButton}
+            title="Voltar para a lista"
+          />
+        </View>
+      </View>
     );
   }
 
-  return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.container}>
-        {isBlocked ? (
-          <ThemedView style={styles.card} type="backgroundElement">
-            <ThemedText type="smallBold">Não é possível editar</ThemedText>
+  if (isBlocked) {
+    return (
+      <View style={[styles.root, { backgroundColor: theme.background }]}>
+        <ScreenHeader
+          onBack={goBack}
+          subtitle="Somente leitura"
+          title={isEditing ? 'Editar ocorrência' : 'Nova ocorrência'}
+        />
+        <View style={styles.stateContainer}>
+          <Card style={styles.blockedCard} tone="gold">
+            <View style={styles.sectionTitle}>
+              <View style={[styles.sectionIcon, { backgroundColor: theme.goldSoft }]}>
+                <Icon color={theme.gold} name={Icons.lock} size={16} />
+              </View>
+              <ThemedText type="subtitle">Não é possível editar</ThemedText>
+            </View>
             <ThemedText themeColor="textSecondary" type="small">
               Esta ocorrência está com status &quot;{currentStatus}&quot; e não aceita mais
               alterações.
             </ThemedText>
-          </ThemedView>
-        ) : (
-          <>
-            <Field
+            <Button icon={Icons.arrowLeft} onPress={goBack} title="Voltar" variant="secondary" />
+          </Card>
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <View style={[styles.root, { backgroundColor: theme.background }]}>
+      <ScreenHeader
+        onBack={goBack}
+        subtitle={isEditing ? 'Atualize os dados da ocorrência' : 'Registre um problema urbano'}
+        title={isEditing ? 'Editar ocorrência' : 'Nova ocorrência'}
+      />
+
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={styles.flex}>
+        <ScrollView
+          contentContainerStyle={[
+            styles.scroll,
+            { paddingBottom: insets.bottom + Spacing.five },
+          ]}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}>
+          <Card style={styles.card}>
+            <SectionTitle icon={Icons.edit} title="O que aconteceu?" />
+            <TextField
               error={fieldErrors.title}
               label="Título"
               onChangeText={setTitle}
               placeholder="Ex: Buraco na via"
-              theme={theme}
               value={title}
             />
-
-            <Field
+            <TextField
               error={fieldErrors.description}
               label="Descrição"
               multiline
               onChangeText={setDescription}
-              placeholder="Descreva o problema com detalhes"
-              theme={theme}
+              placeholder="Descreva o problema com detalhes, incluindo pontos de referência."
               value={description}
             />
+          </Card>
 
-            <ThemedView style={styles.field}>
-              <ThemedText type="smallBold">Categoria</ThemedText>
-              <ThemedView style={styles.chipsWrap} type="background">
-                {categories.map((category) => {
-                  const selected = categoryId === category.id;
-                  return (
-                    <Pressable
-                      accessibilityRole="button"
-                      accessibilityState={{ selected }}
-                      key={category.id}
-                      onPress={() => setCategoryId(category.id)}
-                      style={[
-                        styles.chip,
-                        {
-                          backgroundColor: selected
-                            ? theme.backgroundSelected
-                            : theme.backgroundElement,
-                        },
-                      ]}>
-                      <ThemedText type="small">{category.nome}</ThemedText>
-                    </Pressable>
-                  );
-                })}
-              </ThemedView>
-              {fieldErrors.categoryId ? (
-                <ThemedText themeColor="textSecondary" type="small">
-                  {fieldErrors.categoryId}
-                </ThemedText>
-              ) : null}
-            </ThemedView>
+          <Card style={styles.card}>
+            <SectionTitle icon={Icons.filter} title="Categoria" />
+            <ThemedText themeColor="mutedForeground" type="small">
+              Selecione a categoria que melhor descreve a ocorrência.
+            </ThemedText>
+            <View style={styles.categoryGrid}>
+              {categories.map((category) => {
+                const selected = categoryId === category.id;
+                return (
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityState={{ selected }}
+                    key={category.id}
+                    onPress={() => setCategoryId(category.id)}
+                    style={({ pressed }) => [
+                      styles.categoryTile,
+                      {
+                        backgroundColor: selected ? theme.primarySoft : theme.background,
+                        borderColor: selected ? theme.primary : theme.border,
+                      },
+                      pressed && styles.pressed,
+                    ]}>
+                    <CategoryEmoji name={category.nome} size={22} />
+                    <ThemedText
+                      numberOfLines={2}
+                      style={{ color: selected ? theme.primary : theme.text }}
+                      type="smallBold">
+                      {category.nome}
+                    </ThemedText>
+                    {selected ? (
+                      <View style={[styles.checkBadge, { backgroundColor: theme.primary }]}>
+                        <Icon color={theme.primaryForeground} name={Icons.check} size={10} />
+                      </View>
+                    ) : null}
+                  </Pressable>
+                );
+              })}
+            </View>
+            {fieldErrors.categoryId ? (
+              <ThemedText style={{ color: theme.destructive }} type="caption">
+                {fieldErrors.categoryId}
+              </ThemedText>
+            ) : null}
+          </Card>
 
-            <Field
+          <Card style={styles.card}>
+            <SectionTitle icon={Icons.mapPin} title="Localização" />
+            <TextField
               error={fieldErrors.location}
               label="Endereço"
               onChangeText={setLocation}
               placeholder="Rua, número, bairro, cidade"
-              theme={theme}
               value={location}
             />
-
-            <Pressable
-              accessibilityRole="button"
-              disabled={isCapturingLocation}
+            <Button
+              icon={Icons.mapPin}
+              loading={isCapturingLocation}
               onPress={captureLocation}
-              style={[styles.button, { backgroundColor: theme.backgroundElement }]}>
-              {isCapturingLocation ? (
-                <ActivityIndicator color={theme.text} />
-              ) : (
-                <ThemedText type="smallBold">
-                  {coords ? 'Localização capturada ✓' : 'Usar minha localização atual'}
+              title={coords ? 'Atualizar minha localização' : 'Usar minha localização atual'}
+              variant="secondary"
+            />
+            {coords ? (
+              <View style={[styles.coords, { backgroundColor: theme.accentSoft }]}>
+                <Icon color={theme.accent} name={Icons.checkCircle} size={14} />
+                <ThemedText style={{ color: theme.accent }} type="caption">
+                  {coords.latitude.toFixed(6)}, {coords.longitude.toFixed(6)}
                 </ThemedText>
-              )}
-            </Pressable>
+              </View>
+            ) : null}
+          </Card>
 
-            <ThemedView style={styles.field}>
-              <ThemedText type="smallBold">Foto</ThemedText>
-              {photoUri ? (
+          <Card style={styles.card}>
+            <SectionTitle icon={Icons.camera} title="Foto" />
+            {photoUri ? (
+              <>
                 <Image contentFit="cover" source={{ uri: photoUri }} style={styles.photoPreview} />
-              ) : null}
+                <Button
+                  icon={Icons.camera}
+                  onPress={() => setIsCameraOpen(true)}
+                  title="Trocar foto"
+                  variant="secondary"
+                />
+              </>
+            ) : (
               <Pressable
                 accessibilityRole="button"
                 onPress={() => setIsCameraOpen(true)}
-                style={[styles.button, { backgroundColor: theme.backgroundElement }]}>
-                <ThemedText type="smallBold">
-                  {photoUri ? 'Tirar outra foto' : 'Tirar foto'}
+                style={({ pressed }) => [
+                  styles.photoDropzone,
+                  { borderColor: theme.border },
+                  pressed && styles.pressed,
+                ]}>
+                <View style={[styles.dropzoneIcon, { backgroundColor: theme.primarySoft }]}>
+                  <Icon color={theme.primary} name={Icons.camera} size={22} />
+                </View>
+                <ThemedText type="smallBold">Tirar foto da ocorrência</ThemedText>
+                <ThemedText themeColor="mutedForeground" type="caption">
+                  Ajuda a equipe a identificar o problema
                 </ThemedText>
               </Pressable>
-              <ThemedText themeColor="textSecondary" type="small">
-                A foto fica só no aparelho por enquanto — o backend ainda não tem onde guardá-la.
-              </ThemedText>
-            </ThemedView>
+            )}
+            <ThemedText themeColor="mutedForeground" type="caption">
+              A foto fica só no aparelho por enquanto — o backend ainda não tem onde guardá-la.
+            </ThemedText>
+          </Card>
 
-            {error ? (
-              <ThemedText style={styles.feedback} themeColor="textSecondary">
-                {error}
-              </ThemedText>
-            ) : null}
+          {error ? <InlineMessage message={error} /> : null}
 
-            <Pressable
-              accessibilityRole="button"
-              disabled={isSubmitting}
-              onPress={submit}
-              style={[
-                styles.button,
-                { backgroundColor: theme.backgroundSelected },
-                isSubmitting && styles.buttonDisabled,
-              ]}>
-              {isSubmitting ? (
-                <ActivityIndicator color={theme.text} />
-              ) : (
-                <ThemedText type="smallBold">
-                  {isEditing ? 'Salvar alterações' : 'Criar ocorrência'}
-                </ThemedText>
-              )}
-            </Pressable>
-          </>
-        )}
-      </ScrollView>
-    </SafeAreaView>
+          <Button
+            icon={isEditing ? Icons.check : Icons.send}
+            loading={isSubmitting}
+            onPress={submit}
+            title={isEditing ? 'Salvar alterações' : 'Criar ocorrência'}
+          />
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </View>
   );
 }
 
-function Field({
-  error,
-  label,
-  multiline,
-  onChangeText,
-  placeholder,
-  theme,
-  value,
-}: {
-  error?: string;
-  label: string;
-  multiline?: boolean;
-  onChangeText: (text: string) => void;
-  placeholder: string;
-  theme: ReturnType<typeof useTheme>;
-  value: string;
-}) {
+// Created by AI.
+function SectionTitle({ icon, title }: { icon: IconName; title: string }) {
+  const theme = useTheme();
+
   return (
-    <ThemedView style={styles.field}>
-      <ThemedText type="smallBold">{label}</ThemedText>
-      <TextInput
-        multiline={multiline}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        placeholderTextColor={theme.textSecondary}
-        style={[
-          styles.input,
-          multiline && styles.inputMultiline,
-          { backgroundColor: theme.backgroundElement, color: theme.text },
-        ]}
-        value={value}
-      />
-      {error ? (
-        <ThemedText themeColor="textSecondary" type="small">
-          {error}
-        </ThemedText>
-      ) : null}
-    </ThemedView>
+    <View style={styles.sectionTitle}>
+      <View style={[styles.sectionIcon, { backgroundColor: theme.primarySoft }]}>
+        <Icon color={theme.primary} name={icon} size={14} />
+      </View>
+      <ThemedText type="subtitle">{title}</ThemedText>
+    </View>
   );
 }
 
+// Updated by AI.
 const styles = StyleSheet.create({
-  safeArea: {
+  root: {
     flex: 1,
   },
-  centered: {
+  flex: {
     flex: 1,
-    marginTop: Spacing.six,
-    textAlign: 'center',
   },
-  container: {
+  scroll: {
     gap: Spacing.three,
-    padding: Spacing.four,
+    padding: Spacing.three,
   },
-  field: {
-    gap: Spacing.one,
+  loading: {
+    marginTop: Spacing.six,
   },
-  input: {
-    borderRadius: Spacing.two,
-    fontSize: 16,
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
+  stateContainer: {
+    padding: Spacing.three,
   },
-  inputMultiline: {
-    minHeight: 100,
-    textAlignVertical: 'top',
+  card: {
+    gap: Spacing.three,
   },
-  chipsWrap: {
+  sectionTitle: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: Spacing.two,
+  },
+  sectionIcon: {
+    alignItems: 'center',
+    borderRadius: Radius.sm,
+    height: 28,
+    justifyContent: 'center',
+    width: 28,
+  },
+  categoryGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: Spacing.two,
   },
-  chip: {
-    borderRadius: Spacing.five,
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.one,
-  },
-  feedback: {
-    marginTop: Spacing.one,
-  },
-  button: {
+  categoryTile: {
     alignItems: 'center',
-    borderRadius: Spacing.three,
-    paddingVertical: Spacing.three,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    flexBasis: '47%',
+    flexGrow: 1,
+    gap: Spacing.one,
+    justifyContent: 'center',
+    minHeight: 92,
+    padding: Spacing.two,
   },
-  buttonDisabled: {
-    opacity: 0.5,
+  checkBadge: {
+    alignItems: 'center',
+    borderRadius: Radius.pill,
+    height: 18,
+    justifyContent: 'center',
+    position: 'absolute',
+    right: 6,
+    top: 6,
+    width: 18,
   },
-  card: {
-    borderRadius: Spacing.three,
-    gap: Spacing.two,
-    padding: Spacing.three,
+  coords: {
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    borderRadius: Radius.pill,
+    flexDirection: 'row',
+    gap: Spacing.one,
+    paddingHorizontal: Spacing.two,
+    paddingVertical: 4,
+  },
+  photoDropzone: {
+    alignItems: 'center',
+    borderRadius: Radius.md,
+    borderStyle: 'dashed',
+    borderWidth: 1.5,
+    gap: Spacing.one,
+    padding: Spacing.four,
+  },
+  dropzoneIcon: {
+    alignItems: 'center',
+    borderRadius: Radius.pill,
+    height: 48,
+    justifyContent: 'center',
+    marginBottom: Spacing.one,
+    width: 48,
   },
   photoPreview: {
     aspectRatio: 4 / 3,
-    borderRadius: Spacing.two,
+    borderRadius: Radius.md,
     width: '100%',
+  },
+  blockedCard: {
+    gap: Spacing.three,
+  },
+  pressed: {
+    opacity: 0.8,
+  },
+  centered: {
+    textAlign: 'center',
+  },
+  success: {
+    alignItems: 'center',
+    alignSelf: 'center',
+    gap: Spacing.three,
+    maxWidth: 420,
+    padding: Spacing.four,
+    width: '100%',
+  },
+  successIcon: {
+    alignItems: 'center',
+    borderRadius: Radius.pill,
+    height: 72,
+    justifyContent: 'center',
+    width: 72,
+  },
+  successButton: {
+    alignSelf: 'stretch',
   },
 });

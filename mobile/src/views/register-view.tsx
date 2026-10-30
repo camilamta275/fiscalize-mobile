@@ -1,11 +1,17 @@
+import { Link, router } from 'expo-router';
 import { useState } from 'react';
-import { Link } from 'expo-router';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, TextInput } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { MaxContentWidth, Spacing } from '@/constants/theme';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Icon } from '@/components/ui/icon';
+import { InlineMessage } from '@/components/ui/inline-message';
+import { ScreenHeader } from '@/components/ui/screen-header';
+import { TextField } from '@/components/ui/text-field';
+import { Icons, type IconName } from '@/constants/icons';
+import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useRegisterViewModel } from '@/viewmodels/use-register-view-model';
 
@@ -35,8 +41,10 @@ export function RegisterView() {
     submit,
   } = useRegisterViewModel();
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const [isLookingUpCep, setIsLookingUpCep] = useState(false);
   const [cepError, setCepError] = useState<string | null>(null);
+
   const fillAddress = async (value: string) => {
     setIsLookingUpCep(true);
     setCepError(null);
@@ -64,209 +72,267 @@ export function RegisterView() {
 
   if (didSucceed) {
     return (
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.container}>
-          <ThemedText type="subtitle">Conta criada!</ThemedText>
-          <ThemedText themeColor="textSecondary">
-            Agora é só entrar com o email e a senha que você acabou de cadastrar.
+      <View style={[styles.root, { backgroundColor: theme.background }]}>
+        <ScreenHeader subtitle="Cadastro de cidadão" title="Criar conta" />
+        <View style={styles.success}>
+          <View style={[styles.successIcon, { backgroundColor: theme.statusProgressBg }]}>
+            <Icon color={theme.statusProgress} name={Icons.checkCircle} size={34} />
+          </View>
+          <ThemedText style={styles.centered} type="heading">
+            Conta criada!
           </ThemedText>
-
-          <Link href="/login" asChild>
-            <Pressable
-              accessibilityRole="button"
-              style={StyleSheet.flatten([styles.button, { backgroundColor: theme.backgroundSelected }])}>
-              <ThemedText type="smallBold">Ir para o login</ThemedText>
-            </Pressable>
-          </Link>
-        </ThemedView>
-      </SafeAreaView>
+          <ThemedText style={styles.centered} themeColor="mutedForeground" type="small">
+            Agora é só entrar com o e-mail e a senha que você acabou de cadastrar.
+          </ThemedText>
+          <Button
+            icon={Icons.arrowRight}
+            onPress={() => router.replace('/login')}
+            style={styles.successButton}
+            title="Ir para o login"
+          />
+        </View>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView
-        contentContainerStyle={styles.container}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator
-      >
-        <ThemedText type="title">Criar conta</ThemedText>
-        <ThemedText themeColor="textSecondary">
-          Cadastro de cidadão — só cidadãos podem criar conta por aqui.
-        </ThemedText>
-
-        <Field
-          error={fieldErrors.nome}
-          label="Nome"
-          onChangeText={setNome}
-          placeholder="Seu nome completo"
-          theme={theme}
-          value={nome}
-        />
-
-        <Field
-          autoCapitalize="none"
-          error={fieldErrors.email}
-          keyboardType="email-address"
-          label="Email"
-          onChangeText={setEmail}
-          placeholder="seu@email.com"
-          theme={theme}
-          value={email}
-        />
-
-        <Field error={fieldErrors.cpf} keyboardType="numeric" label="CPF" onChangeText={setCpf} placeholder="Somente números" theme={theme} value={cpf} />
-        <Field
-          error={fieldErrors.cep}
-          keyboardType="numeric"
-          label="CEP"
-          onChangeText={(value) => {
-            setCep(value.replace(/\D/g, '').slice(0, 8));
-            if (value.replace(/\D/g, '').length === 8) void fillAddress(value);
-          }}
-          placeholder="00000000"
-          theme={theme}
-          value={cep}
-        />
-        {isLookingUpCep ? <ActivityIndicator color={theme.text} /> : null}
-        {cepError ? <ThemedText themeColor="textSecondary">{cepError}</ThemedText> : null}
-        <Field error={fieldErrors.rua} label="Rua" onChangeText={setRua} placeholder="Nome da rua" theme={theme} value={rua} />
-        <Field error={fieldErrors.numero} label="Número" onChangeText={setNumero} placeholder="Número" theme={theme} value={numero} />
-        <Field error={fieldErrors.bairro} label="Bairro" onChangeText={setBairro} placeholder="Bairro" theme={theme} value={bairro} />
-        <Field error={fieldErrors.cidade} label="Cidade" onChangeText={setCidade} placeholder="Cidade" theme={theme} value={cidade} />
-        <Field error={fieldErrors.estado} label="Estado" onChangeText={setEstado} placeholder="UF" theme={theme} value={estado} />
-        <Field label="Complemento (opcional)" onChangeText={setComplemento} placeholder="Apartamento, bloco..." theme={theme} value={complemento} />
-
-        <Field
-          error={fieldErrors.senha}
-          label="Senha"
-          onChangeText={setSenha}
-          placeholder="Digite sua senha"
-          secureTextEntry
-          theme={theme}
-          value={senha}
-        />
-        <Field
-          error={fieldErrors.confirmarSenha}
-          label="Confirmar senha"
-          onChangeText={setConfirmarSenha}
-          placeholder="Repita a senha"
-          secureTextEntry
-          theme={theme}
-          value={confirmarSenha}
-        />
-        <ThemedText type="small" themeColor="textSecondary">
-          A senha deve ter no mínimo 8 caracteres, incluindo letra maiúscula, letra minúscula, número e caractere especial.
-        </ThemedText>
-
-        {error ? (
-          <ThemedText style={styles.feedback} themeColor="textSecondary">
-            {error}
-          </ThemedText>
-        ) : null}
-
-        <Pressable
-          accessibilityRole="button"
-          disabled={isSubmitting}
-          onPress={submit}
-          style={[
-            styles.button,
-            { backgroundColor: theme.backgroundSelected },
-            isSubmitting && styles.buttonDisabled,
-          ]}>
-          {isSubmitting ? (
-            <ActivityIndicator color={theme.text} />
-          ) : (
-            <ThemedText type="smallBold">Criar conta</ThemedText>
-          )}
-        </Pressable>
-
-        <Link href="/login" style={styles.link}>
-          <ThemedText type="linkPrimary">Já tem conta? Entrar</ThemedText>
-        </Link>
-      </ScrollView>
-    </SafeAreaView>
-  );
-}
-
-function Field({
-  autoCapitalize,
-  error,
-  keyboardType,
-  label,
-  onChangeText,
-  placeholder,
-  secureTextEntry,
-  theme,
-  value,
-}: {
-  autoCapitalize?: 'none' | 'words';
-  error?: string;
-  keyboardType?: 'default' | 'email-address' | 'numeric';
-  label: string;
-  onChangeText: (text: string) => void;
-  placeholder: string;
-  secureTextEntry?: boolean;
-  theme: ReturnType<typeof useTheme>;
-  value: string;
-}) {
-  return (
-    <ThemedView style={styles.field}>
-      <ThemedText type="smallBold">{label}</ThemedText>
-      <TextInput
-        autoCapitalize={autoCapitalize ?? 'sentences'}
-        keyboardType={keyboardType}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        placeholderTextColor={theme.textSecondary}
-        secureTextEntry={secureTextEntry}
-        style={[styles.input, { backgroundColor: theme.backgroundElement, color: theme.text }]}
-        value={value}
+    <View style={[styles.root, { backgroundColor: theme.background }]}>
+      <ScreenHeader
+        onBack={() => router.replace('/login')}
+        subtitle="Cadastro de cidadão"
+        title="Criar conta"
       />
-      {error ? (
-        <ThemedText themeColor="textSecondary" type="small">
-          {error}
-        </ThemedText>
-      ) : null}
-    </ThemedView>
+
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={styles.flex}>
+        <ScrollView
+          contentContainerStyle={[
+            styles.scroll,
+            { paddingBottom: insets.bottom + Spacing.five },
+          ]}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator>
+          <ThemedText themeColor="mutedForeground" type="small">
+            Só cidadãos podem criar conta por aqui. Os dados abaixo são usados para identificar
+            você e localizar as ocorrências.
+          </ThemedText>
+
+          <Card style={styles.card}>
+            <SectionTitle icon={Icons.person} title="Dados pessoais" />
+            <TextField
+              error={fieldErrors.nome}
+              label="Nome completo"
+              onChangeText={setNome}
+              placeholder="Seu nome completo"
+              value={nome}
+            />
+            <TextField
+              autoCapitalize="none"
+              error={fieldErrors.email}
+              keyboardType="email-address"
+              label="E-mail"
+              onChangeText={setEmail}
+              placeholder="seu@email.com"
+              value={email}
+            />
+            <TextField
+              error={fieldErrors.cpf}
+              keyboardType="numeric"
+              label="CPF"
+              onChangeText={setCpf}
+              placeholder="Somente números"
+              value={cpf}
+            />
+          </Card>
+
+          <Card style={styles.card}>
+            <SectionTitle icon={Icons.mapPin} title="Endereço" />
+            <TextField
+              error={fieldErrors.cep}
+              hint={isLookingUpCep ? 'Buscando endereço…' : cepError ?? undefined}
+              keyboardType="numeric"
+              label="CEP"
+              maxLength={8}
+              onChangeText={(value) => {
+                const digits = value.replace(/\D/g, '');
+                setCep(digits.slice(0, 8));
+                if (digits.length === 8) void fillAddress(value);
+              }}
+              placeholder="00000000"
+              value={cep}
+            />
+            <TextField
+              error={fieldErrors.rua}
+              label="Rua"
+              onChangeText={setRua}
+              placeholder="Nome da rua"
+              value={rua}
+            />
+            <View style={styles.twoColumns}>
+              <TextField
+                containerStyle={styles.flex}
+                error={fieldErrors.numero}
+                label="Número"
+                onChangeText={setNumero}
+                placeholder="Nº"
+                value={numero}
+              />
+              <TextField
+                containerStyle={styles.flex}
+                error={fieldErrors.bairro}
+                label="Bairro"
+                onChangeText={setBairro}
+                placeholder="Bairro"
+                value={bairro}
+              />
+            </View>
+            <View style={styles.twoColumns}>
+              <TextField
+                containerStyle={styles.flex}
+                error={fieldErrors.cidade}
+                label="Cidade"
+                onChangeText={setCidade}
+                placeholder="Cidade"
+                value={cidade}
+              />
+              <TextField
+                autoCapitalize="none"
+                containerStyle={styles.uf}
+                error={fieldErrors.estado}
+                label="UF"
+                maxLength={2}
+                onChangeText={setEstado}
+                placeholder="PE"
+                value={estado}
+              />
+            </View>
+            <TextField
+              label="Complemento (opcional)"
+              onChangeText={setComplemento}
+              placeholder="Apartamento, bloco..."
+              value={complemento}
+            />
+          </Card>
+
+          <Card style={styles.card}>
+            <SectionTitle icon={Icons.lock} title="Acesso" />
+            <TextField
+              autoCapitalize="none"
+              error={fieldErrors.senha}
+              label="Senha"
+              onChangeText={setSenha}
+              placeholder="Digite sua senha"
+              secureTextEntry
+              value={senha}
+            />
+            <TextField
+              autoCapitalize="none"
+              error={fieldErrors.confirmarSenha}
+              label="Confirmar senha"
+              onChangeText={setConfirmarSenha}
+              placeholder="Repita a senha"
+              secureTextEntry
+              value={confirmarSenha}
+            />
+            <ThemedText themeColor="mutedForeground" type="caption">
+              A senha deve ter no mínimo 8 caracteres, incluindo letra maiúscula, letra minúscula,
+              número e caractere especial.
+            </ThemedText>
+          </Card>
+
+          {error ? <InlineMessage message={error} /> : null}
+
+          <Button
+            icon={Icons.check}
+            loading={isSubmitting}
+            onPress={submit}
+            title="Criar conta"
+          />
+
+          <Link href="/login" style={styles.link}>
+            <ThemedText type="linkPrimary">Já tem conta? Entrar</ThemedText>
+          </Link>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </View>
   );
 }
 
+// Created by AI.
+function SectionTitle({ icon, title }: { icon: IconName; title: string }) {
+  const theme = useTheme();
+
+  return (
+    <View style={styles.sectionTitle}>
+      <View style={[styles.sectionIcon, { backgroundColor: theme.primarySoft }]}>
+        <Icon color={theme.primary} name={icon} size={14} />
+      </View>
+      <ThemedText type="subtitle">{title}</ThemedText>
+    </View>
+  );
+}
+
+// Updated by AI.
 const styles = StyleSheet.create({
-  safeArea: {
-    flexGrow: 1,
+  root: {
+    flex: 1,
   },
-  container: {
-    flexGrow: 1,
+  flex: {
+    flex: 1,
+  },
+  scroll: {
+    alignSelf: 'center',
     gap: Spacing.three,
-    justifyContent: 'flex-start',
     maxWidth: MaxContentWidth,
-    padding: Spacing.four,
+    padding: Spacing.three,
     width: '100%',
   },
-  field: {
-    gap: Spacing.one,
+  card: {
+    gap: Spacing.three,
   },
-  input: {
-    borderRadius: Spacing.two,
-    fontSize: 16,
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
-  },
-  feedback: {
-    marginTop: Spacing.one,
-  },
-  button: {
+  sectionTitle: {
     alignItems: 'center',
-    borderRadius: Spacing.three,
-    marginTop: Spacing.two,
-    paddingVertical: Spacing.three,
+    flexDirection: 'row',
+    gap: Spacing.two,
   },
-  buttonDisabled: {
-    opacity: 0.5,
+  sectionIcon: {
+    alignItems: 'center',
+    borderRadius: Radius.sm,
+    height: 28,
+    justifyContent: 'center',
+    width: 28,
+  },
+  twoColumns: {
+    flexDirection: 'row',
+    gap: Spacing.two,
+  },
+  uf: {
+    width: 84,
+  },
+  centered: {
+    textAlign: 'center',
   },
   link: {
     alignSelf: 'center',
     marginTop: Spacing.one,
+  },
+  success: {
+    alignItems: 'center',
+    alignSelf: 'center',
+    gap: Spacing.three,
+    maxWidth: 420,
+    padding: Spacing.four,
+    width: '100%',
+  },
+  successIcon: {
+    alignItems: 'center',
+    borderRadius: Radius.pill,
+    height: 72,
+    justifyContent: 'center',
+    width: 72,
+  },
+  successButton: {
+    alignSelf: 'stretch',
   },
 });
