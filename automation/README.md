@@ -1,188 +1,225 @@
-# Automation Guide
+# Guia de Automação
 
-The automation suite contains integration tests for the Fiscalize backend API
-and mobile end-to-end flows. Mobile tests use [Maestro](https://maestro.mobile.dev/)
-and must not depend on Appium.
+<!-- Updated by AI. -->
+A suíte de automação reúne os testes de integração da API do Fiscalize, escritos
+em pytest.
 
-## 1. Prerequisites
+## 1. Pré-requisitos
 
-- Maestro CLI, configured with an Android emulator or iOS simulator
-- A running Fiscalize backend for API and mobile flows
-- Test user credentials in `automation/data/credentials.json`, when required
-- Python is not required for mobile tests
+- Backend do Fiscalize em execução para os testes de API.
+- Credenciais de teste em `automation/data/credentials.json`, quando necessário.
+- Python 3.12+ (veja [Ambiente Python](#5-ambiente-python)).
 
-The API endpoints default to `http://localhost:3000` in
+Os endpoints da API apontam por padrão para `http://localhost:3000`, definido em
 `automation/tests/api/config/settings.py`.
 
-## 2. Mobile tests with Maestro
-
-Store Maestro flows under `automation/tests/mobile/`. Run all mobile flows from
-the repository root:
-
-```bash
-maestro test automation/tests/mobile
-```
-
-Run a single flow:
-
-```bash
-maestro test automation/tests/mobile/login.yaml
-```
-
-Maestro is responsible for interacting with the mobile application through the
-configured emulator or simulator. Do not add Appium fixtures or Python-based
-mobile tests.
-
-## 3. Project structure
+## 2. Estrutura
 
 ```text
 automation/
-├── data/
-│   └── credentials.json
+├── data/credentials.json
 └── tests/
     └── api/
         ├── config/settings.py
         ├── conftest.py
         └── tests/
-    └── mobile/
-        └── *.yaml
 ```
 
-`automation/tests/api/config/settings.py` centralizes the backend URLs.
-`automation/tests/api/conftest.py` provides fixtures for generated test values,
-configured credentials, and authenticated requests.
+`settings.py` centraliza as URLs do backend e `conftest.py` fornece os fixtures de
+valores gerados, credenciais e requisições autenticadas.
 
-## 4. Test data and configuration
+## 3. Dados de teste
 
-The `credentials` fixture loads the `login` object from
-`automation/data/credentials.json`. Keep test credentials in that file and do
-not commit real user passwords.
+O fixture `credentials` lê o objeto `login` de
+`automation/data/credentials.json`. Mantenha as credenciais de teste nesse arquivo
+e nunca versione senhas reais. Para apontar para outro backend, altere
+`Endpoints.BASE_URL` em `tests/api/config/settings.py`.
 
-To target another backend, update `Endpoints.BASE_URL` in
-`automation/tests/api/config/settings.py`.
+## 4. Quality Gate e proteção da branch principal
 
-## 5. Quality Gate e proteção da branch principal
+O workflow [`regressao.yml`](../.github/workflows/regressao.yml) funciona como
+Quality Gate para as alterações propostas. Os checks obrigatórios são **Testes
+unitários**, **Testes de API** e, em pull requests, o **Smoke test**.
 
-O workflow de regressão em
-[`.github/workflows/regressao.yml`](../.github/workflows/regressao.yml) funciona
-como Quality Gate para alterações propostas. Os jobs obrigatórios são:
+Em **Settings > Branches > Branch protection rules** (ou **Rulesets**), configure:
 
-- **Testes unitários**
-- **Testes de API**
-- **Smoke test**, executado nas verificações de pull request
-
-Configure a proteção da branch principal no GitHub em **Settings > Branches >
-Branch protection rules** (ou em **Rulesets**) com as seguintes opções:
-
-1. Exigir um pull request antes do merge.
+1. Exigir pull request antes do merge.
 2. Exigir que os checks passem antes do merge.
-3. Adicionar os checks `Testes unitários` e `Testes de API` como obrigatórios.
-4. Exigir que a branch esteja atualizada antes do merge, quando aplicável.
-5. Restringir o bypass da proteção a administradores e automações autorizadas.
+3. Marcar `Testes unitários` e `Testes de API` como obrigatórios.
+4. Exigir a branch atualizada antes do merge, quando aplicável.
+5. Restringir o bypass a administradores e automações autorizadas.
 
-Com essa regra, um pull request não poderá ser integrado enquanto qualquer
-check obrigatório falhar. O merge só deve ser realizado depois que todos os
-checks forem concluídos com sucesso e as aprovações exigidas estiverem
-registradas.
+Com isso, nenhum pull request é integrado enquanto um check obrigatório falhar. O
+merge só acontece depois de todos os checks verdes e das aprovações registradas.
 
-## 6. Running API tests
+## 5. Ambiente Python
 
-From `automation/`, with the backend running at `http://localhost:3000`:
-
-```bash
-cd ../backend
-npm run dev
-```
-
-Then, in another terminal:
+A suíte de API roda em `automation/.venv`, ignorado pelo git. Crie o ambiente uma
+vez, a partir de `automation/`:
 
 ```bash
 cd automation
+python3 -m venv .venv
+source .venv/bin/activate      # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+Os comandos abaixo assumem o ambiente ativo; caso contrário, use
+`./.venv/bin/python -m pytest ...`.
+
+## 6. Executando os testes de API
+
+Com o backend no ar em `http://localhost:3000`:
+
+```bash
+cd backend && npm run dev
+```
+
+Em outro terminal:
+
+```bash
+cd automation
+source .venv/bin/activate
 pytest tests/api/tests
 ```
 
-The API test session checks `/health` once before running. If the backend is
-unavailable, tests are marked as skipped with an actionable message instead of
-failing with repeated connection errors. To use another URL, update
-`Endpoints.BASE_URL` in `tests/api/config/settings.py`.
-
-After creating or updating the backend schema, apply migrations before running
-the suite:
+A sessão verifica `/health` uma vez. Se o backend estiver indisponível, os testes
+são marcados como *skipped* com uma mensagem acionável, em vez de falharem com
+erros de conexão repetidos. Depois de criar ou alterar o schema do backend,
+aplique as migrações antes de rodar:
 
 ```bash
-cd ../backend
-npx prisma migrate deploy
+cd backend && npx prisma migrate deploy
 ```
 
-### MFA preconditions
-
-Every login requires a `deviceId`, and the first login from an unknown device
-returns `mfaRequired` with an emailed six-digit code. The suite does **not**
-bypass that step: the fixtures in `tests/api/conftest.py` complete the real
-flow end to end.
-
-The test process cannot read the mailbox, but the backend stores only the
-SHA-256 of a six-digit numeric code. Since that search space is small, the
-fixtures recover the exact code that would have been emailed and submit it to
-`POST /auth/2fa/verify`, the same endpoint the app uses. Critical actions do the
-same with `/auth/2fa/request-critical`. No database state is forged: the only
-direct SQL is read-only, plus one update that moves a challenge's expiration
-into the past to cover the expiry rule.
-
-This requires:
-
-- the `psycopg` driver (`pip install -r requirements.txt`);
-- `DATABASE_URL` available in `backend/.env`, or exported as `DATABASE_URL` or
-  `FISCALIZE_DATABASE_URL` (the Prisma-only `?schema=` parameter is stripped
-  automatically).
-
-When the database is unreachable or the MFA migration is missing, the affected
-scenarios are skipped with an actionable message instead of failing. Set
-`FISCALIZE_TEST_TOKEN` to reuse a token obtained manually, and
-`FISCALIZE_TEST_DEVICE_ID` to change the device identifier suffix used by the
-fixtures.
-
-Run a single test file:
+Para rodar um arquivo, um teste ou com mais detalhe:
 
 ```bash
 pytest tests/api/tests/test_cidadao.py
-```
-
-Run a single test:
-
-```bash
 pytest tests/api/tests/test_cidadao.py::test_api
-```
-
-Run with verbose output:
-
-```bash
 pytest tests/api/tests -v
 ```
 
-`pytest.ini` enables verbose console logging and writes the self-contained HTML
-report to `automation/report.html`.
+### MFA
 
-### Execution reports
+Todo login exige `deviceId`, e o primeiro login de um dispositivo desconhecido
+retorna `mfaRequired` com um código de seis dígitos enviado por e-mail. A suíte não
+contorna essa etapa: os fixtures de `tests/api/conftest.py` completam o fluxo real.
+Como o backend guarda apenas o SHA-256 do código, os fixtures recuperam o valor
+correto e o enviam a `POST /auth/2fa/verify` (e a `/auth/2fa/request-critical` nas
+ações críticas). Nenhum estado é forjado: o SQL direto é somente leitura, exceto um
+update que expira um desafio para cobrir a regra de expiração.
 
-The GitHub Actions workflow writes JUnit XML and self-contained HTML reports to
-`automation/reports/` (ignored by git) and publishes them as run artifacts. Each
-artifact is laid out as `fiscalize-mobile/reports/`, with the XML/HTML files and,
-for the API jobs, the backend log. To reproduce locally:
+Requer o driver `psycopg` (instalado por `requirements.txt`) e `DATABASE_URL` em
+`backend/.env` ou exportada como `DATABASE_URL`/`FISCALIZE_DATABASE_URL` — o
+parâmetro `?schema=`, exclusivo do Prisma, é removido automaticamente. Sem banco ou
+sem a migration de MFA, os cenários afetados são *skipped* com mensagem acionável.
+`FISCALIZE_TEST_TOKEN` reaproveita um token obtido à mão e
+`FISCALIZE_TEST_DEVICE_ID` muda o sufixo do identificador de dispositivo.
+
+## 7. Relatórios de execução
+
+O `pytest.ini` já escreve dois relatórios em `automation/reports/` (criado
+automaticamente): o HTML autocontido `api-report.html` e o JUnit XML
+`api-junit.xml`. Localmente não é preciso passar flags; o workflow passa os próprios
+caminhos `--html`/`--junitxml`, que sobrescrevem esses padrões para manter um
+relatório por job.
+
+O workflow publica esses arquivos como artefatos, com a estrutura
+`fiscalize-mobile/reports/` e, nos jobs de API, o log do backend. O
+`junit_summary.py` transforma os XML em tabela Markdown no resumo da execução, o
+`jest_to_junit.py` converte o JSON do Jest em JUnit XML e, quando um job falha, o
+workflow abre ou atualiza uma issue `falha-ci` com o link da execução e dos
+artefatos.
+
+## 8. Relatórios de qualidade
+
+Cada execução relevante (push, pull request e agendamento) consolida as métricas e
+gera dois HTML autocontidos:
+
+- `technical-report.html` — resultado por suíte, falhas detalhadas com traceback e logs
+  capturados, metas, cobertura
+  do backlog, lacunas, issues `falha-ci` abertas e histórico recente.
+- `business-report.html` — panorama para público não técnico: status geral,
+  indicadores, riscos e decisões recomendadas.
+
+Ambos saem no artefato `relatorios-qualidade` e, na branch padrão, no GitHub Pages
+(`index.html` é o relatório de negócio; habilite o Pages com a branch `gh-pages`).
+As definições, metas e métricas descartadas estão em
+[Métricas de Qualidade](docs/Métricas%20de%20Qualidade.md).
+
+### Execuções versionadas
+
+Cada geração cria uma pasta nova em `reports/runs/`, então nada é sobrescrito:
+
+```text
+reports/
+  api-junit.xml, api-report.html     # saída do pytest
+  index.html                         # relatório de negócio da execução mais recente
+  runs/
+    2026-11-02_19-56-17/
+      metrics.json
+      technical-report.html
+      business-report.html
+      index.html
+```
+
+O nome é a data e hora local; use `--label` para escolher (no CI é `run-<número>`)
+e duas execuções no mesmo segundo recebem `-2`, `-3`. O diretório `reports/` é
+ignorado pelo git, então o histórico fica local.
+
+Depois de rodar o pytest, um comando gera tudo:
 
 ```bash
 cd automation
-mkdir -p reports
-pytest tests/api/tests \
-  --junitxml=reports/api-junit.xml \
-  --html=reports/api-report.html \
-  --self-contained-html
+python scripts/quality_reports.py
 ```
 
-`scripts/junit_summary.py` renders those XML files as a Markdown table (used in
-the workflow step summary) and `scripts/jest_to_junit.py` converts the Jest JSON
-output of the backend unit tests into JUnit XML. The workflow also opens or
-updates a `falha-ci` issue when any job fails, linking the run and its artifacts.
+Por padrão, esse comando consulta a API pública do GitHub para preencher M5
+(estabilidade das execuções) e M6 (falhas aguardando correção). Use
+`--no-fetch` em ambientes sem rede ou informe `--runs` e `--issues` para usar
+exports locais.
 
-See [tests/api/README.md](tests/api/README.md) for the API-specific setup and
-run commands.
+Para rodar as duas etapas separadas (por exemplo, para inspecionar o
+`metrics.json` antes):
+
+```bash
+cd automation
+python scripts/metrics.py --reports-dir reports
+python scripts/quality_report.py
+```
+
+Sem `--output`, o `metrics.py` cria uma execução nova em `reports/runs/`; sem
+`--input`, o `quality_report.py` usa a mais recente, então as duas etapas caem na
+mesma pasta.
+
+### Preenchendo M5 e M6
+
+M5 (taxa de falha) e M6 (issues `falha-ci` abertas) vêm da API do GitHub. Use
+`--fetch` para coletar as duas sem exportar arquivos:
+
+```bash
+cd automation
+python scripts/quality_reports.py --fetch
+```
+
+O repositório vem de `GITHUB_REPOSITORY` ou do remote `origin`; `--repo org/nome`
+sobrescreve. Repositórios públicos dispensam autenticação (60 requisições por hora,
+suficientes para as duas chamadas); defina `GH_TOKEN` para repositórios privados ou
+limite maior. As respostas brutas ficam em `inputs/runs.json` e
+`inputs/issues.json` dentro da execução, permitindo regenerá-la depois.
+
+Para exportar manualmente:
+
+```bash
+GH_HOST=github.com gh api "repos/ORG/REPO/actions/runs?per_page=30&branch=main" > runs.json
+GH_HOST=github.com gh api "repos/ORG/REPO/issues?labels=falha-ci&state=open&per_page=100" > issues.json
+python scripts/quality_reports.py --runs runs.json --issues issues.json
+```
+
+Sem esses dados, M5 e M6 ficam "Sem dados" e o status geral é rebaixado para
+amarelo, nunca verde. `--summary` anexa a tabela Markdown ao resumo do GitHub
+Actions.
+
+Veja [tests/api/README.md](tests/api/README.md) para detalhes específicos da suíte
+de API.

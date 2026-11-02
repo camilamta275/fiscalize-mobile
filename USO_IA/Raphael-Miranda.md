@@ -14,6 +14,18 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Tipo de contribuição da IA:**
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
 
+## Registro da atividade 0072
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/scripts/quality_reports.py`, `automation/README.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** O comando padrão passou a buscar automaticamente dados públicos do GitHub para preencher M5 e M6.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais; foram lidos apenas metadados públicos de execuções e issues.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Corrigir o comando padrão para preencher automaticamente estabilidade das execuções e falhas abertas.
+- **Etapa da atividade:** Ajuste da coleta de dados e documentação.
+- **Tipo de contribuição da IA:** Busca automática quando não há inputs locais, opção `--no-fetch` para execução offline e atualização da documentação.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
 ## Registro da atividade 0001
 
 - **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
@@ -720,4 +732,148 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Finalidade do uso da IA:** Restabelecer a instalação de dependências e o túnel de desenvolvimento do aplicativo móvel em uma rede sem acesso ao registro corporativo.
 - **Etapa da atividade:** Configuração do ambiente de desenvolvimento.
 - **Tipo de contribuição da IA:** Criação dos arquivos `.npmrc` com o registro público; reinstalação de `@expo/ngrok-bin-darwin-arm64` e `@expo/ws-tunnel`; correção da URL `resolved` do `expo-crypto` no lockfile; validação do túnel alternativo via `EXPO_UNSTABLE_TUNNEL_V2`.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0060
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/pytest.ini`, `automation/README.md`, `automation/report.html` (removido), `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Relatório HTML do pytest passou a ser gerado sempre em `automation/reports/api-report.html`; removido o `automation/report.html` avulso e atualizada a documentação.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais; apenas configuração do caminho do relatório de testes e remoção de artefato local.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Unificar a saída dos relatórios de execução em um único caminho, alinhando a execução local ao que o workflow do GitHub Actions publica como artefato.
+- **Etapa da atividade:** Configuração da suíte de automação e dos relatórios de execução.
+- **Tipo de contribuição da IA:** Alteração do `addopts` em `automation/pytest.ini` para `--html=reports/api-report.html`; remoção do relatório antigo; ajuste do `automation/README.md`; verificação de que o pytest-html cria o diretório e de que os comandos do CI já sobrescrevem o caminho.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0061
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/pytest.ini`, `automation/README.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Inclusão de `--junitxml=reports/api-junit.xml` no `addopts`, para que toda execução local gere o XML junto do HTML, e atualização da documentação.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais; apenas configuração das saídas de relatório da suíte de testes.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Manter HTML e JUnit XML sincronizados a cada execução local, sem depender de flags manuais.
+- **Etapa da atividade:** Configuração da suíte de automação e dos relatórios de execução.
+- **Tipo de contribuição da IA:** Inclusão de `--junitxml` no `addopts`; confirmação de que o pytest cria `reports/` e de que `--junitxml`/`--html` da linha de comando sobrescrevem os padrões, preservando os nomes por job no CI; ajuste do `automation/README.md`.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0062
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/README.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Documentada a criação do ambiente virtual em `automation/.venv`, sua ativação e a instalação das dependências com `pip install -r requirements.txt`.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais; apenas documentação do ambiente de execução dos testes.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Explicitar no guia de automação como preparar o ambiente Python antes de executar a suíte de API.
+- **Etapa da atividade:** Documentação da configuração do ambiente de automação.
+- **Tipo de contribuição da IA:** Criação da subseção "Python environment" com `python3 -m venv .venv`, `source .venv/bin/activate` e `pip install -r requirements.txt`; menção à ativação no Windows; ajuste do pré-requisito de Python e das referências ao `psycopg`.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0063
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/requirements.txt`, `automation/README.md`, `automation/docs/Cobertura do Backlog de Automação.md`, `automation/tests/e2e/conftest.py` (removido), `automation/tests/e2e/test.py` (removido), `automation/tests/e2e/.gitkeep` (criado), `automation/pages/base_page.py` (removido), `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Removidos Selenium e Appium das dependências, da documentação e do código legado sem testes; `tests/e2e` mantida vazia e a suíte de API preservada em `tests/api`.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais; apenas remoção de dependências e de código legado de automação mobile.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Alinhar o projeto ao uso exclusivo de Maestro nos testes mobile, eliminando dependências e código Python não utilizados.
+- **Etapa da atividade:** Limpeza de dependências e da estrutura da automação.
+- **Tipo de contribuição da IA:** Remoção de `Appium-Python-Client` e `selenium` e das 12 dependências transitivas exclusivas; exclusão de `tests/e2e/conftest.py`, `tests/e2e/test.py` e `pages/base_page.py`; criação de `tests/e2e/.gitkeep`; ajuste do `automation/README.md` e da divergência D7 no documento de cobertura; validação em ambiente virtual novo (instalação, `pip check` e coleta de 53 testes).
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0064
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/docs/Métricas de Qualidade.md`, `automation/scripts/metrics.py`, `automation/scripts/quality_report.py`, `automation/scripts/templates/technical.html.j2`, `automation/scripts/templates/business.html.j2`, `.github/workflows/regressao.yml`, `automation/README.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Definição de M1, M2, M5 e M6, coleta automática em `metrics.json` e geração de dois relatórios HTML autocontidos (técnico e de negócio) publicados como artefato e no GitHub Pages.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais; os scripts leem apenas relatórios JUnit, histórico de execuções e issues do repositório, e a validação local usou dados sintéticos.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Consolidar as atividades de abertura automática de issues, coleta de artefatos e definição/coleta de métricas em relatórios de qualidade compreensíveis por públicos técnico e não técnico.
+- **Etapa da atividade:** Definição das métricas, coleta automática e geração/publicação dos relatórios na pipeline.
+- **Tipo de contribuição da IA:** Criação do documento com métricas selecionadas e descartadas, faixas de status e frequência; criação de `metrics.py` (leitura de JUnit XML, execuções e issues, cálculo de M1/M2/M5/M6, cobertura do backlog, lacunas e `metrics.json`); criação de `quality_report.py` e dos modelos Jinja2 dos relatórios técnico e de negócio; inclusão do job `quality-report` no workflow com download de artefatos, coleta via `gh api`, geração dos HTML, upload do artefato `relatorios-qualidade` e deploy para `gh-pages`; atualização do `automation/README.md`; validação local dos cenários verde, vermelho e sem dados e da estrutura aninhada de artefatos.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0065
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/docs/Métricas de Qualidade.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Documento de métricas condensado de 106 para 80 linhas (cerca de 4 minutos de leitura), preservando metas, faixas de status, cobertura e métricas descartadas.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais; apenas reorganização e redução de texto técnico.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Tornar o documento de métricas legível em cinco minutos sem perder os pontos que os scripts usam como fonte das metas.
+- **Etapa da atividade:** Revisão e condensação da documentação de métricas de qualidade.
+- **Tipo de contribuição da IA:** Unificação da abertura em uma frase-resumo; fusão das justificativas em quatro tópicos curtos; agrupamento das métricas descartadas de 12 para 7 linhas; junção das seções de frequência e rastreabilidade; remoção de repetições, mantendo fórmulas, metas e faixas de status idênticas às de `metrics.py`.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0066
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/scripts/quality_reports.py`, `automation/scripts/metrics.py`, `automation/scripts/quality_report.py`, `automation/README.md`, `automation/docs/Métricas de Qualidade.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Criado `quality_reports.py` para gerar métricas e os dois relatórios em um comando; extraídas funções reutilizáveis e adicionadas mensagens de erro para insumos ausentes.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais; os scripts leem apenas relatórios JUnit, execuções e issues, e os testes usaram dados sintéticos.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Eliminar a necessidade de rodar dois comandos manuais em sequência para obter os relatórios de qualidade localmente, mantendo as etapas separadas disponíveis.
+- **Etapa da atividade:** Automação local da geração dos relatórios de qualidade.
+- **Tipo de contribuição da IA:** Criação do script agregador com `--reports-dir`, `--output-dir`, `--runs`, `--issues`, `--default-branch` e `--summary`; extração de `write_payload` e `emit_summary` em `metrics.py` e de `generate` em `quality_report.py`, sem duplicar lógica; mensagens de erro claras para `metrics.json` ou diretório de relatórios ausentes; atualização do README com o comando único e as formas separadas; validação dos cenários com e sem exports de execuções e issues.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0067
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/scripts/runstore.py`, `automation/scripts/quality_reports.py`, `automation/scripts/metrics.py`, `automation/scripts/quality_report.py`, `.github/workflows/regressao.yml`, `automation/README.md`, `automation/docs/Métricas de Qualidade.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Cada geração de relatórios passou a criar uma pasta nova em `reports/runs/`, com `metrics.json` e os dois HTML, sem sobrescrever execuções anteriores; `reports/index.html` aponta para a mais recente.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais; apenas arquivos de relatórios de testes e de métricas, gerados com dados sintéticos na validação.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Preservar o histórico das execuções de qualidade e permitir comparar relatórios ao longo do tempo sem perder os anteriores.
+- **Etapa da atividade:** Versionamento das saídas da coleta de métricas e da geração de relatórios.
+- **Tipo de contribuição da IA:** Criação de `runstore.py` com criação de pasta única por execução (data e hora local, sufixo `-2`, `-3` em colisão) e busca da execução mais recente; `metrics.py` e `quality_report.py` passaram a usar essas pastas por padrão, mantendo os caminhos explícitos; `quality_reports.py` ganhou `--label` e `--no-index` e atualiza `reports/index.html`; workflow define `RUN_DIR` com o número da execução e copia o relatório de negócio para a raiz publicada; README e documento de métricas atualizados; validação de colisão de rótulos, do fluxo em duas etapas e da ausência de execuções.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0068
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/scripts/quality_reports.py`, `automation/scripts/metrics.py`, `automation/README.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Adicionada a opção `--fetch`, que coleta execuções e issues abertas direto da API pública do GitHub e salva as respostas junto da execução, dispensando exportar JSON manualmente.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais; a coleta leu apenas metadados públicos de execuções e issues do repositório do projeto.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Preencher M5 e M6 localmente sem depender do `gh` autenticado, que estava com token inválido no ambiente do usuário.
+- **Etapa da atividade:** Coleta automática dos insumos das métricas de qualidade.
+- **Tipo de contribuição da IA:** Implementação de `resolve_repo` (argumento, `GITHUB_REPOSITORY` ou remote `origin`), `fetch_inputs` com `urllib` e `User-Agent`, suporte opcional a `GH_TOKEN`; mensagens de erro para 401, 403/429 e 404; gravação de `inputs/runs.json` e `inputs/issues.json` na pasta versionada da execução; refatoração de `metrics.read_runs`/`read_issues` em `parse_runs`/`parse_issues`; documentação no README; validação contra o repositório real e dos três erros previstos.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0069
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/README.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Guia de automação traduzido para português e condensado para cerca de 4 minutos de leitura, mantendo comandos, pré-requisitos, MFA, Quality Gate e relatórios.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais; apenas tradução e reorganização de texto técnico.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Deixar a documentação da automação no mesmo idioma do restante do projeto e legível em uma leitura curta.
+- **Etapa da atividade:** Revisão da documentação de automação.
+- **Tipo de contribuição da IA:** Tradução integral do README; união das seções de ambiente e execução; condensação das precondições de MFA em dois parágrafos; junção de relatórios de execução e de qualidade em seções únicas; manutenção de todos os comandos e caminhos; correção da árvore de diretórios.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0070
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/README.md`, `automation/docs/Cobertura do Backlog de Automação.md`, `automation/scripts/metrics.py`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Removida a seção de testes mobile com Maestro do README, já que a ferramenta e a pasta de fluxos ainda não existem; lacuna D7 atualizada para refletir o estado real.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais; apenas remoção de conteúdo documental e ajuste de texto descritivo.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Evitar que a documentação descreva uma ferramenta de testes mobile que ainda não foi adotada no projeto.
+- **Etapa da atividade:** Correção da documentação de automação e da descrição da lacuna D7.
+- **Tipo de contribuição da IA:** Exclusão da seção 2 do README e das menções a Maestro no intro, nos pré-requisitos e na árvore de diretórios; renumeração das seções 2 a 8 e do link interno de "Ambiente Python"; atualização da lacuna D7 no documento de cobertura e em `metrics.py`; validação da geração dos relatórios após a mudança.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0071
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/scripts/junit_summary.py`, `automation/scripts/metrics.py`, `automation/scripts/quality_report.py`, `automation/scripts/templates/technical.html.j2`, `automation/scripts/templates/business.html.j2`, `automation/README.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Relatórios passaram a usar o novo modelo HTML e anexar traceback e logs de testes falhos no relatório técnico.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais; foram usados apenas relatórios de testes e dados sintéticos.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Atualizar a geração dos relatórios de qualidade conforme o novo modelo visual e preservar evidências de falhas.
+- **Etapa da atividade:** Implementação e validação da geração de relatórios.
+- **Tipo de contribuição da IA:** Atualização dos templates técnico e de negócio com dados dinâmicos; inclusão de traceback, stdout e stderr do JUnit nas falhas; atualização da documentação e validação sintática e funcional.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
