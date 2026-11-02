@@ -9,16 +9,41 @@ import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+# Created by AI.
+# Updated by AI.
 MAX_FAILURES = 50
-MAX_DETAIL = 300
+# Created by AI.
+# Updated by AI.
+MAX_DETAIL = 12000
 
 
 # Created by AI.
+# Updated by AI.
 def _text(element: ET.Element | None) -> str:
-    """Devolve o texto de um elemento normalizado em uma única linha."""
+    """Devolve o texto de um elemento preservando linhas e espaços úteis."""
     if element is None or element.text is None:
         return ""
-    return " ".join(element.text.split())
+    return element.text.strip()
+
+
+# Created by AI.
+# Updated by AI.
+def _failure_detail(case: ET.Element) -> str:
+    """Combina traceback e logs capturados para uma falha de teste."""
+    sections = []
+    for tag, label in (
+        ("failure", "Falha"),
+        ("error", "Erro"),
+        ("system-out", "Log capturado"),
+        ("system-err", "Erro capturado"),
+    ):
+        text = _text(case.find(tag))
+        if text:
+            sections.append(f"{label}:\n{text}")
+    detail = "\n\n".join(sections)
+    if len(detail) > MAX_DETAIL:
+        return detail[:MAX_DETAIL] + "\n\n[detalhes truncados]"
+    return detail
 
 
 # Created by AI.
@@ -33,6 +58,7 @@ def _case_status(case: ET.Element) -> str:
 
 
 # Created by AI.
+# Updated by AI.
 def read_report(path: Path) -> dict:
     """Lê um relatório JUnit e devolve os totais e as falhas encontradas."""
     root = ET.parse(path).getroot()
@@ -51,7 +77,7 @@ def read_report(path: Path) -> dict:
             skipped += 1
         elif status == "failed":
             failed += 1
-            detail = _text(case.find("failure")) or _text(case.find("error"))
+            detail = _failure_detail(case)
             classname = case.get("classname") or ""
             name = case.get("name") or "?"
             identifier = f"{classname}::{name}" if classname else name

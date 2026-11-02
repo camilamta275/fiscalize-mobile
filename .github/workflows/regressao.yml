@@ -476,3 +476,96 @@ jobs:
               });
               core.info(`Issue #${created.number} criada: ${title}`);
             }
+
+  # Created by AI.
+  quality-report:
+    name: Relatórios de qualidade
+    needs: [unit, api, regression, notify-failure]
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+      issues: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: automation/requirements.txt
+
+      - name: Instalar dependências de automação
+        run: python -m pip install -r automation/requirements.txt
+
+      # Created by AI.
+      - name: Baixar artefatos dos testes
+        uses: actions/download-artifact@v4
+        with:
+          pattern: relatorios-*
+          path: ${{ runner.temp }}/downloads
+          merge-multiple: true
+
+      # Created by AI.
+      - name: Coletar histórico de execuções
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs?per_page=30&branch=$DEFAULT_BRANCH" \
+            > "$RUNNER_TEMP/runs.json" || echo '{"workflow_runs": []}' > "$RUNNER_TEMP/runs.json"
+
+      # Created by AI.
+      - name: Coletar falhas abertas
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/issues?labels=falha-ci&state=open&per_page=100" \
+            > "$RUNNER_TEMP/issues.json" || echo '[]' > "$RUNNER_TEMP/issues.json"
+
+      # Created by AI.
+      - name: Definir pasta versionada da execução
+        run: echo "RUN_DIR=$REPORTS_DIR/runs/run-$GITHUB_RUN_NUMBER" >> "$GITHUB_ENV"
+
+      # Created by AI.
+      - name: Calcular métricas de qualidade
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: >-
+          python automation/scripts/metrics.py
+          --reports-dir "$RUNNER_TEMP/downloads"
+          --runs "$RUNNER_TEMP/runs.json"
+          --issues "$RUNNER_TEMP/issues.json"
+          --output "$RUN_DIR/metrics.json"
+          --summary
+
+      # Created by AI.
+      - name: Gerar relatórios HTML
+        run: |
+          python automation/scripts/quality_report.py \
+            --input "$RUN_DIR/metrics.json" \
+            --output-dir "$RUN_DIR"
+          cp "$RUN_DIR/business-report.html" "$REPORTS_DIR/index.html"
+
+      # Created by AI.
+      - name: Publicar relatórios de qualidade
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorios-qualidade
+          path: ${{ github.workspace }}/${{ env.REPORTS_DIR }}
+          if-no-files-found: warn
+          retention-days: 14
+
+      # Created by AI.
+      - name: Publicar no GitHub Pages
+        if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: automation/reports
+          publish_branch: gh-pages
+          force_orphan: true
