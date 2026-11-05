@@ -4,8 +4,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { ApiError } from '@/models/api-error';
 import type { Category } from '@/models/category';
 import { BLOCKED_EDIT_STATUSES, type DemandStatus } from '@/models/demand';
+import { useDemands } from '@/contexts/demand-context';
 import * as categoryService from '@/services/category-service';
-import * as demandService from '@/services/demand-service';
 
 /**
  * ViewModel — owns the state and the actions of both the create and the edit
@@ -17,8 +17,10 @@ import * as demandService from '@/services/demand-service';
  * foreground permission when the user taps the button, and nothing here ever
  * watches position in the background.
  */
+// Updated by AI.
 export function useDemandFormViewModel(demandId?: string) {
   const isEditing = demandId !== undefined;
+  const { fetchDetail, createDemand, updateDemand } = useDemands();
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
@@ -61,8 +63,7 @@ export function useDemandFormViewModel(demandId?: string) {
   useEffect(() => {
     if (!demandId) return;
 
-    demandService
-      .getById(demandId)
+    fetchDetail(demandId)
       .then((demand) => {
         setTitle(demand.title);
         setDescription(demand.description);
@@ -73,7 +74,7 @@ export function useDemandFormViewModel(demandId?: string) {
       })
       .catch(() => setLoadError('Não foi possível carregar esta ocorrência.'))
       .finally(() => setIsLoadingDemand(false));
-  }, [demandId]);
+  }, [demandId, fetchDetail]);
 
   const isBlocked = currentStatus !== null && BLOCKED_EDIT_STATUSES.includes(currentStatus);
 
@@ -126,9 +127,9 @@ export function useDemandFormViewModel(demandId?: string) {
       };
 
       if (isEditing) {
-        await demandService.update(demandId!, input);
+        await updateDemand(demandId!, input);
       } else {
-        await demandService.create(input);
+        await createDemand(input);
       }
       setDidSucceed(true);
     } catch (caught) {
@@ -138,7 +139,7 @@ export function useDemandFormViewModel(demandId?: string) {
     } finally {
       setIsSubmitting(false);
     }
-  }, [title, description, categoryId, location, coords, isEditing, demandId]);
+  }, [title, description, categoryId, location, coords, isEditing, demandId, createDemand, updateDemand]);
 
   return {
     isEditing,

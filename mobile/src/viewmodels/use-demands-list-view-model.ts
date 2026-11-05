@@ -1,7 +1,9 @@
+import { useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 
-import type { Demand, DemandStatus } from '@/models/demand';
+import type { DemandStatus } from '@/models/demand';
 import { ApiError } from '@/models/api-error';
+import { useDemands } from '@/contexts/demand-context';
 import * as demandService from '@/services/demand-service';
 import type { DemandOrganization } from '@/services/demand-service';
 
@@ -12,12 +14,15 @@ import type { DemandOrganization } from '@/services/demand-service';
  * in DemandListResult), driven by the View's FlatList `onEndReached`: each
  * call appends a page rather than replacing the list, while `refresh` (pull
  * to refresh, or a filter/search change) resets back to page 1.
+ *
+ * The fetched pages live in the shared demand store (contexts/demand-context),
+ * not here: remounting the screen with the same filters shows them at once and
+ * revalidates in the background, and a demand created or edited elsewhere is
+ * reflected without a manual refresh.
  */
 // Updated by AI.
 export function useDemandsListViewModel() {
-  const [demands, setDemands] = useState<Demand[]>([]);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const { list, isListStale, storeListPage } = useDemands();
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -27,6 +32,14 @@ export function useDemandsListViewModel() {
   const [orgaoFilter, setOrgaoFilter] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'recent' | 'oldest' | 'priority' | 'sla'>('recent');
   const [organizations, setOrganizations] = useState<DemandOrganization[]>([]);
+
+  const listKey = JSON.stringify([search, statusFilter, orgaoFilter, sortBy]);
+  // Only a list produced by the current filters may be shown; anything else
+  // in the store belongs to a previous query.
+  const cached = list?.key === listKey ? list : null;
+  const demands = cached?.items ?? [];
+  const page = cached?.page ?? 1;
+  const totalPages = cached?.totalPages ?? 1;
 
   const fetchPage = useCallback(
     async (targetPage: number, mode: 'initial' | 'refresh' | 'more') => {
@@ -43,9 +56,7 @@ export function useDemandsListViewModel() {
           orgao: orgaoFilter ?? undefined,
           ordenacao: sortBy,
         });
-        setDemands((prev) => (targetPage === 1 ? result.data : [...prev, ...result.data]));
-        setPage(result.page);
-        setTotalPages(result.totalPages);
+        storeListPage(listKey, result);
       } catch (caught) {
         setError(
           caught instanceof ApiError ? caught.message : 'Erro inesperado ao buscar ocorrências.'
@@ -56,7 +67,7 @@ export function useDemandsListViewModel() {
         setIsLoadingMore(false);
       }
     },
-    [search, statusFilter, orgaoFilter, sortBy]
+    [search, statusFilter, orgaoFilter, sortBy, listKey, storeListPage]
   );
 
   const refresh = useCallback(() => fetchPage(1, 'refresh'), [fetchPage]);
@@ -66,12 +77,37 @@ export function useDemandsListViewModel() {
     void fetchPage(page + 1, 'more');
   }, [fetchPage, isLoadingMore, isLoading, isRefreshing, page, totalPages]);
 
-  // Runs on mount and every time the search term or status filter changes —
-  // both are meant to restart the list from page 1, same as `refresh`.
+  // Runs on mount and every time a filter or the sort order changes — each
+  // restarts the list from page 1, same as `refresh`. With a cached list for
+  // this exact query it revalidates silently instead of showing the spinner.
   useEffect(() => {
-    void fetchPage(1, page === 1 && demands.length === 0 ? 'initial' : 'refresh');
+    if (cached) {
+      void demandService
+        .list({
+          page: 1,
+          regiao: search || undefined,
+          status: statusFilter ?? undefined,
+          orgao: orgaoFilter ?? undefined,
+          ordenacao: sortBy,
+        })
+        .then((result) => storeListPage(listKey, result))
+        .catch(() => {
+          // Keep showing the cached list; the next pull-to-refresh surfaces errors.
+        });
+      return;
+    }
+    void fetchPage(1, 'initial');
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, statusFilter]);
+  }, [listKey]);
+
+  // A demand created from the form can't be placed in the list locally (the
+  // filters and sort order decide where it goes), so reload when it comes back.
+  useFocusEffect(
+    useCallback(() => {
+      if (isListStale) void fetchPage(1, 'refresh');
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isListStale])
+  );
 
   useEffect(() => {
     void demandService
@@ -82,7 +118,8 @@ export function useDemandsListViewModel() {
 
   return {
     demands,
-    isLoading,
+    // A cached list for the current query is shown instead of the spinner.
+    isLoading: isLoading && !cached,
     isRefreshing,
     isLoadingMore,
     error,
