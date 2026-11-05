@@ -1,4 +1,4 @@
-import type { Demand, DemandDetail, DemandListResult } from '@/models/demand';
+import type { Demand, DemandDetail, DemandListResult, PublicDemand } from '@/models/demand';
 import { request } from '@/services/api-client';
 
 /**
@@ -17,17 +17,40 @@ export type ListDemandsParams = {
   regiao?: string;
   page?: number;
   limit?: number;
+  orgao?: string;
+  ordenacao?: 'recent' | 'oldest' | 'priority' | 'sla';
 };
+
+// Created by AI.
+export type DemandOrganization = { id: string; nome: string; sigla: string };
 
 export function list(params: ListDemandsParams = {}): Promise<DemandListResult> {
   const query = new URLSearchParams();
   if (params.status) query.set('status', params.status);
   if (params.categoria !== undefined) query.set('categoria', String(params.categoria));
   if (params.regiao) query.set('regiao', params.regiao);
+  if (params.orgao) query.set('orgao', params.orgao);
+  if (params.ordenacao) query.set('ordenacao', params.ordenacao);
   query.set('page', String(params.page ?? 1));
   query.set('limit', String(params.limit ?? 20));
 
   return request<DemandListResult>(`/demands?${query.toString()}`);
+}
+
+// Created by AI.
+export function listOrganizations(): Promise<DemandOrganization[]> {
+  return request<DemandOrganization[]>('/demands/organizations');
+}
+
+// Created by AI.
+export function listPublic(params: { status?: string; page?: number; limit?: number } = {}) {
+  const query = new URLSearchParams();
+  if (params.status) query.set('status', params.status);
+  query.set('page', String(params.page ?? 1));
+  query.set('limit', String(params.limit ?? 20));
+  return request<{ data: PublicDemand[]; total: number; page: number; limit: number; totalPages: number }>(
+    `/demands/public?${query.toString()}`,
+  );
 }
 
 // Updated by AI.

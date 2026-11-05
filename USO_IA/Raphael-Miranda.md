@@ -937,3 +937,15 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Revisão de conformidade e preparação dos commits.
 - **Tipo de contribuição da IA:** Inclusão de comentário de atribuição na rota e criação deste registro.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0078
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `IMPLEMENTACAO-RNF-SEC-06.md`, `backend/src/services/demandService.ts`, `backend/src/controllers/demandController.ts`, `backend/src/routes/demandRoutes.ts`, `backend/src/config/swagger.ts`, `mobile/src/models/demand.ts`, `mobile/src/services/demand-service.ts`, `automation/tests/api/tests/test_public_demand_privacy.py`, `AUDITORIA-REQUISITOS-SEGURANCA.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Criada projeção pública anonimizada de ocorrências, teste de API e documentação do RNF-SEC-06.
+- **Tratamento de dados pessoais:** Não houve uso de dados pessoais reais; a implementação impede a exposição dos campos pessoais na resposta pública.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Implementar anonimização visual de denúncias conforme o RNF-SEC-06.
+- **Etapa da atividade:** Planejamento, implementação, testes e atualização da auditoria.
+- **Tipo de contribuição da IA:** Criação de documento, endpoint público, projeção de dados, tipos mobile, documentação Swagger e teste de privacidade.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo

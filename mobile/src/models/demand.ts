@@ -75,6 +75,15 @@ export type Demand = {
   updatedAt: string;
 };
 
+// Created by AI.
+export type PublicDemand = Pick<
+  Demand,
+  'id' | 'protocolo' | 'title' | 'description' | 'status' | 'latitude' | 'longitude' | 'category'
+> & {
+  photoUrl: string | null;
+  createdAt: string;
+};
+
 /**
  * `GET /demands/:id` adds the routing/SLA fields and the timeline that the
  * list endpoint doesn't serialize. Every extra field is optional so a stale
