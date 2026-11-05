@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 
 import { ApiError } from '@/models/api-error';
 import * as authService from '@/services/auth-service';
+import { PRIVACY_POLICY_VERSION } from '@/constants/privacy-policy';
 
 /**
  * ViewModel — owns the state and the actions of the sign-up screen.
@@ -25,6 +26,7 @@ export function useRegisterViewModel() {
   const [estado, setEstado] = useState('');
   const [cep, setCep] = useState('');
   const [complemento, setComplemento] = useState('');
+  const [privacyPolicyAccepted, setPrivacyPolicyAccepted] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<{
     nome?: string;
     email?: string;
@@ -37,13 +39,14 @@ export function useRegisterViewModel() {
     cidade?: string;
     estado?: string;
     cep?: string;
+    privacyPolicyAccepted?: string;
   }>({});
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [didSucceed, setDidSucceed] = useState(false);
 
   const submit = useCallback(async () => {
-    const errors = validate(nome, email, senha, confirmarSenha, {
+    const errors = validate(nome, email, senha, confirmarSenha, privacyPolicyAccepted, {
       cpf, rua, numero, bairro, cidade, estado, cep,
     });
     setFieldErrors(errors);
@@ -54,6 +57,7 @@ export function useRegisterViewModel() {
     try {
       await authService.register({
         nome, email, senha, cpf, rua, numero, bairro, cidade, estado, cep, complemento,
+        privacyPolicyVersion: PRIVACY_POLICY_VERSION,
       });
       setDidSucceed(true);
     } catch (caught) {
@@ -74,6 +78,7 @@ export function useRegisterViewModel() {
     estado,
     cep,
     complemento,
+    privacyPolicyAccepted,
   ]);
 
   return {
@@ -87,6 +92,8 @@ export function useRegisterViewModel() {
     setConfirmarSenha,
     cpf, setCpf, rua, setRua, numero, setNumero, bairro, setBairro,
     cidade, setCidade, estado, setEstado, cep, setCep, complemento, setComplemento,
+    privacyPolicyAccepted,
+    setPrivacyPolicyAccepted,
     fieldErrors,
     error,
     isSubmitting,
@@ -101,6 +108,7 @@ function validate(
   email: string,
   senha: string,
   confirmarSenha: string,
+  privacyPolicyAccepted: boolean,
   address: { cpf: string; rua: string; numero: string; bairro: string; cidade: string; estado: string; cep: string }
 ) {
   const errors: Record<string, string> = {};
@@ -117,6 +125,9 @@ function validate(
   }
   if (confirmarSenha !== senha) {
     errors.confirmarSenha = 'As senhas não correspondem';
+  }
+  if (!privacyPolicyAccepted) {
+    errors.privacyPolicyAccepted = 'Aceite a Política de Privacidade para criar sua conta';
   }
   for (const [field, value] of Object.entries(address)) {
     if (!value.trim()) errors[field] = 'Campo obrigatório';

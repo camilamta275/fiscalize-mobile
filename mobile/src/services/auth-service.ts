@@ -36,6 +36,7 @@ export function register(data: {
   estado: string;
   cep: string;
   complemento?: string;
+  privacyPolicyVersion: string;
 }): Promise<Usuario> {
   return request<Usuario>('/auth/register', { method: 'POST', body: data });
 }

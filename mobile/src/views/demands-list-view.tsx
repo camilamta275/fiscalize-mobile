@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  Modal,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -58,6 +59,11 @@ export function DemandsListView() {
     setSearch,
     statusFilter,
     setStatusFilter,
+    orgaoFilter,
+    setOrgaoFilter,
+    sortBy,
+    setSortBy,
+    organizations,
     refresh,
     loadMore,
   } = useDemandsListViewModel();
@@ -66,6 +72,7 @@ export function DemandsListView() {
   const insets = useSafeAreaInsets();
   const [searchDraft, setSearchDraft] = useState('');
   const [isFocused, setIsFocused] = useState(true);
+  const [openFilter, setOpenFilter] = useState<'status' | 'orgao' | 'sort' | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -119,7 +126,10 @@ export function DemandsListView() {
               <View style={[styles.search, { backgroundColor: theme.card }]}>
                 <Icon color={theme.mutedForeground} name={Icons.search} size={16} />
                 <TextInput
-                  onChangeText={setSearchDraft}
+                  onChangeText={(value) => {
+                    setSearchDraft(value);
+                    setSearch(value);
+                  }}
                   onSubmitEditing={() => setSearch(searchDraft)}
                   placeholder="Buscar por endereço..."
                   placeholderTextColor={theme.mutedForeground}
@@ -143,24 +153,30 @@ export function DemandsListView() {
             </GradientView>
 
             <View style={[styles.sheet, { backgroundColor: theme.background }]}>
-              <ScrollView
-                contentContainerStyle={styles.chipsRow}
-                horizontal
-                showsHorizontalScrollIndicator={false}>
-                <StatusChip
-                  label="Todos"
-                  onPress={() => setStatusFilter(null)}
-                  selected={statusFilter === null}
-                />
-                {ALL_STATUSES.map((status) => (
-                  <StatusChip
-                    key={status}
-                    label={STATUS_TONES[status].label}
-                    onPress={() => setStatusFilter(statusFilter === status ? null : status)}
-                    selected={statusFilter === status}
+              <FilterSelect
+                label={statusFilter ?? 'Todos os status'}
+                onPress={() => setOpenFilter('status')}
+              />
+              <View style={styles.filterRow}>
+                <View style={styles.orgFilter}>
+                  <FilterSelect
+                    label={
+                      orgaoFilter
+                        ? organizations.find((organization) => organization.id === orgaoFilter)?.sigla ??
+                          'Órgão selecionado'
+                        : 'Todos os órgãos'
+                    }
+                    onPress={() => setOpenFilter('orgao')}
                   />
-                ))}
-              </ScrollView>
+                </View>
+                <View style={styles.sortFilter}>
+                  <FilterSelect
+                    label={SORT_OPTIONS.find((option) => option.value === sortBy)?.label ?? 'Mais recentes'}
+                    onPress={() => setOpenFilter('sort')}
+                    showSortIcon
+                  />
+                </View>
+              </View>
 
               <View style={styles.statsRow}>
                 {SUMMARY_STATUSES.map((status) => {
@@ -222,43 +238,118 @@ export function DemandsListView() {
         ]}>
         <Icon color={theme.primaryForeground} name={Icons.plus} size={26} />
       </Pressable>
+
+      <FilterModal
+        options={[
+          { label: 'Todos os status', value: null },
+          ...ALL_STATUSES.map((status) => ({ label: STATUS_TONES[status].label, value: status })),
+        ]}
+        onClose={() => setOpenFilter(null)}
+        onSelect={(value) => {
+          setStatusFilter(value as DemandStatus | null);
+          setOpenFilter(null);
+        }}
+        title="Filtrar por status"
+        value={statusFilter}
+        visible={openFilter === 'status'}
+      />
+      <FilterModal
+        options={[
+          { label: 'Todos os órgãos', value: null },
+          ...organizations.map((organization) => ({
+            label: `${organization.sigla} - ${organization.nome}`,
+            value: organization.id,
+          })),
+        ]}
+        onClose={() => setOpenFilter(null)}
+        onSelect={(value) => {
+          setOrgaoFilter(value);
+          setOpenFilter(null);
+        }}
+        title="Filtrar por órgão"
+        value={orgaoFilter}
+        visible={openFilter === 'orgao'}
+      />
+      <FilterModal
+        options={SORT_OPTIONS}
+        onClose={() => setOpenFilter(null)}
+        onSelect={(value) => {
+          setSortBy(value as 'recent' | 'oldest' | 'priority' | 'sla');
+          setOpenFilter(null);
+        }}
+        title="Ordenar ocorrências"
+        value={sortBy}
+        visible={openFilter === 'sort'}
+      />
     </View>
   );
 }
 
 // Created by AI.
-function StatusChip({
-  label,
-  onPress,
-  selected,
-}: {
-  label: string;
-  onPress: () => void;
-  selected: boolean;
-}) {
+function FilterSelect({ label, onPress, showSortIcon = false }: { label: string; onPress: () => void; showSortIcon?: boolean }) {
   const theme = useTheme();
 
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityState={{ selected }}
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.chip,
-        {
-          backgroundColor: selected ? theme.primary : theme.card,
-          borderColor: selected ? theme.primary : theme.border,
-        },
-        pressed && styles.pressed,
-      ]}>
-      <ThemedText
-        style={{ color: selected ? theme.primaryForeground : theme.textSecondary }}
-        type="smallBold">
-        {label}
-      </ThemedText>
+      style={({ pressed }) => [styles.filterSelect, { borderColor: theme.border }, pressed && styles.pressed]}>
+      <ThemedText style={styles.filterLabel} type="default">{label}</ThemedText>
+      <Icon color={theme.mutedForeground} name={showSortIcon ? Icons.refresh : Icons.chevronDown} size={18} />
     </Pressable>
   );
 }
+
+// Created by AI.
+function FilterModal({
+  options,
+  onClose,
+  onSelect,
+  title,
+  value,
+  visible,
+}: {
+  options: readonly { label: string; value: string | DemandStatus | null }[];
+  onClose: () => void;
+  onSelect: (value: string | DemandStatus | null) => void;
+  title: string;
+  value: string | DemandStatus | null;
+  visible: boolean;
+}) {
+  const theme = useTheme();
+
+  return (
+    <Modal animationType="fade" transparent visible={visible} onRequestClose={onClose}>
+      <Pressable onPress={onClose} style={styles.modalBackdrop}>
+        <Pressable onPress={() => undefined} style={[styles.modalCard, { backgroundColor: theme.card }]}>
+          <View style={styles.modalHeader}>
+            <ThemedText type="subtitle">{title}</ThemedText>
+            <Pressable accessibilityLabel="Fechar filtro" onPress={onClose}>
+              <Icon color={theme.mutedForeground} name={Icons.close} size={20} />
+            </Pressable>
+          </View>
+          {options.map((option) => (
+            <Pressable
+              key={option.label}
+              onPress={() => onSelect(option.value)}
+              style={[styles.option, option.value === value && { backgroundColor: theme.primarySoft }]}>
+              <ThemedText type={option.value === value ? 'smallBold' : 'default'}>{option.label}</ThemedText>
+              {option.value === value ? <Icon color={theme.primary} name={Icons.check} size={18} /> : null}
+            </Pressable>
+          ))}
+        </Pressable>
+      </Pressable>
+    </Modal>
+  );
+}
+
+// Created by AI.
+const SORT_OPTIONS = [
+  { label: 'Mais recentes', value: 'recent' },
+  { label: 'Mais antigos', value: 'oldest' },
+  { label: 'Por prazo', value: 'sla' },
+  { label: 'Por prioridade', value: 'priority' },
+] as const;
 
 // Updated by AI.
 const styles = StyleSheet.create({
@@ -309,15 +400,56 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     paddingTop: Spacing.three,
   },
-  chipsRow: {
+  filterRow: {
+    flexDirection: 'row',
     gap: Spacing.two,
-    paddingRight: Spacing.three,
   },
-  chip: {
-    borderRadius: Radius.pill,
+  orgFilter: {
+    flex: 1,
+  },
+  sortFilter: {
+    width: 150,
+  },
+  filterSelect: {
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    borderRadius: Radius.md,
     borderWidth: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    minHeight: 48,
     paddingHorizontal: Spacing.three,
-    paddingVertical: 6,
+  },
+  filterLabel: {
+    flexShrink: 1,
+  },
+  modalBackdrop: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    flex: 1,
+    justifyContent: 'center',
+    padding: Spacing.four,
+  },
+  modalCard: {
+    borderRadius: Radius.lg,
+    gap: Spacing.one,
+    maxWidth: 440,
+    padding: Spacing.three,
+    width: '100%',
+  },
+  modalHeader: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingBottom: Spacing.two,
+  },
+  option: {
+    alignItems: 'center',
+    borderRadius: Radius.sm,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    minHeight: 44,
+    paddingHorizontal: Spacing.two,
   },
   statsRow: {
     flexDirection: 'row',

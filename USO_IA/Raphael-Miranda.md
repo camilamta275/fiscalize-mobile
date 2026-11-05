@@ -877,3 +877,63 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Implementação e validação da geração de relatórios.
 - **Tipo de contribuição da IA:** Atualização dos templates técnico e de negócio com dados dinâmicos; inclusão de traceback, stdout e stderr do JUnit nas falhas; atualização da documentação e validação sintática e funcional.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0073
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `POLITICA-DE-PRIVACIDADE.md`, `IMPLEMENTACAO-RNF-SEC-07.md`, `AUDITORIA-REQUISITOS-SEGURANCA.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Criadas minuta de privacidade e proposta de implementação do consentimento no cadastro, sem alterar código funcional.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram analisados somente requisitos e fluxos versionados.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Estruturar a política e o plano de implementação do RNF-SEC-07.
+- **Etapa da atividade:** Análise de requisitos e documentação preparatória.
+- **Tipo de contribuição da IA:** Leitura do repositório, síntese de requisitos, criação de documentos e atualização da auditoria.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0074
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `POLITICA-DE-PRIVACIDADE.md`, `IMPLEMENTACAO-RNF-SEC-07.md`, `AUDITORIA-REQUISITOS-SEGURANCA.md`, `backend/src/config/privacyPolicy.ts`, `backend/src/controllers/authController.ts`, `backend/src/services/authService.ts`, `backend/src/config/swagger.ts`, `backend/prisma/schema.prisma`, `backend/prisma/migrations/20261105003000_add_privacy_consent/migration.sql`, `mobile/src/constants/privacy-policy.ts`, `mobile/src/services/auth-service.ts`, `mobile/src/viewmodels/use-register-view-model.ts`, `mobile/src/views/register-view.tsx`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Implementado consentimento versionado no cadastro, modal da política, persistência atômica no backend e evidências do RNF-SEC-07.
+- **Tratamento de dados pessoais:** Não houve uso de dados pessoais fora do documento fornecido pelo responsável; os dados de contato já informados foram apenas preservados na política.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Implementar consentimento e transparência no cadastro conforme o RNF-SEC-07.
+- **Etapa da atividade:** Implementação, validação técnica e atualização da documentação de segurança.
+- **Tipo de contribuição da IA:** Alteração de frontend mobile, contrato de API, persistência Prisma, documentação, migração e validações de TypeScript/build.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0075
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/config/settings.py`, `automation/tests/api/conftest.py`, `automation/tests/api/tests/test_privacy_consent.py`, `IMPLEMENTACAO-RNF-SEC-07.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Adicionados testes de API para ausência, versão inválida e persistência do consentimento na suíte de automação.
+- **Tratamento de dados pessoais:** Não houve uso de dados pessoais reais; os testes usam dados sintéticos e e-mails temporários.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Cobrir por API o consentimento obrigatório do RNF-SEC-07.
+- **Etapa da atividade:** Testes de integração da API e atualização do plano de implementação.
+- **Tipo de contribuição da IA:** Criação de cenários pytest com requests e consulta de verificação ao PostgreSQL, além de atualização dos helpers da suíte.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0076
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `mobile/src/views/demands-list-view.tsx`, `mobile/src/viewmodels/use-demands-list-view-model.ts`, `mobile/src/services/demand-service.ts`, `mobile/src/models/demand.ts`, `backend/src/services/demandService.ts`, `backend/src/controllers/demandController.ts`, `backend/src/routes/demandRoutes.ts`, `backend/src/config/swagger.ts`, `IMPLEMENTACAO-RNF-SEC-07.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Filtros da tela principal alinhados à referência, com busca, status, órgão e ordenação aplicados no backend.
+- **Tratamento de dados pessoais:** Não houve uso de dados pessoais reais; foram analisados somente estruturas e dados sintéticos do projeto.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Corrigir o comportamento dos filtros da tela principal conforme a referência visual.
+- **Etapa da atividade:** Análise comparativa, implementação e validação técnica.
+- **Tipo de contribuição da IA:** Análise de telas de referência, alteração da API e da UI mobile, inclusão de seletor modal e validação TypeScript/build.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0077
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `backend/src/routes/demandRoutes.ts`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Incluída a atribuição de IA na rota de organizações e registrada a preparação dos commits do RNF-SEC-07.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais; apenas revisão de código e de documentação versionados.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Cumprir a atribuição obrigatória de IA antes de consolidar as alterações em commit.
+- **Etapa da atividade:** Revisão de conformidade e preparação dos commits.
+- **Tipo de contribuição da IA:** Inclusão de comentário de atribuição na rota e criação deste registro.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo

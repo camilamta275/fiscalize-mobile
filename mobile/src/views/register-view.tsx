@@ -1,6 +1,14 @@
 import { Link, router } from 'expo-router';
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -11,6 +19,7 @@ import { InlineMessage } from '@/components/ui/inline-message';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { TextField } from '@/components/ui/text-field';
 import { Icons, type IconName } from '@/constants/icons';
+import { PRIVACY_POLICY_SECTIONS, PRIVACY_POLICY_VERSION } from '@/constants/privacy-policy';
 import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useRegisterViewModel } from '@/viewmodels/use-register-view-model';
@@ -34,6 +43,8 @@ export function RegisterView() {
     setConfirmarSenha,
     cpf, setCpf, rua, setRua, numero, setNumero, bairro, setBairro,
     cidade, setCidade, estado, setEstado, cep, setCep, complemento, setComplemento,
+    privacyPolicyAccepted,
+    setPrivacyPolicyAccepted,
     fieldErrors,
     error,
     isSubmitting,
@@ -44,6 +55,7 @@ export function RegisterView() {
   const insets = useSafeAreaInsets();
   const [isLookingUpCep, setIsLookingUpCep] = useState(false);
   const [cepError, setCepError] = useState<string | null>(null);
+  const [isPrivacyPolicyVisible, setIsPrivacyPolicyVisible] = useState(false);
 
   const fillAddress = async (value: string) => {
     setIsLookingUpCep(true);
@@ -241,6 +253,39 @@ export function RegisterView() {
             </ThemedText>
           </Card>
 
+          <Card style={styles.card}>
+            <Pressable
+              accessibilityRole="checkbox"
+              accessibilityState={{ checked: privacyPolicyAccepted }}
+              onPress={() => setPrivacyPolicyAccepted(!privacyPolicyAccepted)}
+              style={styles.consentRow}>
+              <View
+                style={[
+                  styles.checkbox,
+                  { borderColor: privacyPolicyAccepted ? theme.primary : theme.border },
+                  privacyPolicyAccepted && { backgroundColor: theme.primary },
+                ]}>
+                {privacyPolicyAccepted ? (
+                  <Icon color={theme.primaryForeground} name={Icons.check} size={16} />
+                ) : null}
+              </View>
+              <ThemedText style={styles.consentText} type="small">
+                Li e aceito a{' '}
+                <ThemedText
+                  onPress={() => setIsPrivacyPolicyVisible(true)}
+                  style={styles.policyLink}
+                  type="linkPrimary">
+                  Política de Privacidade
+                </ThemedText>{' '}
+              </ThemedText>
+            </Pressable>
+            {fieldErrors.privacyPolicyAccepted ? (
+              <ThemedText style={styles.errorText} themeColor="destructive" type="caption">
+                {fieldErrors.privacyPolicyAccepted}
+              </ThemedText>
+            ) : null}
+          </Card>
+
           {error ? <InlineMessage message={error} /> : null}
 
           <Button
@@ -255,7 +300,36 @@ export function RegisterView() {
           </Link>
         </ScrollView>
       </KeyboardAvoidingView>
+      <PrivacyPolicyModal
+        onClose={() => setIsPrivacyPolicyVisible(false)}
+        visible={isPrivacyPolicyVisible}
+      />
     </View>
+  );
+}
+
+// Created by AI.
+function PrivacyPolicyModal({ onClose, visible }: { onClose: () => void; visible: boolean }) {
+  const theme = useTheme();
+
+  return (
+    <Modal accessibilityViewIsModal animationType="slide" onRequestClose={onClose} visible={visible}>
+      <View style={[styles.modalRoot, { backgroundColor: theme.background }]}>
+        <ScreenHeader onBack={onClose} subtitle={`Versão ${PRIVACY_POLICY_VERSION}`} title="Política de Privacidade" />
+        <ScrollView contentContainerStyle={styles.modalContent}>
+          <ThemedText themeColor="mutedForeground" type="small">
+            Leia o documento antes de decidir sobre o consentimento.
+          </ThemedText>
+          {PRIVACY_POLICY_SECTIONS.map((section) => (
+            <View key={section.title} style={styles.policySection}>
+              <ThemedText type="subtitle">{section.title}</ThemedText>
+              <ThemedText type="small">{section.body}</ThemedText>
+            </View>
+          ))}
+          <Button onPress={onClose} title="Fechar" variant="secondary" />
+        </ScrollView>
+      </View>
+    </Modal>
   );
 }
 
@@ -290,6 +364,41 @@ const styles = StyleSheet.create({
   },
   card: {
     gap: Spacing.three,
+  },
+  consentRow: {
+    alignItems: 'flex-start',
+    flexDirection: 'row',
+    gap: Spacing.two,
+  },
+  checkbox: {
+    alignItems: 'center',
+    borderRadius: Radius.sm,
+    borderWidth: 2,
+    height: 24,
+    justifyContent: 'center',
+    width: 24,
+  },
+  consentText: {
+    flex: 1,
+  },
+  policyLink: {
+    textDecorationLine: 'underline',
+  },
+  errorText: {
+    marginLeft: 32,
+  },
+  modalRoot: {
+    flex: 1,
+  },
+  modalContent: {
+    alignSelf: 'center',
+    gap: Spacing.three,
+    maxWidth: MaxContentWidth,
+    padding: Spacing.three,
+    width: '100%',
+  },
+  policySection: {
+    gap: Spacing.one,
   },
   sectionTitle: {
     alignItems: 'center',
