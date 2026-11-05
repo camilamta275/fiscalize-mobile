@@ -1129,3 +1129,15 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Correção de testes e configuração de ambiente.
 - **Tipo de contribuição da IA:** Isolamento de IP sintético por cenário, configuração segura de `TRUST_PROXY` em testes e documentação da separação entre teste e produção.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0094
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/tests/test_mfa_otp.py`, `automation/tests/api/tests/test_user_creation.py`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Ajustados dois testes que confundiam bloqueio OTP e limite de cadastro com falhas funcionais.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados somente dados sintéticos de teste.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Corrigir os dois testes restantes afetados pelo rate limiting.
+- **Etapa da atividade:** Diagnóstico, correção e validação dos testes automatizados.
+- **Tipo de contribuição da IA:** Análise do relatório, ajuste de isolamento por IP, validação do estado consumido do desafio OTP e execução de testes direcionados.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo

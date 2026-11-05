@@ -1,3 +1,5 @@
+import uuid
+
 import requests
 from automation.tests.api.config.settings import Endpoints as endpoints
 from automation.tests.api.conftest import profile_fields
@@ -143,5 +145,9 @@ def test_create_user_empty_email(create_uuid):
         "senha": f"{password}",
         **profile_fields(),
     }
-    resp = requests.post(endpoints.REGISTER, json=new_user_data)
+    resp = requests.post(
+        endpoints.REGISTER,
+        json=new_user_data,
+        headers={"X-Forwarded-For": f"198.51.100.{uuid.uuid4().int % 254 + 1}"},
+    )
     assert resp.status_code == 400  # Espera-se um erro de validação (400 Bad Request)
