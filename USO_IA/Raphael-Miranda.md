@@ -1021,3 +1021,15 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Revisão de requisitos e atualização documental.
 - **Tipo de contribuição da IA:** Inclusão dos novos requisitos, classificação de status, evidências, lacunas e prioridades técnicas.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0085
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `backend/src/controllers/authController.ts`, `backend/src/services/authService.ts`, `mobile/src/contexts/session-context.tsx`, `mobile/src/models/usuario.ts`, `mobile/src/views/profile-edit-view.tsx`, `mobile/src/views/rights-portal-view.tsx`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Data de nascimento passa a ser exibida no perfil e no portal de direitos, e a sessão recarrega o usuário completo após login e MFA.
+- **Tratamento de dados pessoais:** Não houve uso de dados pessoais reais; a data exibida pertence ao próprio titular autenticado e continua somente leitura.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Completar as informações do titular no portal de direitos conforme o RNF-SEC-11.
+- **Etapa da atividade:** Implementação e validação técnica.
+- **Tipo de contribuição da IA:** Inclusão do campo nas respostas da API, ajuste do contexto de sessão para carregar o perfil completo e formatação da data nas telas mobile.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo

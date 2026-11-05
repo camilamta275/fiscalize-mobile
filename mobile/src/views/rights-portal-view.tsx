@@ -116,6 +116,7 @@ export function RightsPortalView() {
           <ThemedText type="subtitle">Informações</ThemedText>
           <InfoRow label="Nome completo" value={usuario.nome} />
           <InfoRow label="E-mail" value={usuario.email} />
+          <InfoRow label="Data de nascimento" value={formatBirthDate(usuario.dataNascimento)} />
           <InfoRow label="CPF" value={usuario.cpf ?? 'Não informado'} />
           <InfoRow label="Endereço" value={composeAddress(usuario)} />
         </Card>
@@ -133,6 +134,13 @@ export function RightsPortalView() {
       </ScrollView>
     </View>
   );
+}
+
+// Created by AI.
+function formatBirthDate(value?: string | null): string {
+  if (!value) return 'Não informado';
+  const date = value.slice(0, 10).split('-');
+  return date.length === 3 ? `${date[2]}/${date[1]}/${date[0]}` : 'Não informado';
 }
 
 // Created by AI.

@@ -97,6 +97,11 @@ export function ProfileEditView() {
             onChangeText={setEmail}
             value={email}
           />
+          <TextField
+            editable={false}
+            label="Data de nascimento"
+            value={formatBirthDate(usuario.dataNascimento)}
+          />
           <TextField editable={false} label="CPF" value={usuario.cpf ?? ''} />
         </Card>
 
@@ -181,6 +186,13 @@ export function ProfileEditView() {
       </ScrollView>
     </View>
   );
+}
+
+// Created by AI.
+function formatBirthDate(value?: string | null): string {
+  if (!value) return 'Não informado';
+  const date = value.slice(0, 10).split('-');
+  return date.length === 3 ? `${date[2]}/${date[1]}/${date[0]}` : 'Não informado';
 }
 
 // Created by AI.
