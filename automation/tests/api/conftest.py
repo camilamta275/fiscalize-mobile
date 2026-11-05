@@ -76,6 +76,7 @@ def require_session(response):
     return data["token"]
 
 # Created by AI.
+# Updated by AI.
 def profile_fields():
     """Retorna o perfil sintético base configurado no arquivo de dados."""
     credentials_path = Path(__file__).resolve().parents[2] / "data" / "credentials.json"
@@ -84,6 +85,7 @@ def profile_fields():
     return {
         **profile,
         "cpf": str(uuid.uuid4().int)[:11],
+        "dataNascimento": "1990-01-01",
         "privacyPolicyVersion": endpoints.PRIVACY_POLICY_VERSION,
     }
 

@@ -1,7 +1,7 @@
 # Política de Privacidade — Fiscalize Mobile
 
 > **Status:** política acadêmica do projeto Fiscalize Mobile.  
-> **Versão:** 1.0  
+> **Versão:** 1.1
 > **Data de publicação:** a definir antes da entrada em produção.
 
 ## 1. Quem controla os dados
@@ -22,7 +22,7 @@ Mobile.
 
 No cadastro e no uso do serviço, poderemos tratar:
 
-- nome completo, e-mail e CPF;
+- nome completo, e-mail, data de nascimento e CPF;
 - endereço informado para identificação e contato;
 - credenciais protegidas, registros de sessão e informações de segurança;
 - descrição, categoria, fotos e localização de uma ocorrência;
@@ -40,13 +40,14 @@ exportações ou respostas públicas.
 Usamos os dados para:
 
 1. criar e proteger a conta do cidadão;
-2. receber, localizar, encaminhar e acompanhar ocorrências urbanas;
-3. enviar comunicações relacionadas ao serviço;
-4. cumprir obrigações legais e responder a solicitações de autoridades;
-5. prevenir abuso, fraude e incidentes de segurança;
-6. produzir indicadores e melhorar o serviço, preferencialmente com dados
+2. verificar que o usuário possui 18 anos ou mais;
+3. receber, localizar, encaminhar e acompanhar ocorrências urbanas;
+4. enviar comunicações relacionadas ao serviço;
+5. cumprir obrigações legais e responder a solicitações de autoridades;
+6. prevenir abuso, fraude e incidentes de segurança;
+7. produzir indicadores e melhorar o serviço, preferencialmente com dados
    agregados ou anonimizados; e
-7. demonstrar a existência e o conteúdo do consentimento quando essa for a
+8. demonstrar a existência e o conteúdo do consentimento quando essa for a
    base legal aplicável.
 
 Cada finalidade deve estar associada a uma base legal adequada, validada pelo
@@ -100,13 +101,14 @@ Os pedidos devem ser feitos pelo portal de direitos do titular no aplicativo ou
 por rrsm2@cesar.school. Poderemos solicitar autenticação para proteger a
 conta. Responderemos dentro dos prazos legais aplicáveis.
 
-## 8. Crianças e adolescentes
+## 8. Crianças, adolescentes e idade mínima
 
-O serviço deve informar a faixa etária elegível e não deve coletar dados de
-crianças sem a autorização exigida por lei. Se o produto permitir cadastro de
-adolescentes ou uso por menores, o controlador deverá definir fluxo específico
-de autorização, verificação de responsável e atendimento de solicitações antes
-da publicação.
+O Fiscalize Mobile é destinado exclusivamente a pessoas com 18 anos ou mais.
+O cadastro solicita a data de nascimento e o servidor rejeita datas inválidas,
+futuras ou que indiquem idade inferior a 18 anos. A informação é
+autodeclarada e não constitui verificação documental de identidade ou idade.
+Se uma conta for identificada posteriormente como pertencente a menor, ela
+deverá ser bloqueada e avaliada para exclusão ou anonimização conforme a lei.
 
 ## 9. Alterações desta política
 
@@ -127,3 +129,4 @@ competente, conforme a legislação aplicável.
 | Versão | Vigência | Alteração |
 |---|---|---|
 | 1.0 | A definir | Primeira minuta para cadastro e uso do Fiscalize Mobile. |
+| 1.1 | 05/11/2026 | Inclusão da idade mínima de 18 anos e tratamento da data de nascimento. |
