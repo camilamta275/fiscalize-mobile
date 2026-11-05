@@ -14,4 +14,4 @@ class Endpoints:
     ANONYMIZATION = f"{GET_USER}/anonymization"
     CHANGE_PASSWORD = f"{BASE_URL}/auth/me/password"
     DEMANDS = f"{BASE_URL}/demands"
-    PRIVACY_POLICY_VERSION = "1.0"
+    PRIVACY_POLICY_VERSION = "1.1"

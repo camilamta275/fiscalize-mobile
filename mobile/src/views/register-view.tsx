@@ -41,6 +41,8 @@ export function RegisterView() {
     setSenha,
     confirmarSenha,
     setConfirmarSenha,
+    dataNascimento,
+    setDataNascimento,
     cpf, setCpf, rua, setRua, numero, setNumero, bairro, setBairro,
     cidade, setCidade, estado, setEstado, cep, setCep, complemento, setComplemento,
     privacyPolicyAccepted,
@@ -156,6 +158,26 @@ export function RegisterView() {
               placeholder="Somente números"
               value={cpf}
             />
+            <TextField
+              error={fieldErrors.dataNascimento}
+              keyboardType="numeric"
+              label="Data de nascimento"
+              maxLength={10}
+              onChangeText={(value) => {
+                const digits = value.replace(/\D/g, '').slice(0, 8);
+                const formatted = [
+                  digits.slice(0, 2),
+                  digits.slice(2, 4),
+                  digits.slice(4, 8),
+                ].filter(Boolean).join('/');
+                setDataNascimento(formatted);
+              }}
+              placeholder="DD/MM/AAAA"
+              value={dataNascimento}
+            />
+            <ThemedText themeColor="mutedForeground" type="caption">
+              O cadastro é permitido somente para pessoas com 18 anos ou mais.
+            </ThemedText>
           </Card>
 
           <Card style={styles.card}>

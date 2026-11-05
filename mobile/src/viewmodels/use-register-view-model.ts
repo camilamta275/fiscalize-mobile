@@ -18,6 +18,7 @@ export function useRegisterViewModel() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
+  const [dataNascimento, setDataNascimento] = useState('');
   const [cpf, setCpf] = useState('');
   const [rua, setRua] = useState('');
   const [numero, setNumero] = useState('');
@@ -32,6 +33,7 @@ export function useRegisterViewModel() {
     email?: string;
     senha?: string;
     confirmarSenha?: string;
+    dataNascimento?: string;
     cpf?: string;
     rua?: string;
     numero?: string;
@@ -46,7 +48,7 @@ export function useRegisterViewModel() {
   const [didSucceed, setDidSucceed] = useState(false);
 
   const submit = useCallback(async () => {
-    const errors = validate(nome, email, senha, confirmarSenha, privacyPolicyAccepted, {
+    const errors = validate(nome, email, senha, confirmarSenha, dataNascimento, privacyPolicyAccepted, {
       cpf, rua, numero, bairro, cidade, estado, cep,
     });
     setFieldErrors(errors);
@@ -56,7 +58,7 @@ export function useRegisterViewModel() {
     setIsSubmitting(true);
     try {
       await authService.register({
-        nome, email, senha, cpf, rua, numero, bairro, cidade, estado, cep, complemento,
+        nome, email, senha, dataNascimento: toIsoBirthDate(dataNascimento)!, cpf, rua, numero, bairro, cidade, estado, cep, complemento,
         privacyPolicyVersion: PRIVACY_POLICY_VERSION,
       });
       setDidSucceed(true);
@@ -70,6 +72,7 @@ export function useRegisterViewModel() {
     email,
     senha,
     confirmarSenha,
+    dataNascimento,
     cpf,
     rua,
     numero,
@@ -90,6 +93,8 @@ export function useRegisterViewModel() {
     setSenha,
     confirmarSenha,
     setConfirmarSenha,
+    dataNascimento,
+    setDataNascimento,
     cpf, setCpf, rua, setRua, numero, setNumero, bairro, setBairro,
     cidade, setCidade, estado, setEstado, cep, setCep, complemento, setComplemento,
     privacyPolicyAccepted,
@@ -108,6 +113,7 @@ function validate(
   email: string,
   senha: string,
   confirmarSenha: string,
+  dataNascimento: string,
   privacyPolicyAccepted: boolean,
   address: { cpf: string; rua: string; numero: string; bairro: string; cidade: string; estado: string; cep: string }
 ) {
@@ -126,14 +132,39 @@ function validate(
   if (confirmarSenha !== senha) {
     errors.confirmarSenha = 'As senhas não correspondem';
   }
+  if (!toIsoBirthDate(dataNascimento)) {
+    errors.dataNascimento = 'Informe uma data válida no formato DD/MM/AAAA para maiores de 18 anos';
+  }
   if (!privacyPolicyAccepted) {
     errors.privacyPolicyAccepted = 'Aceite a Política de Privacidade para criar sua conta';
   }
+
   for (const [field, value] of Object.entries(address)) {
     if (!value.trim()) errors[field] = 'Campo obrigatório';
   }
 
   return errors;
+}
+
+// Created by AI.
+function toIsoBirthDate(value: string): string | null {
+  const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value);
+  if (!match) return null;
+  const [, day, month, year] = match;
+  const date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
+  if (
+    date.getUTCFullYear() !== Number(year) ||
+    date.getUTCMonth() !== Number(month) - 1 ||
+    date.getUTCDate() !== Number(day)
+  ) return null;
+  const today = new Date();
+  let age = today.getFullYear() - Number(year);
+  if (
+    today.getMonth() < Number(month) - 1 ||
+    (today.getMonth() === Number(month) - 1 && today.getDate() < Number(day))
+  ) age -= 1;
+  if (age < 18) return null;
+  return `${year}-${month}-${day}`;
 }
 
 // Created by AI.

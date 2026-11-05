@@ -28,6 +28,7 @@ export function register(data: {
   nome: string;
   email: string;
   senha: string;
+  dataNascimento: string;
   cpf: string;
   rua: string;
   numero: string;

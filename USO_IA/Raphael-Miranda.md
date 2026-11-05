@@ -949,3 +949,63 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Planejamento, implementação, testes e atualização da auditoria.
 - **Tipo de contribuição da IA:** Criação de documento, endpoint público, projeção de dados, tipos mobile, documentação Swagger e teste de privacidade.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0079
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `IMPLEMENTACAO-RNF-SEC-10.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Criado plano para restringir o cadastro a maiores de 18 anos, sem alterar código funcional.
+- **Tratamento de dados pessoais:** Não houve uso de dados pessoais reais; foram analisados somente requisitos e estruturas do projeto.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Planejar a implementação do RNF-SEC-10 e seus controles complementares.
+- **Etapa da atividade:** Planejamento e análise de requisitos.
+- **Tipo de contribuição da IA:** Criação do plano técnico, critérios de aceite, requisitos de privacidade e estratégia de testes.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0080
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `IMPLEMENTACAO-RNF-SEC-10.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Plano ajustado para o ambiente de desenvolvimento sem usuários reais ou migração de contas antigas.
+- **Tratamento de dados pessoais:** Não houve uso de dados pessoais reais; foram analisados somente requisitos e estruturas do projeto.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Ajustar o plano do RNF-SEC-10 conforme o estágio acadêmico do projeto.
+- **Etapa da atividade:** Revisão do planejamento.
+- **Tipo de contribuição da IA:** Remoção da migração de contas antigas e atualização das decisões pendentes.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0081
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `backend/src/utils/agePolicy.ts`, `backend/prisma/schema.prisma`, `backend/prisma/migrations/20261105012000_add_birth_date/migration.sql`, `backend/src/controllers/authController.ts`, `backend/src/services/authService.ts`, `backend/src/config/privacyPolicy.ts`, `backend/src/config/swagger.ts`, `mobile/src/views/register-view.tsx`, `mobile/src/viewmodels/use-register-view-model.ts`, `mobile/src/services/auth-service.ts`, `mobile/src/constants/privacy-policy.ts`, `automation/tests/api/conftest.py`, `automation/tests/api/config/settings.py`, `automation/tests/api/tests/test_age_restriction.py`, `POLITICA-DE-PRIVACIDADE.md`, `AUDITORIA-REQUISITOS-SEGURANCA.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Implementado bloqueio de cadastro para menores de 18 anos com validação server-side, campo de nascimento, testes e documentação.
+- **Tratamento de dados pessoais:** Não houve uso de dados pessoais reais; foram usados somente dados sintéticos e estruturas do projeto.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Implementar o RNF-SEC-10 no cadastro do Fiscalize Mobile.
+- **Etapa da atividade:** Implementação, testes e atualização documental.
+- **Tipo de contribuição da IA:** Criação da validação de idade, migração, integração mobile/backend, testes de API e atualização da política e auditoria.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0082
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `IMPLEMENTACAO-RNF-SEC-10.md`, `AUDITORIA-REQUISITOS-SEGURANCA.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Atualizado o plano para refletir a implementação concluída e ajustado o resumo da auditoria.
+- **Tratamento de dados pessoais:** Não houve uso de dados pessoais reais; foram analisados somente requisitos e estruturas do projeto.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Registrar o estado final do RNF-SEC-10 na documentação.
+- **Etapa da atividade:** Atualização documental pós-implementação.
+- **Tipo de contribuição da IA:** Alinhamento do plano, critérios adotados e classificação da auditoria com os controles implementados.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0083
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `AUDITORIA-REQUISITOS-SEGURANCA.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Alinhada a versão da política citada na auditoria com a versão 1.1 implementada.
+- **Tratamento de dados pessoais:** Não houve uso de dados pessoais reais; foi realizada somente revisão documental.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Manter a auditoria consistente com a política versionada.
+- **Etapa da atividade:** Revisão documental final.
+- **Tipo de contribuição da IA:** Correção da referência da versão da política na evidência do RNF-SEC-07.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
