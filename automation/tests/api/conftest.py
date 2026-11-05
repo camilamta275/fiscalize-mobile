@@ -84,6 +84,7 @@ def profile_fields():
     return {
         **profile,
         "cpf": str(uuid.uuid4().int)[:11],
+        "privacyPolicyVersion": endpoints.PRIVACY_POLICY_VERSION,
     }
 
 # Created by AI.
