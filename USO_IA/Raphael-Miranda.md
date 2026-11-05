@@ -1009,3 +1009,15 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Revisão documental final.
 - **Tipo de contribuição da IA:** Correção da referência da versão da política na evidência do RNF-SEC-07.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0084
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `AUDITORIA-REQUISITOS-SEGURANCA.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Auditoria atualizada com os requisitos RNF-SEC-12, 13, 15 e 16 da versão 2.
+- **Tratamento de dados pessoais:** Não houve uso de dados pessoais reais; foi realizada somente análise documental e estática do código.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Alinhar a auditoria aos requisitos de segurança v2 e às evidências atuais do repositório.
+- **Etapa da atividade:** Revisão de requisitos e atualização documental.
+- **Tipo de contribuição da IA:** Inclusão dos novos requisitos, classificação de status, evidências, lacunas e prioridades técnicas.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
