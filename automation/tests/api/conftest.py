@@ -1,4 +1,5 @@
 import hashlib
+import itertools
 import json
 import os
 import uuid
@@ -11,6 +12,31 @@ from pathlib import Path
 from psycopg.rows import dict_row
 
 from automation.tests.api.config.settings import Endpoints as endpoints
+
+# Created by AI.
+_RATE_LIMIT_IP_COUNTER = itertools.count(1)
+
+# Created by AI.
+@pytest.fixture(autouse=True)
+def isolate_rate_limit_bucket(monkeypatch):
+    """Use one synthetic client IP per test to avoid cross-test throttling."""
+    test_number = next(_RATE_LIMIT_IP_COUNTER)
+    if test_number > 254:
+        pytest.fail("A suíte excedeu o número de IPs sintéticos disponíveis.")
+    test_ip = f"198.51.100.{test_number}"
+    original_request = requests.sessions.Session.request
+
+    def request_with_isolated_ip(session, method, url, **kwargs):
+        headers = dict(kwargs.get("headers") or {})
+        headers.setdefault("X-Forwarded-For", test_ip)
+        kwargs["headers"] = headers
+        return original_request(session, method, url, **kwargs)
+
+    monkeypatch.setattr(
+        requests.sessions.Session,
+        "request",
+        request_with_isolated_ip,
+    )
 
 # Created by AI.
 @pytest.fixture(scope="session", autouse=True)

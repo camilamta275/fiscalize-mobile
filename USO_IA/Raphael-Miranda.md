@@ -1033,3 +1033,111 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Implementação e validação técnica.
 - **Tipo de contribuição da IA:** Inclusão do campo nas respostas da API, ajuste do contexto de sessão para carregar o perfil completo e formatação da data nas telas mobile.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0086
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `IMPLEMENTACAO-RNF-SEC-12.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Ajustado o plano para separar evidências de API, infraestrutura e limitações de DDoS em projeto universitário.
+- **Tratamento de dados pessoais:** Não houve uso de dados pessoais reais; foram analisados somente requisitos e estruturas do projeto.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Adequar a comprovação do RNF-SEC-12 ao escopo acadêmico.
+- **Etapa da atividade:** Revisão e atualização documental.
+- **Tipo de contribuição da IA:** Separação dos critérios de evidência do rate limiting da aplicação, da proteção externa contra DDoS e das limitações de testes exclusivamente por API.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0087
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `backend/package.json`, `backend/package-lock.json`, `backend/.env.example`, `backend/src/config/env.ts`, `backend/src/config/redis.ts`, `backend/src/middlewares/rateLimitMiddleware.ts`, `backend/src/routes/authRoutes.ts`, `backend/src/routes/demandRoutes.ts`, `backend/src/server.ts`, `backend/README.md`, `automation/tests/api/tests/test_rate_limiting.py`, `IMPLEMENTACAO-RNF-SEC-12.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Implementado rate limiting distribuído com Redis, políticas por rota, testes de API e documentação do RNF-SEC-12.
+- **Tratamento de dados pessoais:** Não houve uso de dados pessoais reais; foram usados somente dados sintéticos e credenciais de teste configuradas no projeto.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Implementar o RNF-SEC-12 no backend e validar seus contratos por testes de API.
+- **Etapa da atividade:** Implementação, testes e atualização documental.
+- **Tipo de contribuição da IA:** Integração de `express-rate-limit` e `rate-limit-redis`, configuração de limites gerais e críticos, proteção por proxy confiável, testes HTTP e documentação operacional.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0088
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `AUDITORIA-REQUISITOS-SEGURANCA.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Auditoria atualizada para classificar o RNF-SEC-12 como parcial após a implementação do rate limiting e ausência de evidência anti-DDoS externa.
+- **Tratamento de dados pessoais:** Não houve uso de dados pessoais reais; foi realizada somente revisão documental e técnica.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Alinhar a auditoria ao estado implementado do RNF-SEC-12.
+- **Etapa da atividade:** Atualização da auditoria e registro de evidências.
+- **Tipo de contribuição da IA:** Atualização do status, evidências técnicas, limitações de infraestrutura e prioridades remanescentes do requisito.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0089
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `JUSTIFICATIVA-RNF-SEC-12-ATENDE.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Documentada a validação controlada do rate limiting e os critérios para classificar o RNF como atende no escopo acadêmico.
+- **Tratamento de dados pessoais:** Não houve uso de dados pessoais reais; foram analisados somente requisitos e critérios de evidência.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Justificar documentalmente a classificação do RNF-SEC-12.
+- **Etapa da atividade:** Documentação e definição de critérios de aceitação.
+- **Tipo de contribuição da IA:** Explicação da diferença entre teste controlado e DDoS real, separação de escopos e definição de evidências para a classificação “Atende”.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0090
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `docs/RNF-SEC/PLANO-ENGENHARIA-REVERSA-RNFS-IMPLEMENTADOS.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Criado plano de engenharia reversa para os RNF-SEC atendidos, com fluxos, evidências, testes, limitações e entregáveis.
+- **Tratamento de dados pessoais:** Não houve uso de dados pessoais reais; foram analisados somente documentação, código e estruturas do projeto.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Organizar a reconstrução e comprovação dos RNF-SEC já implementados.
+- **Etapa da atividade:** Engenharia reversa e planejamento documental.
+- **Tipo de contribuição da IA:** Consolidação da auditoria em um roteiro por requisito, com rastreabilidade, critérios de aceite, evidências e limitações operacionais.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0091
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `docs/RNF-SEC/MATRIZ-RASTREABILIDADE-RNFS.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Criada matriz de rastreabilidade dos RNF-SEC com fluxos, arquivos, testes, evidências, lacunas e limitações.
+- **Tratamento de dados pessoais:** Não houve uso de dados pessoais reais; foram analisados somente código, testes e documentação do projeto.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Executar a primeira etapa do plano de engenharia reversa dos RNF-SEC.
+- **Etapa da atividade:** Engenharia reversa e organização de evidências.
+- **Tipo de contribuição da IA:** Consolidação da rastreabilidade entre requisitos, fluxos, arquivos, testes automatizados e controles operacionais.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0092
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `docs/RNF-SEC/Planos de implentação/IMPLEMENTACAO-RNF-SEC-01.md`, `IMPLEMENTACAO-RNF-SEC-02.md`, `IMPLEMENTACAO-RNF-SEC-03.md`, `IMPLEMENTACAO-RNF-SEC-04.md`, `IMPLEMENTACAO-RNF-SEC-06.md`, `IMPLEMENTACAO-RNF-SEC-07.md`, `IMPLEMENTACAO-RNF-SEC-08.md`, `IMPLEMENTACAO-RNF-SEC-09.md`, `IMPLEMENTACAO-RNF-SEC-11.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Criados planos de implementação para os RNF-SEC atendidos, completando a documentação dos controles existentes.
+- **Tratamento de dados pessoais:** Não houve uso de dados pessoais reais; foram analisados somente código, testes e documentação do projeto.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Documentar a implementação dos RNF-SEC já existentes.
+- **Etapa da atividade:** Engenharia reversa e documentação técnica.
+- **Tipo de contribuição da IA:** Criação de planos por requisito com objetivo, fluxo, arquivos, evidências, critérios de aceite, limitações e status.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0093
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `backend/src/config/env.ts`, `automation/tests/api/conftest.py`, `automation/pytest.ini`, `backend/README.md`, `docs/RNF-SEC/Planos de implentação/IMPLEMENTACAO-RNF-SEC-12.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Isolados os buckets de rate limiting por teste e documentada a configuração de proxy exclusiva para testes.
+- **Tratamento de dados pessoais:** Não houve uso de dados pessoais reais; foram usados somente dados sintéticos e estruturas do projeto.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Corrigir falhas causadas por contadores compartilhados entre testes de API.
+- **Etapa da atividade:** Correção de testes e configuração de ambiente.
+- **Tipo de contribuição da IA:** Isolamento de IP sintético por cenário, configuração segura de `TRUST_PROXY` em testes e documentação da separação entre teste e produção.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0094
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/tests/test_mfa_otp.py`, `automation/tests/api/tests/test_user_creation.py`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Ajustados dois testes que confundiam bloqueio OTP e limite de cadastro com falhas funcionais.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados somente dados sintéticos de teste.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Corrigir os dois testes restantes afetados pelo rate limiting.
+- **Etapa da atividade:** Diagnóstico, correção e validação dos testes automatizados.
+- **Tipo de contribuição da IA:** Análise do relatório, ajuste de isolamento por IP, validação do estado consumido do desafio OTP e execução de testes direcionados.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo

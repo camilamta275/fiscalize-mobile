@@ -120,9 +120,11 @@ def test_login_otp_rejects_wrong_code(auth_security_data, database):
     assert challenge_row(database, challenge_token)["attempts"] == 1
 
 # Created by AI.
+# Updated by AI.
 def test_login_otp_locks_challenge_after_five_wrong_attempts(auth_security_data, database):
     email, password = new_account(auth_security_data)
     identity = device_identity()
+    request_headers = {"X-Forwarded-For": f"198.51.100.{uuid.uuid4().int % 254 + 1}"}
     challenge_token = request_login_challenge(email, password, identity["deviceId"])
     code = recover_otp_code(database, challenge_token)
     wrong_code = "000000" if code != "000000" else "111111"
@@ -135,8 +137,11 @@ def test_login_otp_locks_challenge_after_five_wrong_attempts(auth_security_data,
                 "code": wrong_code,
                 "deviceId": identity["deviceId"],
             },
+            headers=request_headers,
         )
         assert response.status_code == 401, f"tentativa {attempt + 1}"
+
+    assert challenge_row(database, challenge_token)["consumed_at"] is not None
 
     # O desafio é descartado: nem o código correto abre sessão.
     locked = requests.post(
@@ -146,8 +151,11 @@ def test_login_otp_locks_challenge_after_five_wrong_attempts(auth_security_data,
             "code": code,
             "deviceId": identity["deviceId"],
         },
+        headers=request_headers,
     )
-    assert locked.status_code == 401
+    assert locked.status_code in {401, 429}
+    if locked.status_code == 429:
+        assert locked.headers.get("Retry-After")
 
 # Created by AI.
 def test_login_otp_is_single_use(auth_security_data, database):
