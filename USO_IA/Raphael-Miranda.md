@@ -1117,3 +1117,15 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Engenharia reversa e documentação técnica.
 - **Tipo de contribuição da IA:** Criação de planos por requisito com objetivo, fluxo, arquivos, evidências, critérios de aceite, limitações e status.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0093
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `backend/src/config/env.ts`, `automation/tests/api/conftest.py`, `automation/pytest.ini`, `backend/README.md`, `docs/RNF-SEC/Planos de implentação/IMPLEMENTACAO-RNF-SEC-12.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Isolados os buckets de rate limiting por teste e documentada a configuração de proxy exclusiva para testes.
+- **Tratamento de dados pessoais:** Não houve uso de dados pessoais reais; foram usados somente dados sintéticos e estruturas do projeto.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Corrigir falhas causadas por contadores compartilhados entre testes de API.
+- **Etapa da atividade:** Correção de testes e configuração de ambiente.
+- **Tipo de contribuição da IA:** Isolamento de IP sintético por cenário, configuração segura de `TRUST_PROXY` em testes e documentação da separação entre teste e produção.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo

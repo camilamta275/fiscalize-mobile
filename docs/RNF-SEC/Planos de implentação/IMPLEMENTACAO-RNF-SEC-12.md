@@ -121,6 +121,12 @@ aplicativo.
 Os testes devem usar dados sintéticos e registrar o IP, rota, status e
 contador observado, sem registrar senhas, tokens ou PII.
 
+Para evitar que testes funcionais compartilhem o mesmo bucket, a suíte injeta
+um IP sintético exclusivo por cenário. O backend de testes deve ser executado
+com `NODE_ENV=test` ou `TRUST_PROXY=1`; essa confiança em
+`X-Forwarded-For` é restrita ao ambiente de testes e não deve ser reproduzida
+sem validação da topologia em produção.
+
 Os cenários de indisponibilidade do Redis, inspeção de logs e validação do
 proxy são complementares. Se a infraestrutura de teste não permitir sua
 simulação, eles devem ser registrados como limitações e comprovados por
