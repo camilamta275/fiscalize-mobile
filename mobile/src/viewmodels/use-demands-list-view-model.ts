@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import type { Demand, DemandStatus } from '@/models/demand';
 import { ApiError } from '@/models/api-error';
 import * as demandService from '@/services/demand-service';
+import type { DemandOrganization } from '@/services/demand-service';
 
 /**
  * ViewModel — owns the state and the actions of the demands list screen.
@@ -12,6 +13,7 @@ import * as demandService from '@/services/demand-service';
  * call appends a page rather than replacing the list, while `refresh` (pull
  * to refresh, or a filter/search change) resets back to page 1.
  */
+// Updated by AI.
 export function useDemandsListViewModel() {
   const [demands, setDemands] = useState<Demand[]>([]);
   const [page, setPage] = useState(1);
@@ -22,6 +24,9 @@ export function useDemandsListViewModel() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<DemandStatus | null>(null);
+  const [orgaoFilter, setOrgaoFilter] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<'recent' | 'oldest' | 'priority' | 'sla'>('recent');
+  const [organizations, setOrganizations] = useState<DemandOrganization[]>([]);
 
   const fetchPage = useCallback(
     async (targetPage: number, mode: 'initial' | 'refresh' | 'more') => {
@@ -35,6 +40,8 @@ export function useDemandsListViewModel() {
           page: targetPage,
           regiao: search || undefined,
           status: statusFilter ?? undefined,
+          orgao: orgaoFilter ?? undefined,
+          ordenacao: sortBy,
         });
         setDemands((prev) => (targetPage === 1 ? result.data : [...prev, ...result.data]));
         setPage(result.page);
@@ -49,7 +56,7 @@ export function useDemandsListViewModel() {
         setIsLoadingMore(false);
       }
     },
-    [search, statusFilter]
+    [search, statusFilter, orgaoFilter, sortBy]
   );
 
   const refresh = useCallback(() => fetchPage(1, 'refresh'), [fetchPage]);
@@ -66,6 +73,13 @@ export function useDemandsListViewModel() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, statusFilter]);
 
+  useEffect(() => {
+    void demandService
+      .listOrganizations()
+      .then(setOrganizations)
+      .catch(() => setOrganizations([]));
+  }, []);
+
   return {
     demands,
     isLoading,
@@ -76,6 +90,11 @@ export function useDemandsListViewModel() {
     setSearch,
     statusFilter,
     setStatusFilter,
+    orgaoFilter,
+    setOrgaoFilter,
+    sortBy,
+    setSortBy,
+    organizations,
     refresh,
     loadMore,
   };
