@@ -106,11 +106,11 @@ export function SessionProvider({ children }: PropsWithChildren) {
         setPendingMfa(result);
         return false;
       }
-      const { token: newToken, refreshToken: newRefreshToken, ...loggedInUsuario } = result;
+      const { token: newToken, refreshToken: newRefreshToken } = result;
       setAuthTokens(newToken, newRefreshToken);
       setToken(newToken);
       setStoredRefreshToken(newRefreshToken);
-      setUsuario(loggedInUsuario);
+      setUsuario(await authService.me());
       return true;
     } catch (caught) {
       const message =
@@ -121,17 +121,18 @@ export function SessionProvider({ children }: PropsWithChildren) {
   };
 
   // Created by AI.
+  // Updated by AI.
   const verifyMfa = async (code: string) => {
     if (!pendingMfa) throw new Error('Nenhuma verificação pendente.');
     setError(null);
     try {
       const identity = await getDeviceIdentity();
-      const { token: newToken, refreshToken: newRefreshToken, ...loggedInUsuario } =
+      const { token: newToken, refreshToken: newRefreshToken } =
         await authService.verifyOtp(pendingMfa.challengeToken, code, identity.deviceId);
       setAuthTokens(newToken, newRefreshToken);
       setToken(newToken);
       setStoredRefreshToken(newRefreshToken);
-      setUsuario(loggedInUsuario);
+      setUsuario(await authService.me());
       setPendingMfa(null);
     } catch (caught) {
       const message = caught instanceof ApiError ? caught.message : 'Código inválido.';

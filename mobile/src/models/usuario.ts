@@ -13,6 +13,7 @@
 
 export type Perfil = 'Cidadao' | 'Gestor' | 'Admin';
 
+// Updated by AI.
 export type Usuario = {
   id: string;
   nome: string;
@@ -20,6 +21,7 @@ export type Usuario = {
   perfil: Perfil;
   status?: string;
   criadoem?: string;
+  dataNascimento?: string | null;
   cpf?: string | null;
   endereco?: string | null;
   rua?: string | null;
