@@ -4,6 +4,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useColorScheme } from 'react-native';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
+import { DemandProvider } from '@/contexts/demand-context';
 import { SessionProvider, useSession } from '@/contexts/session-context';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -32,7 +33,9 @@ export default function RootLayout() {
       <SessionProvider>
         <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
         <AnimatedSplashOverlay />
-        <RootNavigator />
+        <DemandProvider>
+          <RootNavigator />
+        </DemandProvider>
       </SessionProvider>
     </ThemeProvider>
   );
