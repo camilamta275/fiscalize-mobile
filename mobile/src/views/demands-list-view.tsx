@@ -28,6 +28,7 @@ import { Gradients, Radius, Shadows, Spacing } from '@/constants/theme';
 import { useSession } from '@/contexts/session-context';
 import { useTheme } from '@/hooks/use-theme';
 import type { DemandStatus } from '@/models/demand';
+import { isGestor } from '@/models/usuario';
 import { useDemandsListViewModel } from '@/viewmodels/use-demands-list-view-model';
 
 // Created by AI.
@@ -68,6 +69,7 @@ export function DemandsListView() {
     loadMore,
   } = useDemandsListViewModel();
   const { usuario } = useSession();
+  const isGestorUser = isGestor(usuario?.perfil);
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const [searchDraft, setSearchDraft] = useState('');
@@ -222,22 +224,26 @@ export function DemandsListView() {
         style={styles.list}
       />
 
-      <Pressable
-        accessibilityLabel="Registrar nova ocorrência"
-        accessibilityRole="button"
-        onPress={() => router.push('/new')}
-        style={({ pressed }) => [
-          styles.fab,
-          Shadows.floating,
-          {
-            backgroundColor: theme.primary,
-            bottom: insets.bottom + Spacing.four,
-            shadowColor: theme.shadow,
-          },
-          pressed && styles.pressed,
-        ]}>
-        <Icon color={theme.primaryForeground} name={Icons.plus} size={26} />
-      </Pressable>
+      {/* Created by AI. POST /demands is Cidadao-only — a Gestor would score a
+          403 on it, so the FAB is hidden behind the profile guard. */}
+      {!isGestorUser ? (
+        <Pressable
+          accessibilityLabel="Registrar nova ocorrência"
+          accessibilityRole="button"
+          onPress={() => router.push('/new')}
+          style={({ pressed }) => [
+            styles.fab,
+            Shadows.floating,
+            {
+              backgroundColor: theme.primary,
+              bottom: insets.bottom + Spacing.four,
+              shadowColor: theme.shadow,
+            },
+            pressed && styles.pressed,
+          ]}>
+          <Icon color={theme.primaryForeground} name={Icons.plus} size={26} />
+        </Pressable>
+      ) : null}
 
       <FilterModal
         options={[

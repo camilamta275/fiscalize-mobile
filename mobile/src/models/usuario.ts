@@ -13,6 +13,16 @@
 
 export type Perfil = 'Cidadao' | 'Gestor' | 'Admin';
 
+// Created by AI.
+export function isGestor(perfil: Perfil | undefined): boolean {
+  return perfil === 'Gestor';
+}
+
+// Created by AI.
+export function isCidadao(perfil: Perfil | undefined): boolean {
+  return perfil === 'Cidadao';
+}
+
 // Updated by AI.
 export type Usuario = {
   id: string;

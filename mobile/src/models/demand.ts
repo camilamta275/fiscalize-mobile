@@ -44,6 +44,22 @@ export const DEMAND_STATUS_PROGRESS: Record<DemandStatus, number> = {
   Fechado: 100,
 };
 
+/**
+ * status_chamado raw enum of Prisma (backend/prisma/schema.prisma) — the only
+ * shape `PATCH /demands/:id/status` accepts (`demandService.updateStatus`'s
+ * `validStatuses`). The app displays labels everywhere, but the request body
+ * needs the raw value, hence the mapping label → raw enum.
+ */
+// Created by AI.
+export const STATUS_API_VALUES = {
+  'Aberto': 'Aberto',
+  'Em Análise': 'Em_An_lise',
+  'Em Andamento': 'Em_Andamento',
+  'Aguardando': 'Aguardando',
+  'Resolvido': 'Resolvido',
+  'Fechado': 'Fechado',
+} as const satisfies Record<DemandStatus, string>;
+
 // Created by AI.
 export type DemandLogType = 'criacao' | 'status' | 'mensagem' | 'transferencia' | 'conclusao';
 
@@ -102,6 +118,7 @@ export type DemandDetail = Demand & {
   logs?: DemandLog[];
 };
 
+// Created by AI.
 export type DemandListResult = {
   data: Demand[];
   total: number;
@@ -109,3 +126,10 @@ export type DemandListResult = {
   limit: number;
   totalPages: number;
 };
+
+/**
+ * `PATCH /demands/:id/status` response: `status` already comes as the display
+ * label (`displayStatus()`), so it feeds the UI directly.
+ */
+// Created by AI.
+export type DemandStatusUpdate = { id: string; status: DemandStatus; updatedAt: string };

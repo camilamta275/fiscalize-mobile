@@ -1141,3 +1141,27 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Diagnóstico, correção e validação dos testes automatizados.
 - **Tipo de contribuição da IA:** Análise do relatório, ajuste de isolamento por IP, validação do estado consumido do desafio OTP e execução de testes direcionados.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0095
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `backend/src/routes/demandRoutes.ts`, `backend/src/controllers/demandController.ts`, `backend/src/services/demandService.ts`, `mobile/src/services/demand-service.ts`, `mobile/src/contexts/demand-context.tsx`, `mobile/src/constants/icons.ts`, `mobile/src/components/demand-options-menu.tsx`, `mobile/src/viewmodels/use-demand-detail-view-model.ts`, `mobile/src/views/demand-detail-view.tsx`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Dono da demanda pode excluí-la: DELETE liberado ao Cidadão dono e menu ⋮ com confirmação na tela de detalhe.
+- **Tratamento de dados pessoais:** Não houve uso de dados pessoais reais; foram usados apenas dados sintéticos do seed do backend.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo GLM-5.3 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Completar o CRUD de demandas no app, permitindo que o cidadão remova a própria ocorrência.
+- **Etapa da atividade:** Implementação backend/mobile e validação técnica.
+- **Tipo de contribuição da IA:** Verificação de propriedade no serviço de exclusão, endpoint `remove` no cliente, exclusão no store, ícone e menu de opções com confirmação Sim/Não e type-check/Lint.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0096
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `mobile/src/models/demand.ts`, `mobile/src/models/usuario.ts`, `mobile/src/services/demand-service.ts`, `mobile/src/contexts/demand-context.tsx`, `mobile/src/viewmodels/use-demand-detail-view-model.ts`, `mobile/src/views/demand-detail-view.tsx`, `mobile/src/views/demands-list-view.tsx`, `automation/tests/api/tests/test_demand_status.py`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Gestor atualiza o status da ocorrência na tela de detalhe via PATCH /demands/:id/status; FAB de nova ocorrência e botão Editar escondidos por perfil.
+- **Tratamento de dados pessoais:** Não houve uso de dados pessoais reais; foram usados apenas dados sintéticos do seed do backend.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo GLM-5.3 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Implementar a atualização de status pelo Gestor no app mobile conforme o plano do documento `docs/PLANO-ATUALIZACAO-STATUS-GESTOR.md`.
+- **Etapa da atividade:** Implementação mobile, testes de API e validação técnica.
+- **Tipo de contribuição da IA:** Mapeamento rótulo→valor cru do enum, helpers de perfil, serviço PATCH, ação no store, ViewModel e modal seletor de status na tela de detalhe, guarda de perfil no FAB e 4 testes pytest aprovados.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo

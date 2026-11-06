@@ -1,14 +1,26 @@
-import type { Demand, DemandDetail, DemandListResult, PublicDemand } from '@/models/demand';
+import type {
+  Demand,
+  DemandDetail,
+  DemandListResult,
+  DemandStatus,
+  DemandStatusUpdate,
+  PublicDemand,
+} from '@/models/demand';
+import { STATUS_API_VALUES } from '@/models/demand';
 import { request } from '@/services/api-client';
 
+// Updated by AI.
 /**
  * Service — the demand ("chamado") CRUD, registered in
  * backend/src/routes/demandRoutes.ts.
  *
- * There's no `remove` here: DELETE /demands/:id is restricted to the
- * `Gestor` role (`requireRole(['Gestor'])`) and this app only ever
- * authenticates `Cidadao` accounts (see models/usuario.ts) — a Cidadão
- * calling it always gets a 403, so there's nothing for this app to expose.
+ * `remove` hits DELETE /demands/:id, which the demand's owner (Cidadao) or a
+ * Gestor may call — the backend does a soft delete (flags the demand as
+ * 'Fechado' and logs a "Demanda removida" timeline event).
+ *
+ * `updateStatus` hits PATCH /demands/:id/status, the lifecycle progress action:
+ * per the plan, status changes made by a Gestor come from here, not from the
+ * Cidadao-only PUT.
  */
 
 export type ListDemandsParams = {
@@ -77,6 +89,22 @@ export function create(input: DemandInput): Promise<Demand> {
  * 'Em Andamento' / 'Resolvido' / 'Fechado' — see `BLOCKED_EDIT_STATUSES` in
  * models/demand.ts.
  */
+// Updated by AI.
 export function update(id: string, input: DemandInput): Promise<Demand> {
   return request<Demand>(`/demands/${id}`, { method: 'PUT', body: input });
+}
+
+// Created by AI.
+/** Somente Gestor (requireRole(['Gestor']) em demandRoutes.ts). */
+export function updateStatus(id: string, status: DemandStatus): Promise<DemandStatusUpdate> {
+  return request<DemandStatusUpdate>(`/demands/${id}/status`, {
+    method: 'PATCH',
+    body: { status_id: STATUS_API_VALUES[status] },
+  });
+}
+
+// Created by AI.
+/** Owner (Cidadao) or Gestor — backend/src/services/demandService.ts. */
+export function remove(id: string): Promise<void> {
+  return request<void>(`/demands/${id}`, { method: 'DELETE' });
 }
