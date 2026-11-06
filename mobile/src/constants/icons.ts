@@ -39,6 +39,7 @@ export const Icons = {
   mail: { android: 'mail', ios: 'envelope.fill', web: 'mail' },
   mapPin: { android: 'location_on', ios: 'mappin.and.ellipse', web: 'location_on' },
   message: { android: 'chat_bubble', ios: 'text.bubble.fill', web: 'chat_bubble' },
+  more: { android: 'more_vert', ios: 'ellipsis', web: 'more_vert' },
   person: { android: 'person', ios: 'person.fill', web: 'person' },
   phone: { android: 'call', ios: 'phone.fill', web: 'call' },
   plus: { android: 'add', ios: 'plus', web: 'add' },

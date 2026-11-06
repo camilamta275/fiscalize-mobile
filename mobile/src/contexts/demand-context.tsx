@@ -7,7 +7,13 @@ import {
   type PropsWithChildren,
 } from 'react';
 
-import type { Demand, DemandDetail, DemandListResult } from '@/models/demand';
+import type {
+  Demand,
+  DemandDetail,
+  DemandListResult,
+  DemandStatus,
+  DemandStatusUpdate,
+} from '@/models/demand';
 import { useSession } from '@/contexts/session-context';
 import * as demandService from '@/services/demand-service';
 
@@ -48,6 +54,8 @@ type DemandContextValue = {
   fetchDetail: (id: string) => Promise<DemandDetail>;
   createDemand: (input: demandService.DemandInput) => Promise<Demand>;
   updateDemand: (id: string, input: demandService.DemandInput) => Promise<Demand>;
+  updateDemandStatus: (id: string, status: DemandStatus) => Promise<DemandStatusUpdate>;
+  deleteDemand: (id: string) => Promise<void>;
 };
 
 // Created by AI.
@@ -154,6 +162,49 @@ export function DemandProvider({ children }: PropsWithChildren) {
     [patchListItem]
   );
 
+  // Created by AI.
+  // PATCH /demands/:id/status (Gestor-only). The answer carries only the
+  // status and updatedAt changed, so the list item gets exactly those two
+  // fields — reusing `patchListItem` doesn't apply (it's too partial).
+  const updateDemandStatus = useCallback(async (id: string, status: DemandStatus) => {
+    const updated = await demandService.updateStatus(id, status);
+    setList((previous) =>
+      previous
+        ? {
+            ...previous,
+            items: previous.items.map((item) =>
+              item.id === id
+                ? { ...item, status: updated.status, updatedAt: updated.updatedAt }
+                : item
+            ),
+          }
+        : previous
+    );
+    // The backend logs a 'status' timeline event the PATCH response doesn't
+    // carry — same reason `updateDemand` drops the cached detail.
+    setDetails((previous) => {
+      const { [id]: _stale, ...rest } = previous;
+      return rest;
+    });
+    return updated;
+  }, []);
+
+  // Created by AI.
+  const deleteDemand = useCallback(async (id: string) => {
+    await demandService.remove(id);
+    // Dropped from both caches so the list and the detail reflect the
+    // deletion without a refetch.
+    setList((previous) =>
+      previous
+        ? { ...previous, items: previous.items.filter((item) => item.id !== id) }
+        : previous
+    );
+    setDetails((previous) => {
+      const { [id]: _removed, ...rest } = previous;
+      return rest;
+    });
+  }, []);
+
   const value = useMemo(
     () => ({
       list,
@@ -163,8 +214,10 @@ export function DemandProvider({ children }: PropsWithChildren) {
       fetchDetail,
       createDemand,
       updateDemand,
+      updateDemandStatus,
+      deleteDemand,
     }),
-    [list, isListStale, getCached, storeListPage, fetchDetail, createDemand, updateDemand]
+    [list, isListStale, getCached, storeListPage, fetchDetail, createDemand, updateDemand, updateDemandStatus, deleteDemand]
   );
 
   return <DemandContext.Provider value={value}>{children}</DemandContext.Provider>;
