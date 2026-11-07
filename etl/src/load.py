@@ -2,7 +2,7 @@ import sqlite3
 from datetime import datetime, timezone
 
 import pandas as pd
-from pymongo import MongoClient
+from pymongo import MongoClient, UpdateOne
 from pymongo.server_api import ServerApi
 from sqlalchemy import create_engine
 
@@ -96,6 +96,62 @@ class Load:
             f"no MongoDB: {collection_name} "
             f"({len(records)} registros; carga {data_extracao})"
         )
+
+    # Updated by AI.
+    def upsert_mongo(
+        self,
+        records: list[dict],
+        collection_name: str,
+        id_field: str = "_id",
+    ) -> tuple[int, int]:
+        """
+        Insere ou atualiza documentos usando `id_field` como chave.
+
+        Diferente de `load_mongo`, esta carga é idempotente: rodar o sync
+        duas vezes não duplica chamados. Documentos que não existem mais no
+        backend também são removidos da coleção.
+        """
+        if not records:
+            print(f"Nenhum registro para sincronizar em {collection_name}.")
+            return 0, 0
+
+        db = self.client[self.database_name]
+        collection = db[collection_name]
+        synced_at = datetime.now(timezone.utc)
+
+        operations = []
+        ids = []
+        for record in records:
+            document = dict(record)
+            if id_field not in document:
+                raise ValueError(
+                    f"Registro sem o campo obrigatório '{id_field}' "
+                    f"para a coleção {collection_name}."
+                )
+
+            ids.append(document[id_field])
+            document["data_extracao"] = synced_at
+            document["synced_at"] = synced_at
+            operations.append(
+                UpdateOne(
+                    {id_field: document[id_field]},
+                    {"$set": document},
+                    upsert=True,
+                )
+            )
+
+        result = collection.bulk_write(operations, ordered=False)
+        deleted = collection.delete_many(
+            {id_field: {"$nin": ids}}
+        ).deleted_count
+
+        print(
+            f"Chamados sincronizados em {collection_name}: "
+            f"{len(records)} upsert(s), {deleted} remoção(ões), "
+            f"carga {synced_at}."
+        )
+
+        return len(records), deleted
 
     # Updated by AI.
     def load_neon(

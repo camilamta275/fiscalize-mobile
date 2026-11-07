@@ -1,5 +1,7 @@
 # Orquestração da Pipeline ETL com Prefect
 
+<!-- Updated by AI. -->
+
 ## 1. Objetivo
 
 Esta atividade tem como objetivo utilizar o **Prefect** para orquestrar a pipeline ETL do projeto Fiscalize. A orquestração organiza as etapas de extração, transformação e carregamento dos dados, respeitando suas dependências e permitindo acompanhar a execução, visualizar logs e identificar possíveis falhas.
@@ -13,7 +15,7 @@ Antes de executar o projeto, é necessário ter instalado:
 - Python 3.11;
 - Git, para clonar o repositório;
 - Visual Studio Code ou outro editor de código;
-- Acesso às bases de dados utilizadas pelo projeto, incluindo MongoDB e Neon PostgreSQL;
+- Acesso às bases de dados utilizadas pelo projeto, incluindo MongoDB, PostgreSQL operacional do backend e Neon PostgreSQL;
 - Arquivo `.env` configurado com as variáveis de ambiente necessárias.
 
 O SQLite é utilizado para o armazenamento local dos dados processados.
@@ -81,7 +83,8 @@ Na pasta `etl`, crie um arquivo chamado `.env` com base no modelo `.env.example`
 Esse arquivo deve conter as variáveis necessárias para acessar os bancos de dados. Entre elas, estão:
 
 - `MONGODB_URI`: endereço de conexão com o MongoDB;
-- `DATABASE_URL`: endereço de conexão com o banco PostgreSQL no Neon.
+- `DATABASE_URL`: endereço de conexão com o banco PostgreSQL no Neon;
+- `BACKEND_DATABASE_URL`: endereço de conexão com o PostgreSQL operacional do backend, usado somente para leitura pelo sync dos chamados. Use o mesmo valor do `DATABASE_URL` de `backend/.env`.
 
 Os valores devem corresponder às credenciais e aos endereços fornecidos para o ambiente utilizado pelo projeto.
 
@@ -140,18 +143,20 @@ O nome da execução pode variar a cada tentativa.
 
 O fluxo foi organizado para processar os dados dos chamados e combiná-los com informações climáticas e populacionais.
 
-### 9.1. Leitura dos chamados
+### 9.1. Sincronização e leitura dos chamados
 
-A tarefa `ler_chamados` lê os chamados armazenados no arquivo `data/chamados.json`. Esses dados servem como base para os cruzamentos posteriores.
+A tarefa `Sincronizar chamados do backend` executa `SyncChamados.run()`: lê os chamados do PostgreSQL operacional do backend (via `BACKEND_DATABASE_URL`) e atualiza a coleção `chamados_raw` no MongoDB de forma idempotente. O sync nunca escreve no banco do backend.
+
+Em seguida, a tarefa `ler_chamados` lê `chamados_raw` e calcula o intervalo de datas que o clima precisa cobrir. O arquivo `data/chamados.json` é apenas um fixture legado e não participa da execução.
 
 ### 9.2. Extração dos dados
+
+A tarefa `garantir_clima` verifica se a série climática já carregada cobre o intervalo dos chamados. Se não cobrir (ou se a coleção estiver vazia), consulta a Open-Meteo e grava a carga bruta em `clima_raw`. Caso contrário, reaproveita os dados existentes sem chamar a API.
 
 A tarefa `extrair_mongo` consulta as coleções do MongoDB utilizadas pela pipeline:
 
 - `clima_raw`: dados climáticos;
 - `populacao_ibge_raw`: dados populacionais.
-
-Nessa configuração, o fluxo utiliza os dados brutos já armazenados no MongoDB, sem solicitar uma nova extração das APIs durante cada execução.
 
 ### 9.3. Transformação dos dados
 
@@ -198,6 +203,7 @@ Ao concluir a execução, espera-se que:
 
 - O fluxo `ETL Fiscalize` seja registrado pelo Prefect;
 - As tarefas sejam executadas respeitando suas dependências;
+- A coleção `chamados_raw` seja atualizada com os chamados atuais do backend;
 - Os dados climáticos e populacionais sejam transformados e cruzados com os chamados;
 - As tabelas `chamados_clima` e `chamados_populacao` sejam carregadas no SQLite e no Neon;
 - O estado final do fluxo seja `Completed`, caso todas as etapas terminem sem erros;

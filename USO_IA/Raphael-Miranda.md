@@ -1165,3 +1165,99 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Implementação mobile, testes de API e validação técnica.
 - **Tipo de contribuição da IA:** Mapeamento rótulo→valor cru do enum, helpers de perfil, serviço PATCH, ação no store, ViewModel e modal seletor de status na tela de detalhe, guarda de perfil no FAB e 4 testes pytest aprovados.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0097
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `plano_de_implementacao.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Plano de integração dos chamados reais ao ETL documentado, com endereço estruturado, coordenadas automáticas, bairro obrigatório e sync backend→Mongo.
+- **Tratamento de dados pessoais:** Não houve uso de dados pessoais reais; foram analisados apenas código, documentação e estrutura do projeto.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Consolidar as decisões do usuário em um plano persistente para implementação em uma nova janela de contexto.
+- **Etapa da atividade:** Planejamento técnico e documentação de handoff.
+- **Tipo de contribuição da IA:** Estruturação do diagnóstico, arquitetura alvo, mudanças em backend/mobile/ETL, critérios de aceite, riscos e ordem de implementação.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0098
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `backend/prisma/schema.prisma`, `backend/prisma/migrations/20261107000000_add_chamado_address_fields/migration.sql`, `backend/src/controllers/demandController.ts`, `backend/src/services/demandService.ts`, `backend/src/utils/address.ts`, `mobile/src/services/address-service.ts`, `mobile/src/components/address-fields.tsx`, `mobile/src/hooks/use-address-form.ts`, `mobile/src/viewmodels/use-demand-form-view-model.ts`, `mobile/src/views/demand-form-view.tsx`, `mobile/src/models/demand.ts`, `mobile/src/services/demand-service.ts`, `mobile/app.json`, `etl/src/sync_chamados.py`, `etl/src/chamados.py`, `etl/src/normalize.py`, `etl/src/load.py`, `etl/src/transform.py`, `etl/src/config.py`, `etl/run_etl.py`, `etl/flow_etl.py`, `etl/src/seed_mongo.py`, `etl/README-ETL.md`, `etl/ORQUESTRCAO_PREFECT.md`, `etl/.env.example`, `plano_de_implementacao.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Implementado o fluxo backend→mobile→sync→ETL para chamados reais, com endereço estruturado, coordenadas automáticas e validações.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados código e dados sintéticos do projeto.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Continuar a implementação do plano de integração de chamados reais ao ETL e corrigir coordenadas obsoletas no formulário.
+- **Etapa da atividade:** Implementação e validação técnica.
+- **Tipo de contribuição da IA:** Análise do handoff, implementação backend/mobile/ETL, correção de estado de geocodificação, formatação Prisma, build, type-check, lint direcionado e smoke checks.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0099
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `backend/README.md`, `backend/src/config/swagger.ts`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Documentado o contrato de endereço estruturado e corrigida a autorização descrita no endpoint de exclusão.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foi usado apenas conteúdo técnico do projeto.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Atualizar a documentação do backend após a implementação de endereço estruturado e coordenadas automáticas.
+- **Etapa da atividade:** Documentação e validação técnica.
+- **Tipo de contribuição da IA:** Revisão do README e do contrato OpenAPI, atualização de exemplos e regras, correção de descrição de autorização e execução do build.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0100
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `backend/src/services/etlDashboardService.ts`, `backend/src/controllers/etlDashboardController.ts`, `backend/src/routes/etlDashboardRoutes.ts`, `backend/src/config/env.ts`, `backend/src/config/swagger.ts`, `backend/src/server.ts`, `backend/.env.example`, `backend/README.md`, `backend/prisma/seed.ts`, `mobile/src/app/(app)/_layout.tsx`, `mobile/src/app/(app)/profile/dashboard.tsx`, `mobile/src/constants/icons.ts`, `mobile/src/models/etl-dashboard.ts`, `mobile/src/services/etl-dashboard-service.ts`, `mobile/src/views/etl-dashboard-view.tsx`, `mobile/src/views/rights-portal-view.tsx`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Criado dashboard ETL nativo no mobile, rota pública de dados, reload, filtro, gráfico responsivo e 20 chamados de demonstração.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados dados sintéticos de demonstração.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Disponibilizar os indicadores da tabela final do ETL dentro do aplicativo para qualquer usuário.
+- **Etapa da atividade:** Implementação, seed e validação técnica.
+- **Tipo de contribuição da IA:** Criação da API pública somente leitura, tela mobile temática com filtro/métricas/gráfico/reload, integração de navegação, documentação e execução do seed idempotente.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0101
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `etl/src/chamados.py`, `etl/README-ETL.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Corrigido o intervalo climático para não enviar datas futuras à API Open-Meteo.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados somente dados técnicos do ETL.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Corrigir a falha causada pelo fim do intervalo climático em uma data futura.
+- **Etapa da atividade:** Correção e validação técnica.
+- **Tipo de contribuição da IA:** Diagnóstico do erro 400, limitação do fim da consulta ao fuso de Recife, atualização da documentação e execução de validações do módulo e do sync.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0102
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/tests/test_demand_status.py`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Fixture de status atualizado com bairro obrigatório após a adoção do endereço estruturado.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais; foi usado somente dado sintético de teste.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Corrigir falhas de setup dos testes de status causadas por payload legado.
+- **Etapa da atividade:** Correção e validação de testes automatizados.
+- **Tipo de contribuição da IA:** Análise do erro do CI e atualização cirúrgica do payload de teste para atender ao contrato atual da API.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0103
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `etl/fiscalize_etl.db`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Banco SQLite local atualizado incluído na branch da PR para acompanhar os dados atuais do ETL.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais; o banco contém dados técnicos e sintéticos do pipeline.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Publicar o banco local solicitado como parte da implementação do dashboard ETL.
+- **Etapa da atividade:** Atualização do artefato e publicação na branch da PR.
+- **Tipo de contribuição da IA:** Verificação do artefato SQLite, inclusão no commit e atualização do registro de uso de IA.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0104
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `backend/src/middlewares/rateLimitMiddleware.ts`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Validações inválidas de cadastro deixaram de ser mascaradas por 429 do limitador compartilhado.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais; apenas foi ajustada a validação estrutural de requisições.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Corrigir falhas dos testes de criação de usuário no GitHub Actions.
+- **Etapa da atividade:** Diagnóstico, implementação e validação de regressão.
+- **Tipo de contribuição da IA:** Ajuste do rate limiter para não contar requisições estruturalmente inválidas de cadastro antes da resposta 400.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo

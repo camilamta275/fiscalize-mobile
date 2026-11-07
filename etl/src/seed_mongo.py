@@ -18,22 +18,33 @@ class Seed_Mongo:
 
 
     # Updated by AI.
-    def extrair_clima_da_api_e_salvar_no_mongo(self, ext: Extract, ld: Load):
+    def extrair_clima_da_api_e_salvar_no_mongo(
+        self,
+        ext: Extract,
+        ld: Load,
+        data_inicio: str = "2026-02-01",
+        data_fim: str = "2026-02-28",
+        latitude: float = -8.0631,
+        longitude: float = -34.8711,
+    ):
         """
         Extrai os dados climáticos da API Open-Meteo e salva o resultado
         bruto na coleção 'clima_raw' do MongoDB.
-    
-        Só precisa ser executada uma vez (ou quando quiser atualizar os
-        dados brutos salvos no Mongo).
+
+        O intervalo e o ponto podem ser passados pelo pipeline; os defaults
+        mantêm o comportamento histórico (Recife, fevereiro de 2026).
         """
     
-        print("Extraindo dados climáticos da API!")
+        print(
+            "Extraindo dados climáticos da API "
+            f"({data_inicio} a {data_fim}, {latitude}, {longitude})!"
+        )
     
         data = ext.clima(
-            latitude=-8.0631,
-            longitude=-34.8711,
-            data_inicio="2026-02-01",
-            data_fim="2026-02-28"
+            latitude=latitude,
+            longitude=longitude,
+            data_inicio=data_inicio,
+            data_fim=data_fim,
         )
     
         ld.load_mongo(data, "clima_raw")

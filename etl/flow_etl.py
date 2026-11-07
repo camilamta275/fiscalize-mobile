@@ -1,27 +1,61 @@
-from pathlib import Path
-
 from prefect import flow, task
 
-BASE_DIR = Path(__file__).resolve().parent
-
+from src.chamados import busca_chamados, clima_cobre, intervalo_chamados
 from src.extract import Extract
 from src.load import Load
+from src.seed_mongo import Seed_Mongo
+from src.sync_chamados import SyncChamados
 from src.transform import Transform
+
+
+# Created by AI.
+@task(name="Sincronizar chamados do backend", log_prints=True)
+def sincronizar_chamados():
+    """Copia os chamados do PostgreSQL do backend para `chamados_raw`."""
+    return SyncChamados().run()
 
 
 # Updated by AI.
 @task(name="Ler chamados", log_prints=True)
 def ler_chamados():
-    """Lê os chamados fictícios do arquivo JSON."""
-    import json
+    """Lê os chamados reais da coleção `chamados_raw`."""
+    ext = Extract()
 
-    caminho = BASE_DIR / "data" / "chamados.json"
+    try:
+        chamados = busca_chamados(ext)
+        print(f"{len(chamados)} chamados carregados.")
+        return chamados
+    finally:
+        ext.close()
 
-    with open(caminho, "r", encoding="utf-8") as arquivo:
-        chamados = json.load(arquivo)
 
-    print(f"{len(chamados)} chamados carregados.")
-    return chamados
+# Created by AI.
+@task(name="Garantir clima no intervalo", log_prints=True)
+def garantir_clima(data_inicio: str, data_fim: str):
+    """Busca a série climática quando a carga existente não cobre o intervalo."""
+    ext = Extract()
+    ld = Load()
+    seed = Seed_Mongo()
+
+    try:
+        raw = ext.extract_collection_from_mongo("clima_raw")
+        transformado = None if raw.empty else Transform().transform_clima(raw)
+
+        if transformado is None or not clima_cobre(transformado, data_inicio, data_fim):
+            seed.extrair_clima_da_api_e_salvar_no_mongo(
+                ext,
+                ld,
+                data_inicio=data_inicio,
+                data_fim=data_fim,
+            )
+        else:
+            print(
+                f"clima_raw já cobre o intervalo {data_inicio} a {data_fim}; "
+                "nenhuma chamada à API foi necessária."
+            )
+    finally:
+        ext.close()
+        ld.close()
 
 
 # Updated by AI.
@@ -98,11 +132,14 @@ def carregar_neon(dados, tabela):
 # Updated by AI.
 @flow(name="ETL Fiscalize", log_prints=True)
 def etl_fiscalize():
-    """Orquestra os pipelines de clima e população."""
+    """Orquestra o sync e os pipelines de clima e população."""
 
+    sincronizar_chamados()
     chamados = ler_chamados()
+    data_inicio, data_fim = intervalo_chamados(chamados)
 
     # Pipeline de clima
+    garantir_clima(data_inicio, data_fim)
     clima_bruto = extrair_mongo("clima_raw")
     clima_transformado = transformar_clima(clima_bruto)
     chamados_clima = cruzar_clima(

@@ -110,6 +110,13 @@ export function RightsPortalView() {
             onPress={() => router.push('/profile/security')}
             title="Segurança e privacidade"
           />
+          <View style={[styles.divider, { backgroundColor: theme.border }]} />
+          <MenuRow
+            description="Engenharia de Dados e Big Data"
+            icon={Icons.chart}
+            onPress={() => router.push('/profile/dashboard')}
+            title="Dashboard ETL"
+          />
         </Card>
 
         <Card style={styles.card}>

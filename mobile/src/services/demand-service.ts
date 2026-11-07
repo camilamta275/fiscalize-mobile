@@ -74,9 +74,15 @@ export type DemandInput = {
   title: string;
   description: string;
   category_id: number;
-  location: string;
-  latitude?: number;
-  longitude?: number;
+  cep: string;
+  rua: string;
+  numero?: string | null;
+  bairro: string;
+  cidade: string;
+  estado: string;
+  complemento?: string | null;
+  latitude: number;
+  longitude: number;
 };
 
 /** Cidadao-only (backend/src/routes/demandRoutes.ts). */

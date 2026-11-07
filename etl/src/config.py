@@ -24,6 +24,11 @@ MONGODB_URI = _required_setting("MONGODB_URI")
 # Created by AI.
 DATABASE_URL = _required_setting("DATABASE_URL")
 
+# Updated by AI.
+# PostgreSQL operacional do backend, usado apenas pelo sync (somente leitura).
+# O valor é o mesmo do DATABASE_URL do backend/.env.
+BACKEND_DATABASE_URL = _ENV.get("BACKEND_DATABASE_URL")
+
 # Created by AI.
 MONGO_DATABASE = _ENV.get("MONGO_DATABASE", "FISCALIZE_ETL")
 
