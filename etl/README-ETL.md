@@ -1,5 +1,7 @@
 # ETL Fiscalize — População e Clima
 
+<!-- Updated by AI. -->
+
 ETLs desenvolvidas para enriquecer os dados de chamados urbanos do Fiscalize com fontes públicas externas: condições climáticas, obtidas pela Open-Meteo, e população por bairro, obtida do Censo Demográfico 2022 do IBGE.
 
 Os dados brutos são armazenados no MongoDB, enquanto os dados transformados são carregados no SQLite e no Neon (PostgreSQL). O projeto também disponibiliza um dashboard desenvolvido com Streamlit para visualizar os dados consolidados de chamados por bairro.
@@ -25,16 +27,19 @@ fiscalize-mobile/
 │       └── dashboard_dados_detalhados.png
 └── etl/
     ├── data/
-    │   └── chamados.json            # Chamados fictícios usados como entrada
+    │   └── chamados.json            # Fixture legado; não é usado pelo pipeline
     ├── notebooks/
     │   ├── clima.ipynb              # Rascunho exploratório do ETL de clima
     │   └── populacao.ipynb           # Rascunho exploratório do ETL de população
     ├── src/
     │   ├── config.py                # Centralização das configurações
+    │   ├── chamados.py              # Leitura de `chamados_raw` e intervalo de datas
     │   ├── extract.py               # Extração de dados das fontes
-    │   ├── transform.py             # Transformação e cruzamento dos dados
     │   ├── load.py                  # Carga dos dados nos destinos
-    │   └── seed_mongo.py            # Funções para popular as coleções brutas
+    │   ├── normalize.py             # Normalização de bairros para o padrão IBGE
+    │   ├── seed_mongo.py            # Funções para popular as coleções brutas
+    │   ├── sync_chamados.py         # Sync backend PostgreSQL → `chamados_raw`
+    │   └── transform.py             # Transformação e cruzamento dos dados
     ├── run_etl.py                   # Ponto de entrada do pipeline
     ├── flow_etl.py                  # Orquestração do pipeline com Prefect
     ├── requirements.txt             # Dependências do ETL e dashboard
@@ -83,6 +88,7 @@ Entre as configurações estão:
 
 - `MONGODB_URI`: conexão com o MongoDB.
 - `DATABASE_URL`: conexão com o PostgreSQL no Neon.
+- `BACKEND_DATABASE_URL`: conexão somente leitura com o PostgreSQL operacional do backend. Use o mesmo valor do `DATABASE_URL` de `backend/.env`. É obrigatória para o sync dos chamados.
 - `MONGO_DATABASE`: nome do banco no MongoDB.
 - `SQLITE_DATABASE`: caminho do banco SQLite.
 
@@ -96,7 +102,8 @@ Para configurar o ambiente:
 
 2. Preencha `MONGODB_URI` com a connection string do cluster MongoDB Atlas do projeto.
 3. Preencha `DATABASE_URL` com a connection string do banco PostgreSQL no Neon.
-4. Confira as demais variáveis documentadas em `etl/.env.example` e ajuste-as conforme necessário.
+4. Preencha `BACKEND_DATABASE_URL` com a connection string do PostgreSQL operacional do backend (mesmo valor de `backend/.env`). Prefira um usuário com permissão apenas de leitura.
+5. Confira as demais variáveis documentadas em `etl/.env.example` e ajuste-as conforme necessário.
 
 **Importante:** nunca compartilhe ou versione o arquivo `etl/.env` com credenciais reais. Utilize o `.env.example` para documentar as variáveis necessárias sem expor senhas ou tokens.
 
@@ -104,21 +111,38 @@ O arquivo `config.py` é o ponto central de configuração, evitando que cada m�
 
 ## Como executar o pipeline
 
-O ponto de entrada do pipeline é `etl/run_etl.py`. A execução realiza as etapas de extração, transformação e carga dos dados de clima e população.
+O ponto de entrada do pipeline é `etl/run_etl.py`. A execução realiza as etapas de sincronização dos chamados, extração, transformação e carga dos dados de clima e população.
+
+### 1. Sincronizar os chamados do backend
+
+O ETL não escreve no banco operacional. Os chamados chegam por um sync somente leitura do PostgreSQL do backend para a coleção `chamados_raw` do MongoDB:
+
+```bash
+cd etl
+python3 -m src.sync_chamados
+```
+
+O sync é idempotente: usa o `id` do chamado como `_id`, atualiza registros existentes e remove de `chamados_raw` os chamados que não existem mais no backend. Rodar novamente não duplica dados. Ele também registra em log quantos chamados vieram sem bairro e sem coordenada válida.
+
+> O comando de sync lê `BACKEND_DATABASE_URL`. Sem essa variável, ele falha com uma mensagem explícita.
+
+### 2. Executar o pipeline
 
 Na raiz do repositório, execute:
 
 ```powershell
-python etl/run_etl.py
+python run_etl.py
 ```
 
 **Atenção:** a execução pode atualizar ou recriar tabelas finais no Neon. Antes de executar o pipeline novamente em um ambiente compartilhado, confirme as permissões do usuário configurado e as regras de carga descritas neste documento.
 
 O pipeline utiliza as funções de extração, transformação e carga implementadas nos módulos de `etl/src/`.
 
-Uma carga inicial das fontes brutas pode exigir a execução das funções de seed correspondentes, conforme a implementação de `etl/src/seed_mongo.py`.
+A carga de clima é automática: o pipeline calcula o intervalo de datas coberto por `chamados_raw` (no fuso `America/Recife`) e consulta a Open-Meteo somente quando a série já carregada não cobre esse intervalo. A carga bruta de população continua sendo feita pelas funções de seed de `etl/src/seed_mongo.py`.
 
 ## Histórico das cargas e camada bronze
+
+A coleção `chamados_raw` é a entrada operacional do ETL. Ela é preenchida pelo sync a partir do PostgreSQL do backend e é atualizada de forma idempotente, com `synced_at` e `data_extracao` em cada documento. Os campos `latitude`/`longitude` acompanham `coordenada_valida`: chamados antigos com `(0, 0)` são tratados como ausência de coordenada, não como um ponto real.
 
 As cargas brutas armazenadas no MongoDB recebem o campo `data_extracao`, que identifica o momento em que os dados foram coletados.
 
@@ -134,7 +158,7 @@ A transformação deve considerar todos os itens relevantes recebidos das fontes
 
 Na transformação climática, as listas diárias de datas, temperaturas e precipitações são organizadas em registros que podem ser relacionados às datas dos chamados.
 
-Na transformação de população, os registros são filtrados para Recife, os nomes dos bairros são padronizados e os dados são agregados para permitir o cruzamento com os chamados.
+Na transformação de população, os registros são filtrados para Recife, os nomes dos bairros são padronizados e os dados são agregados para permitir o cruzamento com os chamados. A normalização usa a mesma regra do backend (maiúsculas, sem acentos e com espaços colapsados) para que `Boa Viagem`, `boa viagem` e `BOA VIAGEM` caiam no mesmo bairro. Chamados sem bairro são mantidos no agregado como `NAO INFORMADO`.
 
 As contagens das diferentes etapas não precisam ser iguais, pois as transformações podem filtrar ou agregar registros. Para validar a integridade, compare as quantidades considerando a finalidade de cada etapa.
 
@@ -210,10 +234,11 @@ Relacionar os chamados urbanos às condições climáticas do período em que fo
 
 ### Etapas
 
-1. **Extract:** consulta os dados climáticos da fonte.
-2. **Transform:** organiza as datas, temperaturas e precipitações em registros estruturados.
-3. **Merge:** relaciona os dados climáticos aos chamados por data.
-4. **Load:** grava os dados brutos no MongoDB e os dados cruzados nos destinos configurados.
+1. **Sync:** copia os chamados do PostgreSQL do backend para `chamados_raw` (executado antes do pipeline).
+2. **Extract:** consulta os dados climáticos da Open-Meteo apenas quando a série carregada não cobre o intervalo real dos chamados.
+3. **Transform:** organiza as datas, temperaturas e precipitações em registros estruturados.
+4. **Merge:** relaciona os dados climáticos aos chamados por data, usando a data local de Recife.
+5. **Load:** grava os dados brutos no MongoDB e os dados cruzados nos destinos configurados.
 
 ### Modelo conceitual da tabela final
 
@@ -248,10 +273,11 @@ A principal métrica gerada é a quantidade de chamados para cada 1.000 habitant
 
 ### Etapas
 
-1. **Extract:** obtém os dados de população do IBGE.
-2. **Transform:** seleciona as colunas necessárias, filtra os bairros de Recife e padroniza os nomes.
-3. **Merge:** relaciona os chamados à população dos bairros.
-4. **Load:** grava os dados brutos e os dados consolidados nos destinos configurados.
+1. **Sync:** garante que `chamados_raw` contém os chamados atuais do backend.
+2. **Extract:** obtém os dados de população do IBGE.
+3. **Transform:** seleciona as colunas necessárias, filtra os bairros de Recife e padroniza os nomes.
+4. **Merge:** relaciona os chamados à população dos bairros.
+5. **Load:** grava os dados brutos e os dados consolidados nos destinos configurados.
 
 ### Modelo conceitual da tabela final
 
@@ -273,21 +299,37 @@ Os valores ilustram o formato da tabela e não substituem a consulta aos dados a
 
 O projeto também contém o arquivo `etl/flow_etl.py`, responsável por organizar as etapas da pipeline em tarefas e executá-las na ordem definida pelas dependências.
 
+O fluxo executa, nesta ordem:
+
+1. `Sincronizar chamados do backend`: `SyncChamados.run()` lê o PostgreSQL do backend e atualiza `chamados_raw`.
+2. `Ler chamados`: lê `chamados_raw` e calcula o intervalo de datas necessário.
+3. `Garantir clima no intervalo`: consulta a Open-Meteo somente se a série climática existente não cobrir o intervalo.
+4. `extrair_mongo`, `transformar_*`, `cruzar_*` e cargas no SQLite/Neon.
+
 Para executar o fluxo, a partir da raiz do repositório:
 
 ```powershell
 python etl/flow_etl.py
 ```
 
-A execução requer as dependências instaladas, as variáveis de ambiente configuradas e acesso às fontes e aos destinos utilizados pelo pipeline.
+A execução requer as dependências instaladas, as variáveis de ambiente configuradas (incluindo `BACKEND_DATABASE_URL`) e acesso às fontes e aos destinos utilizados pelo pipeline.
 
 Como o fluxo pode realizar cargas no Neon, verifique as permissões do banco antes de executá-lo em um ambiente compartilhado.
 
 ## Troubleshooting
 
-### `FileNotFoundError` ao abrir `chamados.json`
+### `ValueError` ao abrir `chamados_raw`
 
-Confira se o arquivo existe em `etl/data/chamados.json` e execute os comandos a partir da raiz do repositório.
+A coleção `chamados_raw` está vazia. Execute o sync antes do ETL:
+
+```bash
+cd etl
+python -m src.sync_chamados
+```
+
+### `BACKEND_DATABASE_URL não foi encontrada`
+
+Copie o valor de `DATABASE_URL` de `backend/.env` para `BACKEND_DATABASE_URL` em `etl/.env`. O `DATABASE_URL` do ETL continua apontando para o Neon e não é usado pelo sync.
 
 ### `ModuleNotFoundError: No module named 'src'`
 

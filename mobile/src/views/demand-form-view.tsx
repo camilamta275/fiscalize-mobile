@@ -13,6 +13,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { CameraCapture } from '@/components/camera-capture';
+import { AddressFields } from '@/components/address-fields';
 import { CategoryEmoji } from '@/components/category-emoji';
 import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui/button';
@@ -47,11 +48,17 @@ export function DemandFormView({ demandId }: { demandId?: string }) {
     setDescription,
     categoryId,
     setCategoryId,
-    location,
-    setLocation,
+    address,
     coords,
-    captureLocation,
+    cepError,
+    addressError,
+    coordinatesError,
+    isLookingUpCep,
     isCapturingLocation,
+    isResolvingCoords,
+    updateAddressField,
+    handleCepChange,
+    captureCurrentLocation,
     photoUri,
     setPhotoUri,
     isBlocked,
@@ -245,28 +252,23 @@ export function DemandFormView({ demandId }: { demandId?: string }) {
 
           <Card style={styles.card}>
             <SectionTitle icon={Icons.mapPin} title="Localização" />
-            <TextField
-              error={fieldErrors.location}
-              label="Endereço"
-              onChangeText={setLocation}
-              placeholder="Rua, número, bairro, cidade"
-              value={location}
+            <ThemedText themeColor="mutedForeground" type="small">
+              Digite o CEP para preencher o endereço ou use sua localização atual. As coordenadas
+              são obtidas automaticamente e não podem ser editadas.
+            </ThemedText>
+            <AddressFields
+              address={address}
+              addressError={addressError}
+              coords={coords}
+              coordinatesError={coordinatesError}
+              errors={{ ...fieldErrors, cep: cepError ?? fieldErrors.cep }}
+              isCapturingLocation={isCapturingLocation}
+              isLookingUpCep={isLookingUpCep}
+              isResolvingCoords={isResolvingCoords}
+              onChange={updateAddressField}
+              onCepChange={handleCepChange}
+              onUseCurrentLocation={() => void captureCurrentLocation()}
             />
-            <Button
-              icon={Icons.mapPin}
-              loading={isCapturingLocation}
-              onPress={captureLocation}
-              title={coords ? 'Atualizar minha localização' : 'Usar minha localização atual'}
-              variant="secondary"
-            />
-            {coords ? (
-              <View style={[styles.coords, { backgroundColor: theme.accentSoft }]}>
-                <Icon color={theme.accent} name={Icons.checkCircle} size={14} />
-                <ThemedText style={{ color: theme.accent }} type="caption">
-                  {coords.latitude.toFixed(6)}, {coords.longitude.toFixed(6)}
-                </ThemedText>
-              </View>
-            ) : null}
           </Card>
 
           <Card style={styles.card}>
@@ -390,15 +392,6 @@ const styles = StyleSheet.create({
     right: 6,
     top: 6,
     width: 18,
-  },
-  coords: {
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    borderRadius: Radius.pill,
-    flexDirection: 'row',
-    gap: Spacing.one,
-    paddingHorizontal: Spacing.two,
-    paddingVertical: 4,
   },
   photoDropzone: {
     alignItems: 'center',

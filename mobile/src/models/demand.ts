@@ -83,6 +83,13 @@ export type Demand = {
   description: string;
   status: DemandStatus;
   location: string;
+  cep?: string | null;
+  rua?: string | null;
+  numero?: string | null;
+  bairro?: string | null;
+  cidade?: string | null;
+  estado?: string | null;
+  complemento?: string | null;
   latitude: number;
   longitude: number;
   category: { id: number; nome: string };

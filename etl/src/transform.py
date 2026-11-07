@@ -1,5 +1,7 @@
 import pandas as pd
 
+from src.normalize import normalize_bairro
+
 
 # Updated by AI.
 class Transform:
@@ -84,9 +86,22 @@ class Transform:
 
         df_chamados = pd.DataFrame(chamados)
 
-        df_chamados["data"] = pd.to_datetime(
-            df_chamados["criadoem"]
-        ).dt.date
+        if df_chamados.empty:
+            raise ValueError("Nenhum chamado foi recebido para o cruzamento com o clima.")
+
+        # O sync grava `data_chamado` já no fuso de Recife. Para cargas
+        # antigas, converte `criadoem` (UTC) antes de extrair a data.
+        if "data_chamado" in df_chamados.columns:
+            df_chamados["data"] = pd.to_datetime(
+                df_chamados["data_chamado"],
+                errors="coerce",
+            ).dt.date
+        else:
+            df_chamados["data"] = (
+                pd.to_datetime(df_chamados["criadoem"], utc=True)
+                .dt.tz_convert("America/Recife")
+                .dt.date
+            )
 
         df_clima["data"] = pd.to_datetime(
             df_clima["data"]
@@ -97,6 +112,21 @@ class Transform:
             on="data",
             how="left"
         )
+
+        wanted_columns = [
+            "id",
+            "protocolo",
+            "categoria",
+            "subcategoria",
+            "bairro",
+            "data",
+            "temperatura",
+            "precipitacao",
+        ]
+        available_columns = [
+            column for column in wanted_columns if column in df_final.columns
+        ]
+        df_final = df_final[available_columns]
 
         print("Chamados e dados climáticos combinados com sucesso!")
 
@@ -141,11 +171,7 @@ class Transform:
             .str.startswith(codigo_recife)
         ].copy()
 
-        df["bairro"] = (
-            df["bairro"]
-            .str.strip()
-            .str.upper()
-        )
+        df["bairro"] = df["bairro"].map(normalize_bairro)
 
         df[["codigo_bairro", "bairro"]] = df[
             ["codigo_bairro", "bairro"]
@@ -179,26 +205,30 @@ class Transform:
 
         df_chamados = pd.DataFrame(chamados)
 
+        if df_chamados.empty:
+            raise ValueError("Nenhum chamado foi recebido para o cruzamento com a população.")
+
+        if "bairro" not in df_chamados.columns:
+            df_chamados["bairro"] = None
+
+        # O bairro é obrigatório em chamados novos; registros antigos sem
+        # bairro continuam contabilizados em "NAO INFORMADO" em vez de sumir.
+        df_chamados["bairro"] = (
+            df_chamados["bairro"]
+            .map(normalize_bairro)
+            .fillna("NAO INFORMADO")
+        )
+
         # Conta quantos chamados existem em cada bairro
         df_chamados_por_bairro = (
             df_chamados
-            .groupby("bairro")
+            .groupby("bairro", dropna=False)
             .size()
             .reset_index(name="chamados")
         )
 
-        # Padroniza os nomes dos bairros
-        df_chamados_por_bairro["bairro"] = (
-            df_chamados_por_bairro["bairro"]
-            .str.strip()
-            .str.upper()
-        )
-
-        df_populacao["bairro"] = (
-            df_populacao["bairro"]
-            .str.strip()
-            .str.upper()
-        )
+        # Padroniza os nomes dos bairros do IBGE com a mesma função
+        df_populacao["bairro"] = df_populacao["bairro"].map(normalize_bairro)
 
         # Junta chamados e população pelo bairro
         df_bairros = df_chamados_por_bairro.merge(
@@ -209,16 +239,25 @@ class Transform:
             how="left"
         )
 
-        # Calcula chamados por 1.000 habitantes
+        # Calcula chamados por 1.000 habitantes apenas quando há população
+        populacao_valida = df_bairros["populacao"].where(
+            df_bairros["populacao"] > 0
+        )
         df_bairros["chamados_por_1000"] = (
-            df_bairros["chamados"]
-            / df_bairros["populacao"]
+            df_bairros["chamados"] / populacao_valida
         ) * 1000
 
         df_bairros["chamados_por_1000"] = (
             df_bairros["chamados_por_1000"]
             .round(2)
         )
+
+        sem_populacao = df_bairros["populacao"].isna().sum()
+        if sem_populacao:
+            print(
+                f"Atenção: {sem_populacao} bairro(s) sem correspondência "
+                "na população do IBGE."
+            )
 
         print(
             "Chamados e população combinados com sucesso!"

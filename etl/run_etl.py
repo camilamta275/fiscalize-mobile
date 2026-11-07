@@ -1,10 +1,9 @@
-import json
-
-from src.config import CHAMADOS_PATH
+from src.chamados import busca_chamados, clima_cobre, intervalo_chamados
 from src.extract import Extract
 from src.load import Load
 from src.transform import Transform
 from src.seed_mongo import Seed_Mongo
+
 
 # Updated by AI.
 def run_clima(carregar_da_api: bool = False):
@@ -14,8 +13,8 @@ def run_clima(carregar_da_api: bool = False):
     Parâmetros:
         carregar_da_api: se True, extrai os dados da API Open-Meteo e
             salva o bruto no Mongo antes de seguir o fluxo normal.
-            Use True apenas na primeira execução ou quando quiser
-            atualizar os dados brutos.
+            Se False, ainda busca a API quando a carga existente não
+            cobrir o intervalo real dos chamados.
     """
 
     ext = Extract()
@@ -24,61 +23,77 @@ def run_clima(carregar_da_api: bool = False):
     seed = Seed_Mongo()
 
     try:
-            log_inicio_etl("ETL de Clima")
+        log_inicio_etl("ETL de Clima")
 
-           # 1. Extração dos chamados fictícios
-            print("Etapa 1: Lendo chamados fictícios!")
-            chamados = busca_chamados()
-            print(f"{len(chamados)} chamados carregados!")
+        # 1. Chamados reais sincronizados do backend
+        print("Etapa 1: Lendo chamados da coleção chamados_raw!")
+        chamados = busca_chamados(ext)
+        print(f"{len(chamados)} chamados carregados!")
 
-            # 2. Extração da API (opcional) e carga bruta no Mongo
-            if carregar_da_api:
-                print("Etapa 2: Extraindo dados climáticos da API!")
-                seed.extrair_clima_da_api_e_salvar_no_mongo(ext, ld)
+        data_inicio, data_fim = intervalo_chamados(chamados)
+        print(f"Intervalo de clima necessário: {data_inicio} a {data_fim}.")
 
-            # 3. Busca dos dados brutos no Mongo
+        # 2. Carga bruta existente e verificação de cobertura
+        df_clima_raw = ext.extract_collection_from_mongo("clima_raw")
+        df_clima = None
+        if not df_clima_raw.empty:
+            df_clima = transformer.transform_clima(df_clima_raw)
+
+        precisa_carregar = (
+            carregar_da_api
+            or df_clima is None
+            or not clima_cobre(df_clima, data_inicio, data_fim)
+        )
+
+        # 3. Extração da API quando necessário
+        if precisa_carregar:
+            print("Etapa 2: Extraindo dados climáticos da API!")
+            seed.extrair_clima_da_api_e_salvar_no_mongo(
+                ext,
+                ld,
+                data_inicio=data_inicio,
+                data_fim=data_fim,
+            )
+
             print("Etapa 3: Buscando dados em MONGO!")
             df_clima_raw = ext.extract_collection_from_mongo("clima_raw")
-            if df_clima_raw.empty:
-                raise ValueError("A coleção clima_raw está vazia.")
- 
-        
-            # 4. Transformação
-            print("Etapa 4: Transformando os dados!")
-        
             df_clima = transformer.transform_clima(df_clima_raw)
-            print(
-                f"Auditoria clima: {len(df_clima_raw)} documento(s) bronze "
-                f"e {len(df_clima)} registro(s) transformado(s)."
-            )
 
-        
-            # 5. Cruzamento chamados + clima
-            print("Etapa 5: Cruzando chamados com dados climáticos!")
-        
-            df_final = transformer.merge_chamados_clima(
-                chamados,
-                df_clima
-            )
-            print(
-                f"Auditoria clima: {len(chamados)} chamado(s) de entrada e "
-                f"{len(df_final)} chamado(s) no destino."
-            )
-        
-            # 6. Carga no SQLite
-            print("Etapa 6: Salvando no SQLite!")
-            ld.load_sqlite(df_final, "chamados_clima")
+        if df_clima is None or df_clima.empty:
+            raise ValueError("A coleção clima_raw está vazia.")
 
-            # 7. Carga no Neon
-            print("Etapa 7: Salvando no Neon!")
-            ld.load_neon(df_final, "chamados_clima")
+        # 4. Transformação
+        print("Etapa 4: Transformando os dados!")
+        print(
+            f"Auditoria clima: {len(df_clima_raw)} documento(s) bronze "
+            f"e {len(df_clima)} registro(s) transformado(s)."
+        )
 
-            log_fim_etl("ETL de Clima")
+        # 5. Cruzamento chamados + clima
+        print("Etapa 5: Cruzando chamados com dados climáticos!")
+        df_final = transformer.merge_chamados_clima(
+            chamados,
+            df_clima
+        )
+        print(
+            f"Auditoria clima: {len(chamados)} chamado(s) de entrada e "
+            f"{len(df_final)} chamado(s) no destino."
+        )
+
+        # 6. Carga no SQLite
+        print("Etapa 6: Salvando no SQLite!")
+        ld.load_sqlite(df_final, "chamados_clima")
+
+        # 7. Carga no Neon
+        print("Etapa 7: Salvando no Neon!")
+        ld.load_neon(df_final, "chamados_clima")
+
+        log_fim_etl("ETL de Clima")
 
     finally:
         ext.close()
         ld.close()
-        
+
 
 # Updated by AI.
 def run_populacao(carregar_da_api: bool = False):
@@ -113,7 +128,6 @@ def run_populacao(carregar_da_api: bool = False):
 
         # 3. Transformação
         print("Etapa 3: Transformando os dados!")
-
         df_populacao = transformer.transform_populacao(
             df_populacao_raw
         )
@@ -122,14 +136,11 @@ def run_populacao(carregar_da_api: bool = False):
             f"na carga bronze e {len(df_populacao)} após o filtro de Recife."
         )
 
-        # 4. Leitura dos chamados fictícios
-        chamados = busca_chamados()
+        # 4. Leitura dos chamados reais
+        chamados = busca_chamados(ext)
 
         # 5. Cruzamento
-        print(
-            "Etapa 4: Cruzando chamados e população!"
-        )
-
+        print("Etapa 4: Cruzando chamados e população!")
         df_final = transformer.merge_chamados_populacao(
             chamados,
             df_populacao
@@ -141,7 +152,6 @@ def run_populacao(carregar_da_api: bool = False):
 
         # 6. SQLite
         print("Etapa 5: Salvando no SQLite!")
-
         ld.load_sqlite(df_final, "chamados_populacao")
 
         # 7. Carga no Neon
@@ -154,20 +164,6 @@ def run_populacao(carregar_da_api: bool = False):
         ext.close()
         ld.close()
 
-# Updated by AI.
-def busca_chamados():
-    """
-    Busca os chamados fictícios no arquivo JSON.
-    """
-
-    with open(
-        CHAMADOS_PATH,
-        "r",
-        encoding="utf-8",
-    ) as arquivo:
-        chamados = json.load(arquivo)
-
-    return chamados
 
 def log_inicio_etl(nome_etl: str):
     print("\n" + "=" * 50)
