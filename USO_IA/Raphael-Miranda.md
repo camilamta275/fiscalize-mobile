@@ -1237,3 +1237,27 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Correção e validação de testes automatizados.
 - **Tipo de contribuição da IA:** Análise do erro do CI e atualização cirúrgica do payload de teste para atender ao contrato atual da API.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0103
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `etl/fiscalize_etl.db`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Banco SQLite local atualizado incluído na branch da PR para acompanhar os dados atuais do ETL.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais; o banco contém dados técnicos e sintéticos do pipeline.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Publicar o banco local solicitado como parte da implementação do dashboard ETL.
+- **Etapa da atividade:** Atualização do artefato e publicação na branch da PR.
+- **Tipo de contribuição da IA:** Verificação do artefato SQLite, inclusão no commit e atualização do registro de uso de IA.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0104
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `backend/src/middlewares/rateLimitMiddleware.ts`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Validações inválidas de cadastro deixaram de ser mascaradas por 429 do limitador compartilhado.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais; apenas foi ajustada a validação estrutural de requisições.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Corrigir falhas dos testes de criação de usuário no GitHub Actions.
+- **Etapa da atividade:** Diagnóstico, implementação e validação de regressão.
+- **Tipo de contribuição da IA:** Ajuste do rate limiter para não contar requisições estruturalmente inválidas de cadastro antes da resposta 400.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
