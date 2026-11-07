@@ -19,12 +19,13 @@ import requests
 from automation.tests.api.config.settings import Endpoints as endpoints
 from automation.tests.api.conftest import login_with_mfa
 
-# Created by AI.
+# Updated by AI.
 DEMAND_PAYLOAD = {
     "title": "Ocorrencia de status",
     "description": "Chamado sintetico criado pelo teste de atualizacao de status.",
     "category_id": 1,
     "location": "Rua Principal, 123, Recife - PE",
+    "bairro": "Boa Viagem",
     "latitude": -8.05,
     "longitude": -34.9,
 }

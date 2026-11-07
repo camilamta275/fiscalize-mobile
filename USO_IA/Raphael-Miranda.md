@@ -1225,3 +1225,15 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Correção e validação técnica.
 - **Tipo de contribuição da IA:** Diagnóstico do erro 400, limitação do fim da consulta ao fuso de Recife, atualização da documentação e execução de validações do módulo e do sync.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0102
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/tests/test_demand_status.py`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Fixture de status atualizado com bairro obrigatório após a adoção do endereço estruturado.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais; foi usado somente dado sintético de teste.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Corrigir falhas de setup dos testes de status causadas por payload legado.
+- **Etapa da atividade:** Correção e validação de testes automatizados.
+- **Tipo de contribuição da IA:** Análise do erro do CI e atualização cirúrgica do payload de teste para atender ao contrato atual da API.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
