@@ -1201,3 +1201,27 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Documentação e validação técnica.
 - **Tipo de contribuição da IA:** Revisão do README e do contrato OpenAPI, atualização de exemplos e regras, correção de descrição de autorização e execução do build.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0100
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `backend/src/services/etlDashboardService.ts`, `backend/src/controllers/etlDashboardController.ts`, `backend/src/routes/etlDashboardRoutes.ts`, `backend/src/config/env.ts`, `backend/src/config/swagger.ts`, `backend/src/server.ts`, `backend/.env.example`, `backend/README.md`, `backend/prisma/seed.ts`, `mobile/src/app/(app)/_layout.tsx`, `mobile/src/app/(app)/profile/dashboard.tsx`, `mobile/src/constants/icons.ts`, `mobile/src/models/etl-dashboard.ts`, `mobile/src/services/etl-dashboard-service.ts`, `mobile/src/views/etl-dashboard-view.tsx`, `mobile/src/views/rights-portal-view.tsx`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Criado dashboard ETL nativo no mobile, rota pública de dados, reload, filtro, gráfico responsivo e 20 chamados de demonstração.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados dados sintéticos de demonstração.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Disponibilizar os indicadores da tabela final do ETL dentro do aplicativo para qualquer usuário.
+- **Etapa da atividade:** Implementação, seed e validação técnica.
+- **Tipo de contribuição da IA:** Criação da API pública somente leitura, tela mobile temática com filtro/métricas/gráfico/reload, integração de navegação, documentação e execução do seed idempotente.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0101
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `etl/src/chamados.py`, `etl/README-ETL.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Corrigido o intervalo climático para não enviar datas futuras à API Open-Meteo.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados somente dados técnicos do ETL.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Corrigir a falha causada pelo fim do intervalo climático em uma data futura.
+- **Etapa da atividade:** Correção e validação técnica.
+- **Tipo de contribuição da IA:** Diagnóstico do erro 400, limitação do fim da consulta ao fuso de Recife, atualização da documentação e execução de validações do módulo e do sync.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo

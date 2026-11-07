@@ -18,6 +18,7 @@ export const Icons = {
   building: { android: 'apartment', ios: 'building.2.fill', web: 'apartment' },
   calendar: { android: 'calendar_today', ios: 'calendar', web: 'calendar_today' },
   camera: { android: 'photo_camera', ios: 'camera.fill', web: 'photo_camera' },
+  chart: { android: 'bar_chart', ios: 'chart.bar.fill', web: 'bar_chart' },
   check: { android: 'check', ios: 'checkmark', web: 'check' },
   checkCircle: { android: 'check_circle', ios: 'checkmark.circle.fill', web: 'check_circle' },
   chevronDown: { android: 'expand_more', ios: 'chevron.down', web: 'expand_more' },

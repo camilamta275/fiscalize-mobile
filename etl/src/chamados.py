@@ -1,7 +1,8 @@
 # Created by AI.
 from __future__ import annotations
 
-from datetime import timedelta
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 
 import pandas as pd
 
@@ -27,6 +28,7 @@ def busca_chamados(ext) -> list[dict]:
 
 
 # Created by AI.
+# Updated by AI.
 def intervalo_chamados(chamados: list[dict]) -> tuple[str, str]:
     """
     Calcula o intervalo de datas coberto pelos chamados, já com um dia de
@@ -52,6 +54,11 @@ def intervalo_chamados(chamados: list[dict]) -> tuple[str, str]:
 
     data_inicio = series.min().date() - timedelta(days=1)
     data_fim = series.max().date() + timedelta(days=1)
+    # Updated by AI.
+    # Open-Meteo archive rejects dates after the current Recife date. Keep the
+    # one-day margin for older data, but never request a future date.
+    hoje_recife = datetime.now(ZoneInfo("America/Recife")).date()
+    data_fim = min(data_fim, hoje_recife)
 
     return data_inicio.isoformat(), data_fim.isoformat()
 

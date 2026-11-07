@@ -140,6 +140,11 @@ O pipeline utiliza as funções de extração, transformação e carga implement
 
 A carga de clima é automática: o pipeline calcula o intervalo de datas coberto por `chamados_raw` (no fuso `America/Recife`) e consulta a Open-Meteo somente quando a série já carregada não cobre esse intervalo. A carga bruta de população continua sendo feita pelas funções de seed de `etl/src/seed_mongo.py`.
 
+O fim da consulta climática é limitado à data atual de Recife. Assim, chamados
+recentes podem ficar sem dados climáticos enquanto a Open-Meteo ainda não
+disponibiliza o histórico; esses valores permanecem nulos e são preenchidos em
+uma execução futura.
+
 ## Histórico das cargas e camada bronze
 
 A coleção `chamados_raw` é a entrada operacional do ETL. Ela é preenchida pelo sync a partir do PostgreSQL do backend e é atualizada de forma idempotente, com `synced_at` e `data_extracao` em cada documento. Os campos `latitude`/`longitude` acompanham `coordenada_valida`: chamados antigos com `(0, 0)` são tratados como ausência de coordenada, não como um ponto real.
