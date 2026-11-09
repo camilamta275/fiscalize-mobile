@@ -113,6 +113,8 @@ O arquivo `config.py` é o ponto central de configuração, evitando que cada m�
 
 O ponto de entrada do pipeline é `etl/run_etl.py`. A execução realiza as etapas de sincronização dos chamados, extração, transformação e carga dos dados de clima e população.
 
+> **Importante:** o sync e o pipeline gravam em destinos diferentes. O comando `sync_chamados` atualiza apenas o MongoDB (`chamados_raw`). O Dashboard ETL do app lê a tabela final `chamados_populacao` no Neon, que só é atualizada quando o pipeline é executado. **Rodar somente o sync não altera o total exibido no app.**
+
 ### 1. Sincronizar os chamados do backend
 
 O ETL não escreve no banco operacional. Os chamados chegam por um sync somente leitura do PostgreSQL do backend para a coleção `chamados_raw` do MongoDB:
@@ -126,13 +128,21 @@ O sync é idempotente: usa o `id` do chamado como `_id`, atualiza registros exis
 
 > O comando de sync lê `BACKEND_DATABASE_URL`. Sem essa variável, ele falha com uma mensagem explícita.
 
-### 2. Executar o pipeline
+### 2. Executar o pipeline completo
 
-Na raiz do repositório, execute:
+Com o ambiente virtual ativado, a partir da pasta `etl/`:
 
-```powershell
+```bash
+cd etl
 python run_etl.py
 ```
+
+No Windows/PowerShell, o comando é o mesmo: `python run_etl.py`.
+
+O pipeline executa, nesta ordem:
+
+1. `run_clima()`: cruza os chamados com os dados climáticos e grava a tabela `chamados_clima`.
+2. `run_populacao()`: agrega os chamados por bairro, cruza com a população do IBGE e grava a tabela `chamados_populacao`.
 
 **Atenção:** a execução pode atualizar ou recriar tabelas finais no Neon. Antes de executar o pipeline novamente em um ambiente compartilhado, confirme as permissões do usuário configurado e as regras de carga descritas neste documento.
 
@@ -144,6 +154,41 @@ O fim da consulta climática é limitado à data atual de Recife. Assim, chamado
 recentes podem ficar sem dados climáticos enquanto a Open-Meteo ainda não
 disponibiliza o histórico; esses valores permanecem nulos e são preenchidos em
 uma execução futura.
+
+### 2.1 Atualizar apenas o Dashboard ETL (população)
+
+Quando o objetivo for apenas refletir chamados novos no **Dashboard ETL do app**, execute somente a etapa de população:
+
+```bash
+cd etl
+python -c "from run_etl import run_populacao; run_populacao()"
+```
+
+Essa etapa:
+
+1. Lê a carga mais recente de `chamados_raw` no MongoDB.
+2. Agrega os chamados por bairro.
+3. Regrava `chamados_populacao` no SQLite local e no Neon.
+
+É mais rápida que o pipeline completo e não consulta a API de clima. Ao final, o log deve exibir algo como:
+
+```text
+Carga mais recente de chamados_raw: 89 registros em ...
+Auditoria população: 89 chamado(s) de entrada e 7 bairro(s) agregados no destino.
+DataFrame carregado com sucesso no PostgreSQL: chamados_populacao
+```
+
+O número em `chamado(s) de entrada` deve ser igual ao total que o dashboard passará a exibir. Para conferir no app, puxe a tela do dashboard para baixo ou toque no ícone de refresh.
+
+### 3. Ordem recomendada para reproduzir uma atualização
+
+```bash
+cd etl
+python -m src.sync_chamados
+python run_etl.py
+```
+
+Se a alteração for apenas em chamados e você não precisar atualizar clima, substitua o segundo comando pela etapa isolada de população mostrada em **2.1**.
 
 ## Histórico das cargas e camada bronze
 
@@ -180,6 +225,10 @@ Essa distinção evita que a ausência de informação seja confundida com um va
 ## Dashboard do Fiscalize
 
 O projeto possui um dashboard desenvolvido com **Streamlit**, que consulta a tabela final `chamados_populacao`, armazenada no PostgreSQL do Neon.
+
+O app mobile também possui a tela **Dashboard ETL**, que consome o endpoint `/dashboard/etl/population` do backend. Esse endpoint lê a mesma tabela `chamados_populacao` no Neon.
+
+Nos dois casos, a tabela precisa ser regravada pela etapa de população do ETL. Apenas rodar o sync de chamados não atualiza esses dashboards.
 
 A aplicação apresenta indicadores e visualizações para facilitar a análise da distribuição dos chamados por bairro.
 
@@ -322,6 +371,21 @@ A execução requer as dependências instaladas, as variáveis de ambiente confi
 Como o fluxo pode realizar cargas no Neon, verifique as permissões do banco antes de executá-lo em um ambiente compartilhado.
 
 ## Troubleshooting
+
+### Dashboard ETL mostra um total menor que o `sync_chamados`
+
+Sintoma: o comando de sync informa, por exemplo, `89 gravado(s)`, mas o Dashboard ETL do app continua mostrando `88`.
+
+Causa: o sync grava apenas no MongoDB (`chamados_raw`). O dashboard lê `chamados_populacao` no Neon, que ainda contém a carga anterior do ETL.
+
+Solução: execute a etapa de população para regravar a tabela final:
+
+```bash
+cd etl
+python -c "from run_etl import run_populacao; run_populacao()"
+```
+
+Depois, no app, puxe a tela do dashboard para baixo ou toque no ícone de refresh. Para atualizar também os dados climáticos, use o pipeline completo: `python run_etl.py`.
 
 ### `ValueError` ao abrir `chamados_raw`
 
