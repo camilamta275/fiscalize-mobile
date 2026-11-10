@@ -1,0 +1,72 @@
+# Created by AI.
+# TC04 - Validação do limite mínimo do campo 'Descrição' (20 caracteres).
+# Fonte: automation/docs/Plano de Testes e Backlog de Automação.md, tabela 4.4
+#   (Análise do Valor Limite: 19 chars inválido, 20 chars válido).
+# Observação: no app mobile não existe a regra de "endereço >= 5 caracteres"
+# do plano (o formulário valida CEP com 8 dígitos), então só a descrição é coberta.
+# Pré-condição: backend rodando com o seed aplicado (cria o cidadão de teste).
+# Credenciais do cidadão do seed (backend/README.md, seção 8.3), no bloco env.
+appId: br.com.fiscalize.mobile
+env:
+  CIDADAO_EMAIL: cidadao@fiscalize.gov.br
+  CIDADAO_SENHA: Cidadao@123456
+
+---
+- launchApp:
+    clearState: true
+
+# Login do cidadão
+- tapOn:
+    id: "login-email"
+- inputText: ${CIDADAO_EMAIL}
+- tapOn:
+    id: "login-password"
+- inputText: ${CIDADAO_SENHA}
+- hideKeyboard
+- tapOn:
+    id: "login-submit"
+- extendedWaitUntil:
+    visible: "Meus Chamados"
+    timeout: 15000
+
+# Abre o formulário de nova ocorrência
+- tapOn: "Registrar nova ocorrência"
+- assertVisible: "Registre um problema urbano"
+
+# Título válido, para isolar a regra da descrição
+- tapOn:
+    id: "demand-title"
+- inputText: "Buraco na via"
+- hideKeyboard
+
+# Valor limite inválido: 19 caracteres
+- tapOn:
+    id: "demand-description"
+- inputText: "Buraco grande na ru"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "demand-submit"
+- tapOn:
+    id: "demand-submit"
+- scrollUntilVisible:
+    element:
+      id: "demand-description"
+    direction: UP
+- assertVisible: "Descrição deve ter no mínimo 20 caracteres"
+
+# Valor limite válido: 20 caracteres (acrescenta 1 caractere ao texto anterior)
+- tapOn:
+    id: "demand-description"
+- inputText: "a"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "demand-submit"
+- tapOn:
+    id: "demand-submit"
+- scrollUntilVisible:
+    element:
+      id: "demand-description"
+    direction: UP
+- assertNotVisible: "Descrição deve ter no mínimo 20 caracteres"
