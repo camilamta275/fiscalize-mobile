@@ -1,0 +1,27 @@
+# Testa a rejeição de credenciais de uma conta inexistente.
+# Keep the app signed out; do not clear app data so trusted-device state is preserved.
+
+appId: br.com.fiscalize.mobile
+
+---
+- launchApp
+
+- assertVisible:
+    id: "login-email"
+
+- tapOn:
+    id: "login-email"
+- inputText: "teste-inexistente@exemplo.com"
+
+- tapOn:
+    id: "login-password"
+- inputText: "SenhaErrada123!"
+- hideKeyboard
+
+- tapOn:
+    id: "login-submit"
+
+- assertVisible: "Credenciais inválidas."
+- assertVisible:
+    id: "login-email"
+- assertNotVisible: "Ocorrências"
