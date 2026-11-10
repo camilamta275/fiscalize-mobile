@@ -1261,3 +1261,15 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Diagnóstico, implementação e validação de regressão.
 - **Tipo de contribuição da IA:** Ajuste do rate limiter para não contar requisições estruturalmente inválidas de cadastro antes da resposta 400.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0105
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `.gitignore`, `mobile/assets/expo.icon/Assets/grid.png`, `mobile/assets/images/*.png`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Removida a regra global `*.png` do .gitignore e versionados os 19 assets do app que estavam ausentes no GitHub.
+- **Tratamento de dados pessoais:** Não houve uso de dados pessoais; apenas arquivos de imagem do app e configuração de versionamento.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Corrigir assets do app ausentes no repositório remoto por regra de ignore excessivamente ampla.
+- **Etapa da atividade:** Diagnóstico, correção da configuração e versionamento dos assets.
+- **Tipo de contribuição da IA:** Identificação da causa, remoção da regra `*.png` e inclusão das imagens de ícone, splash e animação no commit.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
