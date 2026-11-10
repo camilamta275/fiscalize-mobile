@@ -20,6 +20,7 @@ STATUS_DISPLAY = {
 }
 
 # Created by AI.
+# Updated by AI.
 CHAMADOS_QUERY = """
 SELECT
   c.id::text       AS id,
@@ -30,16 +31,22 @@ SELECT
     NULLIF(TRIM(c.bairro), ''),
     NULLIF(TRIM(cid.bairro), '')
   )                AS bairro_original,
+  c.cep,
+  c.rua,
+  c.numero,
+  c.complemento,
   c.cidade,
   c.estado,
   c.latitude,
   c.longitude,
   c.criadoem,
+  c.atualizadoem,
   c.status,
   c.prioridade
 FROM chamado c
 JOIN categoria cat ON cat.id = c.categoriaid
 LEFT JOIN cidadao cid ON cid.id = c.cidadaoid
+WHERE c.excluidoem IS NULL
 ORDER BY c.criadoem
 """
 
@@ -123,12 +130,22 @@ class SyncChamados:
         frame["bairro"] = frame["bairro_original"].map(normalize_bairro)
 
         frame["criadoem"] = pd.to_datetime(frame["criadoem"], utc=True)
+        if "atualizadoem" in frame.columns:
+            frame["atualizadoem"] = pd.to_datetime(
+                frame["atualizadoem"],
+                utc=True,
+            )
         frame["data_chamado"] = (
             frame["criadoem"]
             .dt.tz_convert("America/Recife")
             .dt.strftime("%Y-%m-%d")
         )
         frame["criadoem"] = frame["criadoem"].dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+        if "atualizadoem" in frame.columns:
+            frame["atualizadoem"] = (
+                frame["atualizadoem"]
+                .dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+            )
         frame["status"] = frame["status"].map(
             lambda value: STATUS_DISPLAY.get(str(value), str(value))
         )

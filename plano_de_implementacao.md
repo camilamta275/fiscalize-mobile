@@ -925,3 +925,19 @@ etl/data/chamados.json                               # apenas fixture de teste
 ## 15. Resumo em uma frase
 
 O app passa a capturar endereço estruturado + coordenadas automáticas **somente no chamado**; o backend salva isso no chamado (o cadastro do cidadão fica como está); um job de sync copia somente os campos analíticos para `chamados_raw` no Mongo; o ETL lê essa coleção e cruza cada chamado com o clima **pela data local de Recife** e com a população do IBGE **pelo bairro normalizado**.
+
+---
+
+## 16. Atualização — camadas silver/gold, soft delete e clima no dashboard
+
+<!-- Created by AI. -->
+
+Esta seção substitui, para os itens abaixo, as decisões anteriores do plano.
+
+- **Soft delete:** a tabela `chamado` ganhou `excluidoem`. Os chamados legados sem bairro foram marcados como excluídos (e fechados) pela migration `20261110000000_add_chamado_soft_delete`. Consultas de chamados, métricas e exportação de dados pessoais filtram `excluidoem IS NULL`; o DELETE passa a preencher `excluidoem`.
+- **Bronze:** o MongoDB continua sendo a única camada bronze (`chamados_raw`, `clima_raw`, `populacao_ibge_raw`).
+- **Silver:** novas tabelas persistidas no SQLite e no Neon: `silver_chamado`, `silver_clima_diario` e `silver_bairro_populacao`.
+- **Gold:** `chamados_clima`, `chamados_populacao` e a nova `chamados_clima_diario` são geradas exclusivamente a partir da silver.
+- **Dashboard:** a decisão de não alterar o dashboard foi substituída. O Streamlit agora exibe indicadores climáticos, dois gráficos de eixo duplo (chamados × precipitação e chamados × temperatura) e a tabela diária `chamados_clima_diario` no Neon.
+- **Carga no Neon:** substituído `if_exists="replace"` por `DELETE` + `INSERT` na mesma transação, sem exigir propriedade da tabela.
+- **Sync:** a query de chamados passou a filtrar `c.excluidoem IS NULL` e a trazer `cep`, `rua`, `numero`, `complemento` e `atualizadoem`.
