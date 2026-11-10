@@ -1,0 +1,122 @@
+# Created by AI.
+# TC12 - Registro de novo cidadão com validações de dados e aceite LGPD.
+# Fonte: automation/docs/Saidas do Plano de Testes e Backlog/Casos de teste IA/saída-rodada-2.md
+# Pré-condição: backend rodando (o passo final cria a conta de verdade).
+appId: br.com.fiscalize.mobile
+
+---
+- launchApp:
+    clearState: true
+
+# E-mail único por execução, para não colidir com contas de execuções anteriores
+- evalScript: ${output.email = 'tc12.' + Date.now() + '@exemplo.com'}
+
+- tapOn: "Não tem conta? Criar conta"
+- assertVisible: "Cadastro de cidadão"
+
+# Dados pessoais
+- tapOn:
+    id: "register-nome"
+- inputText: "Cidadao Teste TC12"
+- hideKeyboard
+- tapOn:
+    id: "register-email"
+- inputText: ${output.email}
+- hideKeyboard
+- tapOn:
+    id: "register-cpf"
+- inputText: "12345678909"
+- hideKeyboard
+- tapOn:
+    id: "register-data-nascimento"
+- inputText: "01011990"
+- hideKeyboard
+
+# Endereço (CEP por último, porque ele dispara a busca automática no ViaCEP)
+- scrollUntilVisible:
+    element:
+      id: "register-rua"
+    centerElement: true
+- tapOn:
+    id: "register-rua"
+- inputText: "Rua das Flores"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "register-numero"
+    centerElement: true
+- tapOn:
+    id: "register-numero"
+- inputText: "123"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "register-bairro"
+    centerElement: true
+- tapOn:
+    id: "register-bairro"
+- inputText: "Boa Vista"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "register-cidade"
+    centerElement: true
+- tapOn:
+    id: "register-cidade"
+- inputText: "Recife"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "register-estado"
+    centerElement: true
+- tapOn:
+    id: "register-estado"
+- inputText: "PE"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "register-cep"
+    centerElement: true
+- tapOn:
+    id: "register-cep"
+- inputText: "50050000"
+- hideKeyboard
+
+# Acesso
+- scrollUntilVisible:
+    element:
+      id: "register-senha"
+    centerElement: true
+- tapOn:
+    id: "register-senha"
+- inputText: "TesteValido123!"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "register-confirmar-senha"
+    centerElement: true
+- tapOn:
+    id: "register-confirmar-senha"
+- inputText: "TesteValido123!"
+- hideKeyboard
+
+# Passo 2 e 3: tentar cadastrar SEM aceitar a Política de Privacidade
+- scrollUntilVisible:
+    element:
+      id: "register-submit"
+- tapOn:
+    id: "register-submit"
+- assertVisible: "Aceite a Política de Privacidade para criar sua conta"
+- assertNotVisible: "Conta criada!"
+
+# Passo 4 e 5: aceitar a Política e cadastrar
+# Toca no quadrado do checkbox (o centro da linha cai no link da Política)
+- tapOn:
+    id: "register-privacy-checkbox-box"
+- tapOn:
+    id: "register-submit"
+- extendedWaitUntil:
+    visible: "Conta criada!"
+    timeout: 15000
+- assertVisible:
+    id: "register-success-login"
