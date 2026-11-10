@@ -87,7 +87,6 @@ automation/reports/
 *.pyc
 *.pyo
 *.pyd
-*.png
 *.coverage
 *.DS_Store
 

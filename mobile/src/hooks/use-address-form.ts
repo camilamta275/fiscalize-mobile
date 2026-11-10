@@ -1,5 +1,5 @@
 // Created by AI.
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import {
   AddressServiceError,
@@ -27,6 +27,21 @@ const EMPTY_ADDRESS: AddressFields = {
   complemento: '',
 };
 
+/**
+ * Campos que compõem o endereço usado na geocodificação. Alterar qualquer um
+ * deles invalida a coordenada atual e agenda uma nova resolução.
+ */
+const GEOCODE_FIELDS: readonly (keyof AddressFields)[] = [
+  'rua',
+  'numero',
+  'bairro',
+  'cidade',
+  'estado',
+];
+
+/** Espera o usuário parar de digitar antes de chamar o geocoder. */
+const GEOCODE_DEBOUNCE_MS = 600;
+
 type UseAddressFormOptions = {
   requireNumero?: boolean;
   requireCoordinates?: boolean;
@@ -48,18 +63,43 @@ export function useAddressForm({
   const [isCapturingLocation, setIsCapturingLocation] = useState(false);
   const [isResolvingCoords, setIsResolvingCoords] = useState(false);
 
-  // Updated by AI.
-  const updateField = useCallback((field: keyof AddressFields, value: string) => {
-    setAddressState((previous) => ({ ...previous, [field]: value }));
-    if (field !== 'complemento') {
-      setCoords(null);
-      setCoordinatesError(null);
+  /**
+   * `addressRef` mantém sempre a versão mais recente do endereço para os
+   * callbacks assíncronos (busca de CEP e geocodificação), evitando que um
+   * closure antigo sobrescreva o que o usuário acabou de digitar.
+   */
+  const addressRef = useRef<AddressFields>(EMPTY_ADDRESS);
+  const geocodeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const geocodeRequestRef = useRef(0);
+
+  useEffect(() => {
+    return () => {
+      if (geocodeTimerRef.current) clearTimeout(geocodeTimerRef.current);
+    };
+  }, []);
+
+  const commitAddress = useCallback((next: AddressFields) => {
+    addressRef.current = next;
+    setAddressState(next);
+  }, []);
+
+  const cancelScheduledGeocode = useCallback(() => {
+    if (geocodeTimerRef.current) {
+      clearTimeout(geocodeTimerRef.current);
+      geocodeTimerRef.current = null;
     }
   }, []);
 
-  const setAddress = useCallback((next: Partial<AddressFields>) => {
-    setAddressState((previous) => ({ ...previous, ...next }));
-  }, []);
+  /**
+   * Descarta uma geocodificação em andamento/agendada. Incrementar o token
+   * garante que uma resposta atrasada não sobrescreva coordenadas mais novas
+   * (por exemplo, as obtidas pelo GPS).
+   */
+  const invalidateGeocoding = useCallback(() => {
+    cancelScheduledGeocode();
+    geocodeRequestRef.current += 1;
+    setIsResolvingCoords(false);
+  }, [cancelScheduledGeocode]);
 
   const applyCoordinates = useCallback((next: Coordinates | null) => {
     if (next && hasValidCoordinates(next)) {
@@ -70,22 +110,80 @@ export function useAddressForm({
     setCoords(null);
   }, []);
 
-  const resolveCoordinates = useCallback(async (nextAddress: AddressFields) => {
-    setIsResolvingCoords(true);
-    setCoordinatesError(null);
-    try {
-      const nextCoords = await geocodeAddress(nextAddress);
-      if (nextCoords) {
-        applyCoordinates(nextCoords);
-      } else {
-        setCoordinatesError(
-          'Não foi possível obter as coordenadas pelo CEP. Use sua localização atual.'
-        );
+  const resolveCoordinates = useCallback(
+    async (nextAddress: AddressFields) => {
+      const requestId = geocodeRequestRef.current + 1;
+      geocodeRequestRef.current = requestId;
+
+      setIsResolvingCoords(true);
+      setCoordinatesError(null);
+
+      try {
+        const nextCoords = await geocodeAddress(nextAddress);
+        if (geocodeRequestRef.current !== requestId) return;
+
+        if (nextCoords) {
+          applyCoordinates(nextCoords);
+        } else {
+          setCoords(null);
+          setCoordinatesError(
+            'Não foi possível obter as coordenadas pelo endereço informado. Revise o número ou use sua localização atual.'
+          );
+        }
+      } finally {
+        if (geocodeRequestRef.current === requestId) {
+          setIsResolvingCoords(false);
+        }
       }
-    } finally {
-      setIsResolvingCoords(false);
-    }
-  }, [applyCoordinates]);
+    },
+    [applyCoordinates]
+  );
+
+  const scheduleGeocode = useCallback(
+    (nextAddress: AddressFields) => {
+      cancelScheduledGeocode();
+      if (onlyDigits(nextAddress.cep).length !== 8) return;
+
+      geocodeTimerRef.current = setTimeout(() => {
+        geocodeTimerRef.current = null;
+        void resolveCoordinates(nextAddress);
+      }, GEOCODE_DEBOUNCE_MS);
+    },
+    [cancelScheduledGeocode, resolveCoordinates]
+  );
+
+  // Updated by AI.
+  const updateField = useCallback(
+    (field: keyof AddressFields, value: string) => {
+      const nextAddress = { ...addressRef.current, [field]: value };
+      commitAddress(nextAddress);
+
+      if (field === 'complemento') return;
+
+      setCoordinatesError(null);
+      invalidateGeocoding();
+
+      const hasCep = onlyDigits(nextAddress.cep).length === 8;
+      if (!hasCep) {
+        // Sem CEP válido não há como recalcular; evita manter uma coordenada
+        // que não corresponde mais ao endereço digitado.
+        setCoords(null);
+        return;
+      }
+
+      if (requireCoordinates && GEOCODE_FIELDS.includes(field)) {
+        scheduleGeocode(nextAddress);
+      }
+    },
+    [commitAddress, invalidateGeocoding, requireCoordinates, scheduleGeocode]
+  );
+
+  const setAddress = useCallback(
+    (next: Partial<AddressFields>) => {
+      commitAddress({ ...addressRef.current, ...next });
+    },
+    [commitAddress]
+  );
 
   const resolveCep = useCallback(
     async (rawCep: string) => {
@@ -95,16 +193,18 @@ export function useAddressForm({
 
       try {
         const result = await lookupCep(rawCep);
+        const previous = addressRef.current;
         const nextAddress: AddressFields = {
-          ...address,
+          ...previous,
           cep: formatCepInput(result.cep),
-          rua: result.rua || address.rua,
-          bairro: result.bairro || address.bairro,
-          cidade: result.cidade || address.cidade,
-          estado: result.estado || address.estado,
+          rua: result.rua || previous.rua,
+          bairro: result.bairro || previous.bairro,
+          cidade: result.cidade || previous.cidade,
+          estado: result.estado || previous.estado,
         };
 
-        setAddressState(nextAddress);
+        commitAddress(nextAddress);
+        invalidateGeocoding();
         await resolveCoordinates(nextAddress);
       } catch (error) {
         setCepError(
@@ -114,22 +214,24 @@ export function useAddressForm({
         setIsLookingUpCep(false);
       }
     },
-    [address, resolveCoordinates]
+    [commitAddress, invalidateGeocoding, resolveCoordinates]
   );
 
   const handleCepChange = useCallback(
     (value: string) => {
       const formatted = formatCepInput(value);
-      setAddressState((previous) => ({ ...previous, cep: formatted }));
+      commitAddress({ ...addressRef.current, cep: formatted });
+
       setCoords(null);
       setCoordinatesError(null);
       setCepError(null);
+      invalidateGeocoding();
 
       if (onlyDigits(formatted).length === 8) {
         void resolveCep(formatted);
       }
     },
-    [resolveCep]
+    [commitAddress, invalidateGeocoding, resolveCep]
   );
 
   const captureCurrentLocation = useCallback(async () => {
@@ -140,7 +242,8 @@ export function useAddressForm({
     try {
       const { address: current, coords: nextCoords } = await getCurrentAddress();
 
-      setAddressState((previous) => ({
+      const previous = addressRef.current;
+      commitAddress({
         ...previous,
         cep: current.cep ? formatCepInput(current.cep) : previous.cep,
         rua: current.rua || previous.rua,
@@ -148,7 +251,8 @@ export function useAddressForm({
         bairro: current.bairro || previous.bairro,
         cidade: current.cidade || previous.cidade,
         estado: current.estado || previous.estado,
-      }));
+      });
+      invalidateGeocoding();
       applyCoordinates(nextCoords);
     } catch (error) {
       setAddressError(
@@ -157,7 +261,7 @@ export function useAddressForm({
     } finally {
       setIsCapturingLocation(false);
     }
-  }, [applyCoordinates]);
+  }, [applyCoordinates, commitAddress, invalidateGeocoding]);
 
   const validate = useCallback((): AddressFieldErrors => {
     const errors: AddressFieldErrors = {};
