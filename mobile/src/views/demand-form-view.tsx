@@ -309,7 +309,6 @@ export function DemandFormView({ demandId }: { demandId?: string }) {
           {error ? <InlineMessage message={error} /> : null}
 
           <Button
-            icon={isEditing ? Icons.check : Icons.send}
             loading={isSubmitting}
             onPress={submit}
             title={isEditing ? 'Salvar alterações' : 'Criar ocorrência'}

@@ -109,31 +109,47 @@ export async function lookupCep(rawCep: string): Promise<CepResult> {
 }
 
 // Created by AI.
-export async function geocodeAddress(address: AddressFields): Promise<Coordinates | null> {
-  const query = [
+function buildGeocodeQuery(address: AddressFields, includeNumero: boolean): string {
+  return [
     address.rua,
-    address.numero,
+    includeNumero ? address.numero : '',
     address.bairro,
     [address.cidade, address.estado].filter(Boolean).join(' - '),
     onlyDigits(address.cep),
   ]
     .filter((part) => part.trim().length > 0)
     .join(', ');
+}
 
-  if (query.length === 0) return null;
+// Created by AI.
+export async function geocodeAddress(address: AddressFields): Promise<Coordinates | null> {
+  const queries = [buildGeocodeQuery(address, true)];
 
-  try {
-    const [result] = await Location.geocodeAsync(query);
-    if (!result) return null;
-
-    const coords = { latitude: result.latitude, longitude: result.longitude };
-    return hasValidCoordinates(coords) ? coords : null;
-  } catch {
-    // Android exige permissão de localização para geocodificar. Se não houver
-    // permissão (ou o aparelho não encontrar o endereço), o usuário ainda pode
-    // usar o botão de localização atual.
-    return null;
+  // Alguns geocoders não reconhecem o número exato e devolvem uma lista vazia.
+  // Nesse caso tentamos o logradouro para ainda obter uma coordenada válida em
+  // vez de deixar o formulário sem latitude/longitude.
+  if (address.numero.trim()) {
+    queries.push(buildGeocodeQuery(address, false));
   }
+
+  for (const query of queries) {
+    if (query.length === 0) continue;
+
+    try {
+      const [result] = await Location.geocodeAsync(query);
+      if (!result) continue;
+
+      const coords = { latitude: result.latitude, longitude: result.longitude };
+      if (hasValidCoordinates(coords)) return coords;
+    } catch {
+      // Android exige permissão de localização para geocodificar. Se não houver
+      // permissão (ou o aparelho não encontrar o endereço), o usuário ainda pode
+      // usar o botão de localização atual.
+      return null;
+    }
+  }
+
+  return null;
 }
 
 // Created by AI.
