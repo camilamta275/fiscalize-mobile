@@ -144,7 +144,6 @@ export function RegisterView() {
               value={nome}
             />
             <TextField
-              testID="register-email"
               autoCapitalize="none"
               testID="register-email"
               error={fieldErrors.email}
@@ -213,7 +212,6 @@ export function RegisterView() {
             />
             <View style={styles.twoColumns}>
               <TextField
-                testID="register-numero"
                 containerStyle={styles.flex}
                 testID="register-numero"
                 error={fieldErrors.numero}
@@ -223,7 +221,6 @@ export function RegisterView() {
                 value={numero}
               />
               <TextField
-                testID="register-bairro"
                 containerStyle={styles.flex}
                 testID="register-bairro"
                 error={fieldErrors.bairro}
@@ -235,7 +232,6 @@ export function RegisterView() {
             </View>
             <View style={styles.twoColumns}>
               <TextField
-                testID="register-cidade"
                 containerStyle={styles.flex}
                 testID="register-cidade"
                 error={fieldErrors.cidade}
@@ -245,7 +241,6 @@ export function RegisterView() {
                 value={cidade}
               />
               <TextField
-                testID="register-estado"
                 autoCapitalize="none"
                 containerStyle={styles.uf}
                 testID="register-estado"
@@ -268,7 +263,6 @@ export function RegisterView() {
           <Card style={styles.card}>
             <SectionTitle icon={Icons.lock} title="Acesso" />
             <TextField
-              testID="register-senha"
               autoCapitalize="none"
               testID="register-senha"
               error={fieldErrors.senha}
@@ -279,7 +273,6 @@ export function RegisterView() {
               value={senha}
             />
             <TextField
-              testID="register-confirmar-senha"
               autoCapitalize="none"
               testID="register-confirmar-senha"
               error={fieldErrors.confirmarSenha}
@@ -332,7 +325,6 @@ export function RegisterView() {
           {error ? <InlineMessage message={error} /> : null}
 
           <Button
-            testID="register-submit"
             icon={Icons.check}
             loading={isSubmitting}
             onPress={submit}
