@@ -26,3 +26,15 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Ajuste da validação local, criação do fluxo E2E e revisão.
 - **Tipo de contribuição da IA:** Atualização do viewmodel, inclusão de seletores de teste e criação de cenário Maestro.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0002
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Lucas Rodrigues
+- **Arquivo / Arquivos alterado(s):** `automation/tests/api/tests/test_mfa_otp.py`, `USO_IA/Lucas-Rodrigues.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Teste de bloqueio MFA ajustado para permitir 429 apenas na quinta falha e validar o estado persistido do desafio.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais; o teste usa dados sintéticos.
+- **Alterado pela IA (nome da IA, versão da IA):** GitHub Copilot no VS Code ChatGPT Luna 6
+- **Finalidade do uso da IA:** Corrigir a expectativa de status HTTP no teste de bloqueio de OTP.
+- **Etapa da atividade:** Ajuste e validação de teste de integração da API.
+- **Tipo de contribuição da IA:** Análise do resultado CI, edição do teste e validação de sintaxe Python.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
