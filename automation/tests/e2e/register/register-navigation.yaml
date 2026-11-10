@@ -1,0 +1,21 @@
+appId: br.com.fiscalize.mobile
+
+# Created by AI.
+---
+- launchApp
+
+- tapOn: "Não tem conta? Criar conta"
+
+- assertVisible: "Criar conta"
+- assertVisible: "Dados pessoais"
+- assertVisible: "Nome completo"
+- assertVisible: "Já tem conta? Entrar"
+
+- tapOn: "Política de Privacidade"
+
+- assertVisible: "Política de Privacidade"
+- assertVisible: "Leia o documento antes de decidir sobre o consentimento."
+- tapOn: "Fechar"
+
+- assertVisible: "Criar conta"
+- assertNotVisible: "Leia o documento antes de decidir sobre o consentimento."

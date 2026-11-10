@@ -141,7 +141,21 @@ sem a migration de MFA, os cenários afetados são *skipped* com mensagem acion�
 `FISCALIZE_TEST_TOKEN` reaproveita um token obtido à mão e
 `FISCALIZE_TEST_DEVICE_ID` muda o sufixo do identificador de dispositivo.
 
-## 7. Relatórios de execução
+## 7. Executando os testes E2E mobile
+
+Os fluxos E2E mobile usam o Maestro e ficam em
+[`tests/e2e/`](tests/e2e/). Com o aplicativo instalado no dispositivo ou
+emulador, execute o fluxo de navegação do cadastro com:
+
+```bash
+maestro test tests/e2e/register/register-navigation.yaml
+```
+
+O fluxo valida a navegação da tela de login para o cadastro e a abertura e o
+fechamento da Política de Privacidade, sem depender de credenciais ou de dados
+persistidos no backend.
+
+## 8. Relatórios de execução
 
 O `pytest.ini` já escreve dois relatórios em `automation/reports/` (criado
 automaticamente): o HTML autocontido `api-report.html` e o JUnit XML
@@ -156,7 +170,7 @@ O workflow publica esses arquivos como artefatos, com a estrutura
 workflow abre ou atualiza uma issue `falha-ci` com o link da execução e dos
 artefatos.
 
-## 8. Relatórios de qualidade
+## 9. Relatórios de qualidade
 
 Cada execução relevante (push, pull request e agendamento) consolida as métricas e
 gera dois HTML autocontidos:
