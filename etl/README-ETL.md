@@ -4,7 +4,7 @@
 
 ETLs desenvolvidas para enriquecer os dados de chamados urbanos do Fiscalize com fontes públicas externas: condições climáticas, obtidas pela Open-Meteo, e população por bairro, obtida do Censo Demográfico 2022 do IBGE.
 
-Os dados brutos são armazenados no MongoDB, enquanto os dados transformados são carregados no SQLite e no Neon (PostgreSQL). O projeto também disponibiliza um dashboard desenvolvido com Streamlit para visualizar os dados consolidados de chamados por bairro.
+Os dados brutos são armazenados no MongoDB (camada **bronze**), as tabelas normalizadas são gravadas no SQLite e no Neon (camada **silver**) e as tabelas agregadas consumidas pelo dashboard também ficam no SQLite e no Neon (camada **gold**). O projeto disponibiliza um dashboard em Streamlit com chamados por bairro e a relação entre clima e chamados por dia.
 
 ## Pré-requisitos
 
@@ -39,7 +39,7 @@ fiscalize-mobile/
     │   ├── normalize.py             # Normalização de bairros para o padrão IBGE
     │   ├── seed_mongo.py            # Funções para popular as coleções brutas
     │   ├── sync_chamados.py         # Sync backend PostgreSQL → `chamados_raw`
-    │   └── transform.py             # Transformação e cruzamento dos dados
+    │   └── transform.py             # Camadas silver e gold (normalização e agregação)
     ├── run_etl.py                   # Ponto de entrada do pipeline
     ├── flow_etl.py                  # Orquestração do pipeline com Prefect
     ├── requirements.txt             # Dependências do ETL e dashboard
@@ -141,10 +141,12 @@ No Windows/PowerShell, o comando é o mesmo: `python run_etl.py`.
 
 O pipeline executa, nesta ordem:
 
-1. `run_clima()`: cruza os chamados com os dados climáticos e grava a tabela `chamados_clima`.
-2. `run_populacao()`: agrega os chamados por bairro, cruza com a população do IBGE e grava a tabela `chamados_populacao`.
+1. **Bronze:** lê `chamados_raw` (sync do backend) e garante as cargas brutas de clima (`clima_raw`) e população (`populacao_ibge_raw`) no MongoDB.
+2. **Silver:** monta `silver_chamado`, `silver_clima_diario` e `silver_bairro_populacao`.
+3. **Gold:** gera `chamados_clima`, `chamados_populacao` e `chamados_clima_diario` exclusivamente a partir das tabelas silver.
+4. **Load:** grava silver e gold no SQLite local e no Neon.
 
-**Atenção:** a execução pode atualizar ou recriar tabelas finais no Neon. Antes de executar o pipeline novamente em um ambiente compartilhado, confirme as permissões do usuário configurado e as regras de carga descritas neste documento.
+**Atenção:** a execução apaga e regrava as linhas das tabelas finais no Neon (sem `DROP TABLE`). Confirme as permissões do usuário configurado antes de executar em um ambiente compartilhado.
 
 O pipeline utiliza as funções de extração, transformação e carga implementadas nos módulos de `etl/src/`.
 
@@ -167,14 +169,15 @@ python -c "from run_etl import run_populacao; run_populacao()"
 Essa etapa:
 
 1. Lê a carga mais recente de `chamados_raw` no MongoDB.
-2. Agrega os chamados por bairro.
-3. Regrava `chamados_populacao` no SQLite local e no Neon.
+2. Regrava `silver_chamado` e `silver_bairro_populacao`.
+3. Agrega os chamados por bairro e regrava a gold `chamados_populacao` no SQLite local e no Neon.
 
 É mais rápida que o pipeline completo e não consulta a API de clima. Ao final, o log deve exibir algo como:
 
 ```text
-Carga mais recente de chamados_raw: 89 registros em ...
-Auditoria população: 89 chamado(s) de entrada e 7 bairro(s) agregados no destino.
+Carga mais recente de chamados_raw: 22 registros em ...
+Camada silver de chamados montada: 22 registro(s), 0 sem bairro, 1 sem coordenada válida.
+Gold chamados_populacao gerada com sucesso!
 DataFrame carregado com sucesso no PostgreSQL: chamados_populacao
 ```
 
@@ -202,6 +205,18 @@ Esse procedimento permite preservar o histórico das cargas brutas e utilizar a 
 
 A seleção da última carga deve ser distinguida da atualização das tabelas finais: a preservação do histórico bruto não significa, por si só, que as tabelas finais sejam incrementais.
 
+### Camadas silver e gold
+
+| Camada | Onde fica | Tabelas | Papel |
+|---|---|---|---|
+| Bronze | MongoDB | `chamados_raw`, `clima_raw`, `populacao_ibge_raw` | Dados como vieram das fontes, com `data_extracao` |
+| Silver | SQLite e Neon | `silver_chamado`, `silver_clima_diario`, `silver_bairro_populacao` | Dados normalizados, uma linha por entidade/dia/bairro |
+| Gold | SQLite e Neon | `chamados_clima`, `chamados_populacao`, `chamados_clima_diario` | Dados agregados e cruzados para o dashboard |
+
+`silver_chamado` já chega sem os chamados soft-deleted: o sync filtra `excluidoem IS NULL` no backend. A gold `chamados_clima_diario` é a tabela que efetivamente usa a série diária da Open-Meteo: cada linha traz data, temperatura média, precipitação e quantidade de chamados naquele dia.
+
+O carregamento no Neon apaga as linhas da tabela e insere a nova carga na mesma transação. Isso evita `DROP TABLE`/`TRUNCATE`, que exigiriam ser proprietário da tabela.
+
 ### Integridade dos registros
 
 A transformação deve considerar todos os itens relevantes recebidos das fontes, evitando índices fixos que descartem dados, como o uso indevido de `[0]` em listas que representam múltiplos registros.
@@ -224,7 +239,7 @@ Essa distinção evita que a ausência de informação seja confundida com um va
 
 ## Dashboard do Fiscalize
 
-O projeto possui um dashboard desenvolvido com **Streamlit**, que consulta a tabela final `chamados_populacao`, armazenada no PostgreSQL do Neon.
+O projeto possui um dashboard desenvolvido com **Streamlit**, que consulta as tabelas gold `chamados_populacao` e `chamados_clima_diario`, armazenadas no PostgreSQL do Neon.
 
 O app mobile também possui a tela **Dashboard ETL**, que consome o endpoint `/dashboard/etl/population` do backend. Esse endpoint lê a mesma tabela `chamados_populacao` no Neon.
 
@@ -240,8 +255,11 @@ A aplicação apresenta indicadores e visualizações para facilitar a análise 
 - **Média por 1.000 habitantes:** apresenta a média do indicador `chamados_por_1000` nos registros considerados.
 - **Gráfico de barras:** mostra a quantidade de chamados por bairro.
 - **Tabela de dados:** apresenta os registros utilizados nas visualizações.
+- **Clima x chamados por dia:** dois gráficos de eixo duplo cruzam a quantidade diária de chamados com a precipitação e com a temperatura média da Open-Meteo.
+- **Indicadores climáticos:** chamados no período, precipitação acumulada e temperatura média.
+- **Tabela diária de clima:** apresenta data, temperatura, precipitação e chamados de `chamados_clima_diario`.
 
-Os indicadores e as visualizações são atualizados conforme o filtro selecionado.
+Os indicadores e as visualizações de bairro são atualizados conforme o filtro selecionado. O clima é da cidade do Recife e não muda com o filtro de bairro.
 
 ### Executar o dashboard
 
@@ -257,7 +275,7 @@ O Streamlit disponibilizará o dashboard no navegador, normalmente em:
 http://localhost:8501
 ```
 
-A aplicação depende de uma conexão válida com o Neon e da existência da tabela `chamados_populacao`.
+A aplicação depende de uma conexão válida com o Neon e da existência das tabelas `chamados_populacao` e `chamados_clima_diario`.
 
 ## Evidências de execução
 
@@ -290,9 +308,9 @@ Relacionar os chamados urbanos às condições climáticas do período em que fo
 
 1. **Sync:** copia os chamados do PostgreSQL do backend para `chamados_raw` (executado antes do pipeline).
 2. **Extract:** consulta os dados climáticos da Open-Meteo apenas quando a série carregada não cobre o intervalo real dos chamados.
-3. **Transform:** organiza as datas, temperaturas e precipitações em registros estruturados.
-4. **Merge:** relaciona os dados climáticos aos chamados por data, usando a data local de Recife.
-5. **Load:** grava os dados brutos no MongoDB e os dados cruzados nos destinos configurados.
+3. **Silver:** organiza datas, temperaturas e precipitações em `silver_clima_diario`, uma linha por dia.
+4. **Gold:** cruza `silver_chamado` com `silver_clima_diario` pela data local de Recife, gerando `chamados_clima`, e agrega os chamados por dia em `chamados_clima_diario`.
+5. **Load:** grava o bruto no MongoDB e as tabelas silver/gold no SQLite e no Neon.
 
 ### Modelo conceitual da tabela final
 
@@ -307,8 +325,18 @@ Os valores da tabela são exemplos ilustrativos do formato esperado, não necess
 ### Destinos
 
 - MongoDB: coleção `clima_raw`, com dados brutos.
-- SQLite: tabela `chamados_clima`.
-- Neon: tabela `chamados_clima`, quando a carga no PostgreSQL é executada com sucesso.
+- Silver: `silver_clima_diario` no SQLite e no Neon.
+- Gold: `chamados_clima` e `chamados_clima_diario` no SQLite e no Neon.
+
+### Modelo conceitual da tabela diária
+
+| Data | Temperatura | Precipitação | Chamados |
+|---|---:|---:|---:|
+| 2026-11-04 | 27,9 °C | 0,6 mm | 0 |
+| 2026-11-05 | 28,0 °C | 0,0 mm | 1 |
+| 2026-11-07 | 28,2 °C | 1,0 mm | 20 |
+
+Os valores ilustram o formato da tabela `chamados_clima_diario`, consumida pelos gráficos de clima do dashboard.
 
 ## ETL de População
 
@@ -329,9 +357,9 @@ A principal métrica gerada é a quantidade de chamados para cada 1.000 habitant
 
 1. **Sync:** garante que `chamados_raw` contém os chamados atuais do backend.
 2. **Extract:** obtém os dados de população do IBGE.
-3. **Transform:** seleciona as colunas necessárias, filtra os bairros de Recife e padroniza os nomes.
-4. **Merge:** relaciona os chamados à população dos bairros.
-5. **Load:** grava os dados brutos e os dados consolidados nos destinos configurados.
+3. **Silver:** seleciona as colunas necessárias, filtra os bairros de Recife e padroniza os nomes em `silver_bairro_populacao`.
+4. **Gold:** agrega `silver_chamado` por bairro e cruza com `silver_bairro_populacao` para gerar `chamados_populacao`.
+5. **Load:** grava os dados brutos e as tabelas silver/gold nos destinos configurados.
 
 ### Modelo conceitual da tabela final
 
@@ -346,8 +374,8 @@ Os valores ilustram o formato da tabela e não substituem a consulta aos dados a
 ### Destinos
 
 - MongoDB: coleção `populacao_ibge_raw`, com dados brutos.
-- SQLite: tabela `chamados_populacao`.
-- Neon: tabela `chamados_populacao`, utilizada pelo dashboard.
+- Silver: `silver_bairro_populacao` no SQLite e no Neon.
+- Gold: `chamados_populacao` no SQLite e no Neon, utilizada pelos dashboards.
 
 ## Orquestração com Prefect
 
@@ -358,7 +386,11 @@ O fluxo executa, nesta ordem:
 1. `Sincronizar chamados do backend`: `SyncChamados.run()` lê o PostgreSQL do backend e atualiza `chamados_raw`.
 2. `Ler chamados`: lê `chamados_raw` e calcula o intervalo de datas necessário.
 3. `Garantir clima no intervalo`: consulta a Open-Meteo somente se a série climática existente não cobrir o intervalo.
-4. `extrair_mongo`, `transformar_*`, `cruzar_*` e cargas no SQLite/Neon.
+4. `Garantir população do IBGE`: baixa a população apenas quando `populacao_ibge_raw` estiver vazia.
+5. `Construir camada silver`: monta `silver_chamado`, `silver_clima_diario` e `silver_bairro_populacao`.
+6. `Carregar no SQLite` e `Carregar no Neon` da silver.
+7. `Construir camada gold`: gera `chamados_clima`, `chamados_populacao` e `chamados_clima_diario` a partir da silver.
+8. `Carregar no SQLite` e `Carregar no Neon` da gold.
 
 Para executar o fluxo, a partir da raiz do repositório:
 
@@ -418,10 +450,10 @@ Se a coleção possuir apenas cargas antigas sem o campo `data_extracao`, pode s
 
 ### Erro `must be owner of table` ao carregar no Neon
 
-O carregamento atual utiliza `if_exists="replace"` para recriar tabelas finais. Essa operação pode exigir que o usuário conectado seja proprietário das tabelas.
+O carregamento atual **não usa mais** `if_exists="replace"`. Para cada tabela, o ETL executa `DELETE` das linhas e insere a nova carga na mesma transação. Isso funciona com usuários que têm `SELECT`/`INSERT`/`DELETE`, mesmo sem serem proprietários da tabela.
 
-Foi registrado anteriormente um erro de permissão na tabela `chamados_clima`: o usuário conectado era `time_desenvolvimento`, enquanto o proprietário da tabela era `neondb_owner`.
+Se ainda aparecer erro de permissão:
 
-Para resolver o problema, é necessário utilizar uma conexão com as permissões adequadas ou solicitar ao responsável pelo banco que ajuste a propriedade e as permissões das tabelas.
-
-Até que isso seja resolvido, não considere uma execução do pipeline concluída com sucesso apenas porque a conexão com o Neon foi estabelecida.
+1. Confirme que o usuário de `DATABASE_URL` tem `INSERT` e `DELETE` na tabela.
+2. Tabelas novas (`silver_*`, `chamados_clima_diario`) são criadas pelo próprio usuário do ETL.
+3. Para tabelas antigas criadas por outro papel (por exemplo, `neondb_owner`), peça ao responsável pelo banco para conceder `INSERT` e `DELETE` ao usuário do ETL. `TRUNCATE` não é necessário.

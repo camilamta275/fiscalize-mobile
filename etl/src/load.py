@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 import pandas as pd
 from pymongo import MongoClient, UpdateOne
 from pymongo.server_api import ServerApi
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 
 from src.config import DATABASE_URL, MONGO_DATABASE, MONGODB_URI, SQLITE_DATABASE
 
@@ -162,19 +162,38 @@ class Load:
         """
         Carrega o DataFrame transformado em uma tabela PostgreSQL.
 
-        Parâmetros:
-            df: DataFrame com os dados transformados.
-            table_name: nome da tabela no PostgreSQL.
+        A carga não usa DROP/TRUNCATE: o usuário do Neon pode não ser dono
+        das tabelas criadas por outro papel. Em vez disso, apaga as linhas e
+        insere a nova carga na mesma transação. Se a tabela ainda não existir,
+        ela é criada.
         """
+
+        if not table_name.replace("_", "").isalnum():
+            raise ValueError(f"Nome de tabela inválido: {table_name}")
 
         engine = create_engine(DATABASE_URL)
         try:
-            df.to_sql(
-                table_name,
-                engine,
-                if_exists="replace",
-                index=False,
-            )
+            with engine.begin() as connection:
+                exists = connection.execute(
+                    text("SELECT to_regclass(:name)"),
+                    {"name": table_name},
+                ).scalar()
+
+                if exists:
+                    connection.execute(text(f'DELETE FROM "{table_name}"'))
+                    df.to_sql(
+                        table_name,
+                        connection,
+                        if_exists="append",
+                        index=False,
+                    )
+                else:
+                    df.to_sql(
+                        table_name,
+                        connection,
+                        if_exists="fail",
+                        index=False,
+                    )
         finally:
             engine.dispose()
 
