@@ -132,8 +132,12 @@ function validate(
   if (confirmarSenha !== senha) {
     errors.confirmarSenha = 'As senhas não correspondem';
   }
-  if (!toIsoBirthDate(dataNascimento)) {
+  const birthDate = parseBirthDate(dataNascimento);
+  if (!birthDate || birthDate.age < 0) {
     errors.dataNascimento = 'Informe uma data válida no formato DD/MM/AAAA para maiores de 18 anos';
+  } else if (birthDate.age < 18) {
+    errors.dataNascimento =
+      'A conta não pode ser criada. É necessário ser maior de 18 anos para utilizar a plataforma';
   }
   if (!privacyPolicyAccepted) {
     errors.privacyPolicyAccepted = 'Aceite a Política de Privacidade para criar sua conta';
@@ -147,7 +151,14 @@ function validate(
 }
 
 // Created by AI.
+// Updated by AI.
 function toIsoBirthDate(value: string): string | null {
+  const birthDate = parseBirthDate(value);
+  return birthDate && birthDate.age >= 18 ? birthDate.iso : null;
+}
+
+// Created by AI.
+function parseBirthDate(value: string) {
   const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value);
   if (!match) return null;
   const [, day, month, year] = match;
@@ -157,14 +168,15 @@ function toIsoBirthDate(value: string): string | null {
     date.getUTCMonth() !== Number(month) - 1 ||
     date.getUTCDate() !== Number(day)
   ) return null;
+
   const today = new Date();
   let age = today.getFullYear() - Number(year);
   if (
     today.getMonth() < Number(month) - 1 ||
     (today.getMonth() === Number(month) - 1 && today.getDate() < Number(day))
   ) age -= 1;
-  if (age < 18) return null;
-  return `${year}-${month}-${day}`;
+
+  return { age, iso: `${year}-${month}-${day}` };
 }
 
 // Created by AI.
