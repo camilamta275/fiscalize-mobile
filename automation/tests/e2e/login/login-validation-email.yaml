@@ -1,0 +1,20 @@
+appId: br.com.fiscalize.mobile
+
+---
+- launchApp
+
+- tapOn:
+    id: "login-email"
+- inputText: "email-invalido"
+
+- tapOn:
+    id: "login-password"
+- inputText: "TesteValido123!"
+
+- hideKeyboard
+
+- tapOn:
+    id: "login-submit"
+
+- assertVisible: "Email inválido"
+- assertNotVisible: "Senha deve ter no mínimo 8 caracteres, incluindo letras maiúsculas e minúsculas, número e caractere especial"

@@ -9,12 +9,14 @@ import { useTheme } from '@/hooks/use-theme';
 // Created by AI.
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 
+// Updated by AI.
 type ButtonProps = {
   disabled?: boolean;
   icon?: IconName;
   loading?: boolean;
   onPress: () => void;
   style?: StyleProp<ViewStyle>;
+  testID?: string;
   title: string;
   variant?: ButtonVariant;
 };
@@ -24,12 +26,14 @@ type ButtonProps = {
  * solid primary, bordered secondary, text-only ghost and a soft destructive.
  */
 // Created by AI.
+// Updated by AI.
 export function Button({
   disabled,
   icon,
   loading,
   onPress,
   style,
+  testID,
   title,
   variant = 'primary',
 }: ButtonProps) {
@@ -49,6 +53,7 @@ export function Button({
       accessibilityState={{ disabled: !!isDisabled }}
       disabled={isDisabled}
       onPress={onPress}
+      testID={testID}
       style={({ pressed }) => [
         styles.base,
         { backgroundColor: palette.background, borderColor: palette.border },

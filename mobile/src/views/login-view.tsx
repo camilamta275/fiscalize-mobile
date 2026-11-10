@@ -52,6 +52,7 @@ export function LoginView() {
 
             <Card style={styles.card}>
               <TextField
+                testID="login-email"
                 autoCapitalize="none"
                 autoComplete="email"
                 error={fieldErrors.email}
@@ -63,6 +64,7 @@ export function LoginView() {
               />
 
               <TextField
+                testID="login-password"
                 autoCapitalize="none"
                 autoComplete="password"
                 error={fieldErrors.senha}
@@ -76,6 +78,7 @@ export function LoginView() {
               {error ? <InlineMessage message={error} /> : null}
 
               <Button
+                testID="login-submit"
                 icon={Icons.arrowRight}
                 loading={isSubmitting}
                 onPress={submit}
