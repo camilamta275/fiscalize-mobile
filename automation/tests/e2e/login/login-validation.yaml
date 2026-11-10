@@ -1,3 +1,6 @@
+# Validação de formulário do login: e-mail e senha fora do padrão.
+# Não representa TC02/TS02. Este fluxo verifica regras de input do formulário,
+# não autenticação de usuário com credenciais inválidas.
 appId: br.com.fiscalize.mobile
 
 ---

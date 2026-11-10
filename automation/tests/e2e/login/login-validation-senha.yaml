@@ -1,3 +1,6 @@
+# Validação de senha do formulário de login.
+# Não representa TC02/TS02. Este fluxo testa a regra de política de senha e não
+# a autenticação de um usuário existente com credenciais inválidas.
 appId: br.com.fiscalize.mobile
 
 ---

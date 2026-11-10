@@ -141,7 +141,53 @@ sem a migration de MFA, os cenários afetados são *skipped* com mensagem acion�
 `FISCALIZE_TEST_TOKEN` reaproveita um token obtido à mão e
 `FISCALIZE_TEST_DEVICE_ID` muda o sufixo do identificador de dispositivo.
 
-## 7. Relatórios de execução
+## 7. Execução do Maestro
+
+Este runner cobre apenas os cenários sob responsabilidade desta implementação:
+
+- TC02 / senha incorreta para usuário existente;
+- teste complementar de conta inexistente;
+- login do gestor como cobertura complementar mobile.
+
+
+### Variáveis exigidas por fluxo
+
+O script valida apenas as variáveis necessárias para os arquivos selecionados:
+
+- `MAESTRO_TC02_EMAIL` — exigida somente para `login-senha-incorreta-usuario-existente.yaml`;
+- `MAESTRO_TC06_EMAIL` — exigida somente para `login-gestor.yaml`;
+- `MAESTRO_TC06_PASSWORD` — exigida somente para `login-gestor.yaml`;
+- `login-senha-incorreta.yaml` não exige credenciais porque usa um e-mail inexistente e senha fixa literais no YAML.
+
+As variáveis devem ser fornecidas no ambiente do processo que executa o Maestro; o script não lê nem grava segredos em arquivos versionados, e não imprime senhas, hashes, tokens ou URLs com credenciais.
+
+### Requisitos de ambiente
+
+Antes da execução real, o ambiente local precisa ter o Maestro disponível no PATH. Este runner não executa banco, migrações nem seed, e não instala dependências automaticamente.
+
+### Execução do dry-run
+
+```bash
+cd automation
+python scripts/run_maestro_e2e.py --dry-run
+```
+
+O `--dry-run` valida os arquivos selecionados, mostra as etapas previstas e interrompe antes de qualquer execução do Maestro. Ele não altera o banco, não executa migrações nem seed e não exige segredos.
+
+### Execução real (somente após validação manual)
+
+```bash
+cd automation
+python scripts/run_maestro_e2e.py automation/tests/e2e/login/login-senha-incorreta-usuario-existente.yaml automation/tests/e2e/login/login-senha-incorreta.yaml automation/tests/e2e/login/login-gestor.yaml
+```
+
+A execução real deve acontecer somente em ambiente validado e com o Maestro disponível no PATH. O runner não executa `npm install`, `prisma migrate deploy`, `npm run seed` ou qualquer preparação de banco; essas etapas ficam fora do escopo deste script.
+
+### Observações sobre o Maestro
+
+Com base na versão instalada do CLI, o comando `maestro test` aceita `-e/--env` para injetar variáveis de ambiente no fluxo e o YAML lê esses valores com `${NOME_DA_VARIAVEL}`. Este runner injeta as variáveis no ambiente do processo filho para evitar expor segredos na linha de comando visível do sistema.
+
+## 8. Relatórios de execução
 
 O `pytest.ini` já escreve dois relatórios em `automation/reports/` (criado
 automaticamente): o HTML autocontido `api-report.html` e o JUnit XML
