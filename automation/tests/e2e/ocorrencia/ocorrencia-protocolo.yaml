@@ -1,0 +1,88 @@
+# Created by AI.
+# TC05 - Geração automática de número de protocolo ao criar uma ocorrência.
+# Fonte: automation/docs/Saidas do Plano de Testes e Backlog/Casos de teste IA/saída-rodada-2.md (TC05).
+#
+# ATENÇÃO - divergência entre o plano e a implementação:
+#   Este fluxo valida o formato do PLANO: SCH-AAAA-NNNN (^SCH-\d{4}-\d{4}$).
+#   Porém o backend atual (backend/src/services/demandService.ts,
+#   generateProtocolo) gera DEM-AAAAMMDD-XXXX. Enquanto o backend não for
+#   alinhado ao plano, este teste FALHA na última verificação.
+#
+# Pré-condições:
+#   - backend rodando com o seed aplicado (cidadão de teste e categorias).
+#   - emulador/dispositivo com internet (ViaCEP + geocodificação do CEP).
+# Credenciais do cidadão do seed (backend/README.md, seção 8.3), no bloco env.
+appId: br.com.fiscalize.mobile
+env:
+  CIDADAO_EMAIL: cidadao@fiscalize.gov.br
+  CIDADAO_SENHA: Cidadao@123456
+  CEP_VALIDO: "50030230"
+  PROTOCOLO_REGEX: "SCH-\\d{4}-\\d{4}"
+
+---
+- launchApp:
+    clearState: true
+
+# Login do cidadão
+- tapOn:
+    id: "login-email"
+- inputText: ${CIDADAO_EMAIL}
+- tapOn:
+    id: "login-password"
+- inputText: ${CIDADAO_SENHA}
+- hideKeyboard
+- tapOn:
+    id: "login-submit"
+- extendedWaitUntil:
+    visible: "Meus Chamados"
+    timeout: 15000
+
+# Abre o formulário de nova ocorrência
+- tapOn: "Registrar nova ocorrência"
+- assertVisible: "Registre um problema urbano"
+
+# Dados da ocorrência (descrição com 20+ caracteres)
+- tapOn:
+    id: "demand-title"
+- inputText: "Buraco na via TC05"
+- hideKeyboard
+- tapOn:
+    id: "demand-description"
+- inputText: "Buraco grande na rua em frente ao numero 100"
+- hideKeyboard
+
+# Categoria
+- scrollUntilVisible:
+    element: "Infraestrutura"
+- tapOn: "Infraestrutura"
+
+# Localização: o CEP preenche o endereço e as coordenadas automaticamente
+- scrollUntilVisible:
+    element: "00000-000"
+- tapOn: "00000-000"
+- inputText: ${CEP_VALIDO}
+- hideKeyboard
+- extendedWaitUntil:
+    notVisible: "Buscando endereço…"
+    timeout: 20000
+
+# Envia o formulário
+- scrollUntilVisible:
+    element:
+      id: "demand-submit"
+- tapOn:
+    id: "demand-submit"
+
+# Confirmação de sucesso
+- extendedWaitUntil:
+    visible: "Ocorrência registrada!"
+    timeout: 15000
+
+# Volta para a lista e valida o protocolo gerado no card da ocorrência
+- tapOn: "Voltar para a lista"
+- extendedWaitUntil:
+    visible: "Meus Chamados"
+    timeout: 15000
+- extendedWaitUntil:
+    visible: ${PROTOCOLO_REGEX}
+    timeout: 15000

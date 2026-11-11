@@ -25,3 +25,15 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Desafio de evolução da pipeline: item 2, verificação da cobertura do backlog de automação.
 - **Tipo de contribuição da IA:** Análise do plano, do código de testes e do workflow; execução local da suíte e sondagem da API; redação do documento de cobertura.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0002
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Ana Sofia
+- **Arquivo / Arquivos alterado(s):** `automation/tests/e2e/ocorrencia/ocorrencia-protocolo.yaml`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Criação do teste E2E Maestro do TC05: cria ocorrência e valida o protocolo no formato SCH-AAAA-NNNN na lista Meus Chamados.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados apenas os dados sintéticos do seed.
+- **Alterado pela IA (nome da IA, versão da IA):** Claude Code (Claude Sonnet 5.5)
+- **Finalidade do uso da IA:** Implementar o teste E2E do TC05 (geração de protocolo) previsto no backlog de automação.
+- **Etapa da atividade:** Testes automatizados: implementação de testes E2E em Maestro.
+- **Tipo de contribuição da IA:** Análise do plano de testes e do código do app e do backend; escrita do fluxo Maestro. O teste ainda não foi executado em dispositivo.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
