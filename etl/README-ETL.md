@@ -266,7 +266,7 @@ Os indicadores e as visualizações de bairro são atualizados conforme o filtro
 Com o ambiente virtual ativado e as dependências instaladas, execute na raiz do repositório:
 
 ```powershell
-python -m streamlit run dashboard/app.py
+python -m streamlit run ../dashboard/app.py
 ```
 
 O Streamlit disponibilizará o dashboard no navegador, normalmente em:
