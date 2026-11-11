@@ -1,0 +1,120 @@
+# Created by AI.
+appId: br.com.fiscalize.mobile
+
+---
+- launchApp:
+    clearState: true
+- tapOn: "Não tem conta? Criar conta"
+
+- tapOn:
+    id: "register-nome"
+- inputText: "Cidadão de Teste"
+- hideKeyboard
+- tapOn:
+    id: "register-email"
+- inputText: "tc19-underage@example.test"
+- hideKeyboard
+- tapOn:
+    id: "register-cpf"
+- inputText: "00000000000"
+- hideKeyboard
+
+- scrollUntilVisible:
+    element:
+      id: "register-data-nascimento"
+    direction: DOWN
+- tapOn:
+    id: "register-data-nascimento"
+- inputText: "01012020"
+- hideKeyboard
+
+- scrollUntilVisible:
+    element:
+      id: "register-cep"
+    direction: DOWN
+- tapOn:
+    id: "register-cep"
+- inputText: "1234567"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "register-rua"
+    direction: DOWN
+- tapOn:
+    id: "register-rua"
+- inputText: "Rua de Teste"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "register-numero"
+    direction: DOWN
+- tapOn:
+    id: "register-numero"
+- inputText: "10"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "register-bairro"
+    direction: DOWN
+- tapOn:
+    id: "register-bairro"
+- inputText: "Centro"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "register-cidade"
+    direction: DOWN
+- tapOn:
+    id: "register-cidade"
+- inputText: "Recife"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "register-estado"
+    direction: DOWN
+- tapOn:
+    id: "register-estado"
+- inputText: "PE"
+- hideKeyboard
+
+- scrollUntilVisible:
+    element:
+      id: "register-senha"
+    direction: DOWN
+- tapOn:
+    id: "register-senha"
+- inputText: "TesteValido123!"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "register-confirmar-senha"
+    direction: DOWN
+- tapOn:
+    id: "register-confirmar-senha"
+- inputText: "TesteValido123!"
+- hideKeyboard
+
+- scrollUntilVisible:
+    element:
+      id: "register-privacy-checkbox-box"
+    direction: DOWN
+- tapOn:
+    id: "register-privacy-checkbox-box"
+- scrollUntilVisible:
+    element:
+      id: "register-submit"
+    direction: DOWN
+- tapOn:
+    id: "register-submit"
+
+- scrollUntilVisible:
+    element:
+      text: "A conta não pode ser criada. É necessário ser maior de 18 anos para utilizar a plataforma"
+    direction: UP
+- assertVisible: "A conta não pode ser criada. É necessário ser maior de 18 anos para utilizar a plataforma"
+- assertNotVisible: "Conta criada!"
+- scrollUntilVisible:
+    element:
+      id: "register-submit"
+    direction: DOWN
+- assertNotVisible: "Erro inesperado ao criar conta."
