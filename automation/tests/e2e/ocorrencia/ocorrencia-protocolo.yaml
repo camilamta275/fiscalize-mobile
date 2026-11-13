@@ -2,11 +2,11 @@
 # TC05 - Geração automática de número de protocolo ao criar uma ocorrência.
 # Fonte: automation/docs/Saidas do Plano de Testes e Backlog/Casos de teste IA/saída-rodada-2.md (TC05).
 #
-# ATENÇÃO - divergência entre o plano e a implementação:
-#   Este fluxo valida o formato do PLANO: SCH-AAAA-NNNN (^SCH-\d{4}-\d{4}$).
-#   Porém o backend atual (backend/src/services/demandService.ts,
-#   generateProtocolo) gera DEM-AAAAMMDD-XXXX. Enquanto o backend não for
-#   alinhado ao plano, este teste FALHA na última verificação.
+# Formato do protocolo: DEM-AAAAMMDD-XXXX (^DEM-\d{8}-[A-Z0-9]{4}$), o mesmo
+#   gerado pelo backend (backend/src/services/demandService.ts,
+#   generateProtocolo). Decisão do grupo: o plano de testes foi atualizado
+#   para esse formato (antes constava SCH-AAAA-NNNN), em vez de alterar o backend.
+# Updated by AI.
 #
 # Pré-condições:
 #   - backend rodando com o seed aplicado (cidadão de teste e categorias).
@@ -17,7 +17,7 @@ env:
   CIDADAO_EMAIL: cidadao@fiscalize.gov.br
   CIDADAO_SENHA: Cidadao@123456
   CEP_VALIDO: "50030230"
-  PROTOCOLO_REGEX: "SCH-\\d{4}-\\d{4}"
+  PROTOCOLO_REGEX: "DEM-\\d{8}-[A-Z0-9]{4}"
 
 ---
 - launchApp:

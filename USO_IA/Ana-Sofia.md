@@ -37,3 +37,15 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Testes automatizados: implementação de testes E2E em Maestro.
 - **Tipo de contribuição da IA:** Análise do plano de testes e do código do app e do backend; escrita do fluxo Maestro. O teste ainda não foi executado em dispositivo.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0003
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Ana Sofia
+- **Arquivo / Arquivos alterado(s):** `automation/tests/e2e/ocorrencia/ocorrencia-protocolo.yaml`, `automation/docs/Plano de Testes e Backlog de Automação.md`, `automation/docs/Saidas do Plano de Testes e Backlog/Casos de teste IA/saída-rodada-2.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Alinhamento do TC05 ao backend: formato do protocolo trocado de SCH-AAAA-NNNN para DEM-AAAAMMDD-XXXX no plano de testes, na saída da rodada 2 e no teste E2E.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Claude Code (Claude Sonnet 5.5)
+- **Finalidade do uso da IA:** Corrigir a divergência de formato do protocolo entre o plano de testes e o backend, por decisão do grupo de alterar o plano em vez do backend.
+- **Etapa da atividade:** Testes automatizados: implementação de testes E2E em Maestro.
+- **Tipo de contribuição da IA:** Edição dos documentos do plano de testes e do fluxo Maestro. O teste ainda não foi executado em dispositivo.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo

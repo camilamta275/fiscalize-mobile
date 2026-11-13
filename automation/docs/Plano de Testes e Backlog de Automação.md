@@ -163,7 +163,7 @@ Fica fora do escopo: o comportamento de sistemas externos fora do controle da sq
 | *TC02* | *TS02* | *"Tentativa de login com credenciais inválidas"* | *N* |
 | *TC03* | *TS04* | *"Registro de chamado completo pelo assistente de 3 etapas"* | *N* |
 | *TC04* | *TS05* | *"Validação dos limites mínimos de descrição (≥ 20 caracteres) e endereço (≥ 5 caracteres)"* | *N* |
-| *TC05* | *TS06* | *"Geração automática de número de protocolo no formato SCH-AAAA-NNNN"* | *N* |
+| *TC05* | *TS06* | *"Geração automática de número de protocolo no formato DEM-AAAAMMDD-XXXX"* | *N* |
 | *TC06* | *TS09* | *"Login do Gestor e acesso à plataforma"* | *N* |
 | *TC07* | *TS04* | *"Anexo de fotos no chamado" (Não explícito na TS04, derivado)* | *S* |
 | *TC08* | *TS07* | *"Recebimento de notificação in-app após mudança de status do chamado"* | *N* |
