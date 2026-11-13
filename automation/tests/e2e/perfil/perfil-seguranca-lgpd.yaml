@@ -1,0 +1,48 @@
+﻿# Created by AI.
+# Perfil e Segurança - Navegação ao perfil do cidadão, opções LGPD e modal de senha.
+# Pré-condição: backend rodando com o seed aplicado (cria o cidadão de teste).
+appId: br.com.fiscalize.mobile
+env:
+  CIDADAO_EMAIL: cidadao@fiscalize.gov.br
+  CIDADAO_SENHA: Cidadao@123456
+
+---
+- launchApp:
+    clearState: true
+
+- tapOn:
+    id: "login-email"
+- inputText: ${CIDADAO_EMAIL}
+- tapOn:
+    id: "login-password"
+- inputText: ${CIDADAO_SENHA}
+- hideKeyboard
+- tapOn:
+    id: "login-submit"
+
+- extendedWaitUntil:
+    visible: "Meus Chamados"
+    timeout: 15000
+
+# Abre a tela de perfil pelo botão no cabeçalho
+- tapOn: "Abrir perfil"
+- assertVisible: "Meu perfil"
+- assertVisible: "Editar meus dados"
+- assertVisible: "Segurança e privacidade"
+- assertVisible: "Informações"
+
+# Acessa Segurança e privacidade (LGPD)
+- tapOn: "Segurança e privacidade"
+- assertVisible: "Segurança"
+- assertVisible: "Alterar senha"
+- assertVisible: "Anonimizar dados nas denúncias"
+- assertVisible: "Zona de risco"
+- assertVisible: "Excluir minha conta"
+
+# Valida abertura e fechamento seguro do modal de alteração de senha
+- tapOn: "Alterar senha"
+- assertVisible: "Senha atual"
+- assertVisible: "Nova senha"
+- assertVisible: "Confirmar nova senha"
+- tapOn: "Cancelar"
+- assertNotVisible: "Senha atual"
