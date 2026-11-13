@@ -99,3 +99,4 @@ appId: br.com.fiscalize.mobile
     visible: ${output.title}
     timeout: 15000
 - assertVisible: "Aberto"
+ 

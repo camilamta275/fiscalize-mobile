@@ -112,6 +112,13 @@ export function RightsPortalView() {
           />
           <View style={[styles.divider, { backgroundColor: theme.border }]} />
           <MenuRow
+            description="Notificações do seu perfil e atualizações de status"
+            icon={Icons.bell}
+            onPress={() => router.push('/notifications')}
+            title="Notificações"
+          />
+          <View style={[styles.divider, { backgroundColor: theme.border }]} />
+          <MenuRow
             description="Engenharia de Dados e Big Data"
             icon={Icons.chart}
             onPress={() => router.push('/profile/dashboard')}
