@@ -62,6 +62,9 @@ export function DemandsListView() {
     setStatusFilter,
     orgaoFilter,
     setOrgaoFilter,
+    categoryFilter,
+    setCategoryFilter,
+    categories,
     sortBy,
     setSortBy,
     organizations,
@@ -74,7 +77,7 @@ export function DemandsListView() {
   const insets = useSafeAreaInsets();
   const [searchDraft, setSearchDraft] = useState('');
   const [isFocused, setIsFocused] = useState(true);
-  const [openFilter, setOpenFilter] = useState<'status' | 'orgao' | 'sort' | null>(null);
+  const [openFilter, setOpenFilter] = useState<'status' | 'orgao' | 'categoria' | 'sort' | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -158,6 +161,15 @@ export function DemandsListView() {
               <FilterSelect
                 label={statusFilter ?? 'Todos os status'}
                 onPress={() => setOpenFilter('status')}
+              />
+              <FilterSelect
+                label={
+                  categoryFilter !== null
+                    ? categories.find((category) => category.id === categoryFilter)?.nome ??
+                      'Categoria selecionada'
+                    : 'Todas as categorias'
+                }
+                onPress={() => setOpenFilter('categoria')}
               />
               <View style={styles.filterRow}>
                 <View style={styles.orgFilter}>
@@ -275,6 +287,20 @@ export function DemandsListView() {
         title="Filtrar por órgão"
         value={orgaoFilter}
         visible={openFilter === 'orgao'}
+      />
+      <FilterModal
+        options={[
+          { label: 'Todas as categorias', value: null },
+          ...categories.map((category) => ({ label: category.nome, value: String(category.id) })),
+        ]}
+        onClose={() => setOpenFilter(null)}
+        onSelect={(value) => {
+          setCategoryFilter(value === null ? null : Number(value));
+          setOpenFilter(null);
+        }}
+        title="Filtrar por categoria"
+        value={categoryFilter === null ? null : String(categoryFilter)}
+        visible={openFilter === 'categoria'}
       />
       <FilterModal
         options={SORT_OPTIONS}
