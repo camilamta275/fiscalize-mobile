@@ -11,7 +11,7 @@ import { Icons, type IconName } from '@/constants/icons';
 import { Radius, Spacing } from '@/constants/theme';
 import { useSession } from '@/contexts/session-context';
 import { useTheme } from '@/hooks/use-theme';
-import type { Perfil, Usuario } from '@/models/usuario';
+import { isGestor, type Perfil, type Usuario } from '@/models/usuario';
 
 // Created by AI.
 const PERFIL_LABEL: Record<Perfil, string> = {
@@ -124,6 +124,17 @@ export function RightsPortalView() {
             onPress={() => router.push('/profile/dashboard')}
             title="Dashboard ETL"
           />
+          {isGestor(usuario.perfil) ? (
+            <>
+              <View style={[styles.divider, { backgroundColor: theme.border }]} />
+              <MenuRow
+                description="Total, categorias e tempo médio de atendimento"
+                icon={Icons.chart}
+                onPress={() => router.push('/profile/metrics')}
+                title="Indicadores operacionais"
+              />
+            </>
+          ) : null}
         </Card>
 
         <Card style={styles.card}>
