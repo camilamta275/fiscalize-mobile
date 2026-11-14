@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard Executivo de Qualidade — Fiscalize</title>
+  <style>
+    :root { --bg-body: #f3f4f6; --bg-card: #ffffff; --text-main: #111827; --text-muted: #6b7280; --border: #e5e7eb; --primary: #2563eb; --green: #10b981; --red: #ef4444; --amber: #f59e0b; }
+    body { margin: 0; background: var(--bg-body); color: var(--text-main); font-family: 'Segoe UI', system-ui, sans-serif; line-height: 1.5; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 40px 20px; }
+    header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; flex-wrap: wrap; gap: 16px; }
+    h1 { margin: 0; font-size: 28px; color: var(--text-main); } .subtitle { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
+    .status-badge { padding: 6px 16px; border-radius: 20px; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; }
+    .status-green, .success { background: #d1fae5; color: #065f46; } .status-amber, .warning { background: #fef3c7; color: #92400e; } .status-red, .danger { background: #fee2e2; color: #991b1b; } .status-unknown { background: #e5e7eb; color: #374151; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .kpi-card { background: var(--bg-card); padding: 24px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid var(--border); border-top: 4px solid var(--primary); }
+    .kpi-card.success { border-top-color: var(--green); } .kpi-card.danger { border-top-color: var(--red); } .kpi-card.warning { border-top-color: var(--amber); }
+    .kpi-title { font-size: 13px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; font-weight: 600; margin-bottom: 8px; } .kpi-value { font-size: 32px; font-weight: bold; }
+    .progress-wrapper, .box { background: var(--bg-card); padding: 24px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid var(--border); margin-bottom: 30px; }
+    .progress-bar { height: 12px; background: var(--red); border-radius: 6px; overflow: hidden; display: flex; margin: 12px 0; } .progress-fill { height: 100%; background: var(--green); }
+    .progress-labels { display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; } .text-green { color: var(--green); } .text-red { color: var(--red); }
+    .section-title { font-size: 18px; margin: 0 0 16px; padding-bottom: 8px; border-bottom: 2px solid var(--border); }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; } .risk-item { border-left: 4px solid var(--red); padding-left: 12px; margin-bottom: 12px; } .risk-item strong { display: block; font-size: 15px; } .risk-item p { margin: 4px 0 0; font-size: 13px; color: var(--text-muted); }
+    ul { padding-left: 20px; font-size: 14px; color: var(--text-muted); } code { background: #f3f4f6; border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div>
+      <h1>Panorama de Qualidade: Fiscalize</h1>
+      <div class="subtitle">Execução: 2026-11-14T13:42:57+00:00 | Branch: <code>main</code></div>
+    </div>
+    <div class="status-badge status-red">🔴 Risco na Entrega</div>
+  </header>
+
+  <div class="kpi-grid">
+      <div class="kpi-card success">
+        <div class="kpi-title">Verificações aprovadas</div>
+        <div class="kpi-value">100,0%</div>
+      </div>
+      <div class="kpi-card success">
+        <div class="kpi-title">Verificações executadas</div>
+        <div class="kpi-value">76</div>
+      </div>
+      <div class="kpi-card danger">
+        <div class="kpi-title">Estabilidade das execuções</div>
+        <div class="kpi-value">13,3%</div>
+      </div>
+      <div class="kpi-card danger">
+        <div class="kpi-title">Falhas aguardando correção</div>
+        <div class="kpi-value">9</div>
+      </div>
+  </div>
+
+  <div class="progress-wrapper">
+    <h2 class="section-title">Saúde da Execução (Testes)</h2>
+    <div class="progress-labels">
+      <span class="text-green">✔ 74 Passados</span>
+      <span class="text-red">✖ 0 Falhados</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width: 100.0%;"></div></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="box">
+      <h2 class="section-title">Riscos e Decisões Recomendadas</h2>
+      <div class="risk-item"><strong>D1 · O backend não valida os limites do TC04.</strong><p>Definir se a validação fica no backend ou no app e automatizar o caso.</p></div>
+      <div class="risk-item"><strong>D2 · O formato do protocolo no TC05 está errado no plano.</strong><p>Atualizar o caso para o formato DEM-AAAAMMDD-XXXX e automatizar via API.</p></div>
+      <div class="risk-item"><strong>D3 · Seções 5 e 6 do plano são contraditórias.</strong><p>Alinhar as duas seções do plano de testes.</p></div>
+    </div>
+    <div class="box">
+      <h2 class="section-title">Status Funcionalidades (Backlog)</h2>
+      <ul>
+        <li><strong>TC03:</strong> Registro completo de chamado (Verifica apenas o HTTP 201, sem validar corpo nem listagem.)</li>
+        <li><strong>TC04:</strong> Limites de descrição e endereço (Divergência D1: decidir se a validação é no backend ou no app.)</li>
+        <li><strong>TC05:</strong> Formato do protocolo gerado (Divergência D2: o plano usa SCH-AAAA-NNNN e o sistema gera DEM-AAAAMMDD-XXXX.)</li>
+        <li><strong>TC06:</strong> Login do gestor e rotas restritas (O backend já responde 200 para gestor e 403 para cidadão; falta o teste.)</li>
+        <li><strong>TC08:</strong> Notificação in-app de mudança de status (Contraditório no plano: uma seção trata como manual.)</li>
+        <li><strong>TC09:</strong> Status e linha do tempo do chamado (Contraditório no plano: uma seção trata como manual.)</li>
+        <li><strong>TC12:</strong> Cadastro de novo cidadão (Cadastro e validações cobertos; o aceite de LGPD não existe no produto.)</li>
+        <li><strong>TC14:</strong> Filtro e busca na fila do gestor (O endpoint GET /gestor/chamados?status= existe, mas não tem teste.)</li>
+        <li><strong>TC19:</strong> Bloqueio de cadastro de menores de 18 anos (A funcionalidade não existe no produto: não há data de nascimento no cadastro.)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</body>
+</html>

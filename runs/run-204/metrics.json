@@ -1,0 +1,558 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-11-14T13:42:57+00:00",
+  "run": {
+    "id": "43600990782",
+    "number": "204",
+    "event": "schedule",
+    "branch": "main",
+    "sha": "dd0c6c11b9c643202ca7a4021b7e2316bc90c332",
+    "repository": "camilamta275/fiscalize-mobile",
+    "url": "https://github.com/camilamta275/fiscalize-mobile/actions/runs/43600990782"
+  },
+  "default_branch": "main",
+  "metrics": {
+    "M1": {
+      "id": "M1",
+      "label": "Taxa de sucesso da suíte",
+      "description": "Testes aprovados sobre testes executados nas suítes primárias.",
+      "value": 1.0,
+      "display": "100,0%",
+      "target": "≥ 98%",
+      "status": "green",
+      "note": "74 de 74 executados passaram."
+    },
+    "M2": {
+      "id": "M2",
+      "label": "Testes executados",
+      "description": "Quantidade de casos executados nas suítes primárias.",
+      "value": 76,
+      "display": "76",
+      "target": "> 0",
+      "status": "green",
+      "note": "1 suíte(s) primária(s)."
+    },
+    "M5": {
+      "id": "M5",
+      "label": "Taxa de falha de execução",
+      "description": "Execuções com falha sobre execuções da janela recente.",
+      "value": 0.13333333333333333,
+      "display": "13,3%",
+      "target": "0% na branch padrão",
+      "status": "red",
+      "note": "4 falha(s) na branch main."
+    },
+    "M6": {
+      "id": "M6",
+      "label": "Falhas abertas (falha-ci)",
+      "description": "Issues abertas com o rótulo falha-ci e idade da mais antiga.",
+      "value": 9,
+      "display": "9",
+      "target": "nenhuma com mais de 5 dias",
+      "status": "red",
+      "note": "Falha em aberto há mais de 5 dias."
+    }
+  },
+  "overall": "red",
+  "suites": [
+    {
+      "name": "regression-junit.xml",
+      "total": 76,
+      "passed": 74,
+      "failed": 0,
+      "skipped": 2,
+      "duration": 18.701999999999998,
+      "failures": [],
+      "missing": false,
+      "label": "Regressão completa",
+      "primary": true
+    },
+    {
+      "name": "regression-unit-junit.xml",
+      "total": 0,
+      "passed": 0,
+      "failed": 0,
+      "skipped": 0,
+      "duration": 0.0,
+      "failures": [],
+      "missing": false,
+      "label": "Testes unitários (regressão)",
+      "primary": false
+    }
+  ],
+  "failures": [],
+  "issues": [
+    {
+      "number": 53,
+      "title": "[CI] Falha em \"Regressão\" — feature/novas-features-camila",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/issues/53",
+      "created_at": "2026-11-13T16:22:21Z",
+      "age_days": 0.8893139503009259
+    },
+    {
+      "number": 51,
+      "title": "[CI] Falha em \"Regressão\" — feature/maestro-e2e-camila",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/issues/51",
+      "created_at": "2026-11-13T14:42:55Z",
+      "age_days": 0.9583648763425926
+    },
+    {
+      "number": 50,
+      "title": "[CI] Falha em \"Regressão\" — etl_dashboard_fiscalize",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/issues/50",
+      "created_at": "2026-11-11T02:13:50Z",
+      "age_days": 3.4785616356365745
+    },
+    {
+      "number": 47,
+      "title": "[CI] Falha em \"Regressão\" — feature/tc19-cadastro-menor",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/issues/47",
+      "created_at": "2026-11-10T20:22:33Z",
+      "age_days": 3.722508394918981
+    },
+    {
+      "number": 44,
+      "title": "[CI] Falha em \"Regressão\" — feature/maestro-e2e-tc12-tc01-tc04",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/issues/44",
+      "created_at": "2026-11-10T16:34:39Z",
+      "age_days": 3.8807722838310186
+    },
+    {
+      "number": 40,
+      "title": "[CI] Falha em \"Regressão\" — fix/versiona-assets",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/issues/40",
+      "created_at": "2026-11-10T03:29:34Z",
+      "age_days": 4.425969043113426
+    },
+    {
+      "number": 36,
+      "title": "[CI] Falha em \"Regressão\" — etL_dashboard_implementation",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/issues/36",
+      "created_at": "2026-11-07T21:57:09Z",
+      "age_days": 6.656813950543982
+    },
+    {
+      "number": 34,
+      "title": "[CI] Falha em \"Regressão\" — main",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/issues/34",
+      "created_at": "2026-11-05T14:50:35Z",
+      "age_days": 8.953040802407408
+    },
+    {
+      "number": 33,
+      "title": "[CI] Falha em \"Regressão\" — feature/demand-store",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/issues/33",
+      "created_at": "2026-11-05T14:15:56Z",
+      "age_days": 8.977103302430557
+    }
+  ],
+  "coverage": {
+    "total": 12,
+    "covered": 3,
+    "partial": 2,
+    "missing": 7,
+    "ratio": 0.3333333333333333,
+    "display": "33%",
+    "status": "red"
+  },
+  "backlog": [
+    {
+      "id": "TC01",
+      "title": "Login do cidadão com credenciais válidas",
+      "status": "covered",
+      "tests": "test_user_login.py::test_login_user",
+      "note": "Inclui o desafio de MFA de novo dispositivo."
+    },
+    {
+      "id": "TC02",
+      "title": "Login com senha incorreta",
+      "status": "covered",
+      "tests": "test_user_login.py (5 casos)",
+      "note": "Regra coberta via API; a mensagem na tela não é verificada."
+    },
+    {
+      "id": "TC03",
+      "title": "Registro completo de chamado",
+      "status": "partial",
+      "tests": "test_cidadao.py::test_create_demand",
+      "note": "Verifica apenas o HTTP 201, sem validar corpo nem listagem."
+    },
+    {
+      "id": "TC04",
+      "title": "Limites de descrição e endereço",
+      "status": "missing",
+      "tests": "—",
+      "note": "Divergência D1: decidir se a validação é no backend ou no app."
+    },
+    {
+      "id": "TC05",
+      "title": "Formato do protocolo gerado",
+      "status": "missing",
+      "tests": "—",
+      "note": "Divergência D2: o plano usa SCH-AAAA-NNNN e o sistema gera DEM-AAAAMMDD-XXXX."
+    },
+    {
+      "id": "TC06",
+      "title": "Login do gestor e rotas restritas",
+      "status": "missing",
+      "tests": "—",
+      "note": "O backend já responde 200 para gestor e 403 para cidadão; falta o teste."
+    },
+    {
+      "id": "TC08",
+      "title": "Notificação in-app de mudança de status",
+      "status": "missing",
+      "tests": "—",
+      "note": "Contraditório no plano: uma seção trata como manual."
+    },
+    {
+      "id": "TC09",
+      "title": "Status e linha do tempo do chamado",
+      "status": "missing",
+      "tests": "—",
+      "note": "Contraditório no plano: uma seção trata como manual."
+    },
+    {
+      "id": "TC12",
+      "title": "Cadastro de novo cidadão",
+      "status": "partial",
+      "tests": "test_user_creation.py (11 casos)",
+      "note": "Cadastro e validações cobertos; o aceite de LGPD não existe no produto."
+    },
+    {
+      "id": "TC14",
+      "title": "Filtro e busca na fila do gestor",
+      "status": "missing",
+      "tests": "—",
+      "note": "O endpoint GET /gestor/chamados?status= existe, mas não tem teste."
+    },
+    {
+      "id": "TC18",
+      "title": "Exportação de dados pessoais",
+      "status": "covered",
+      "tests": "test_auth_security.py::test_rights_portal_exports_personal_data",
+      "note": "Cobre o portal de direitos com MFA para ação crítica."
+    },
+    {
+      "id": "TC19",
+      "title": "Bloqueio de cadastro de menores de 18 anos",
+      "status": "missing",
+      "tests": "—",
+      "note": "A funcionalidade não existe no produto: não há data de nascimento no cadastro."
+    }
+  ],
+  "gaps": [
+    {
+      "id": "D1",
+      "summary": "O backend não valida os limites do TC04.",
+      "decision": "Definir se a validação fica no backend ou no app e automatizar o caso."
+    },
+    {
+      "id": "D2",
+      "summary": "O formato do protocolo no TC05 está errado no plano.",
+      "decision": "Atualizar o caso para o formato DEM-AAAAMMDD-XXXX e automatizar via API."
+    },
+    {
+      "id": "D3",
+      "summary": "Seções 5 e 6 do plano são contraditórias.",
+      "decision": "Alinhar as duas seções do plano de testes."
+    },
+    {
+      "id": "D4",
+      "summary": "A numeração de casos não bate entre os documentos.",
+      "decision": "Adotar a numeração da rodada 2 e corrigir a matriz de rastreabilidade."
+    },
+    {
+      "id": "D5",
+      "summary": "O job de testes unitários executa zero testes.",
+      "decision": "Criar testes unitários no backend; exige alteração no repositório do backend."
+    },
+    {
+      "id": "D6",
+      "summary": "O smoke de pull request cobre apenas o health check.",
+      "decision": "Substituir por uma jornada real e mantê-lo como check obrigatório."
+    },
+    {
+      "id": "D7",
+      "summary": "Não há testes mobile; nenhuma ferramenta E2E mobile está configurada.",
+      "decision": "Definir a ferramenta (Maestro) e criar os fluxos, ou registrar formalmente que o E2E será via API."
+    },
+    {
+      "id": "D8",
+      "summary": "TC19 e o aceite de LGPD do TC12 não têm funcionalidade no produto.",
+      "decision": "Manter fora da automação até a funcionalidade existir."
+    }
+  ],
+  "history": [
+    {
+      "id": 43600990782,
+      "conclusion": "unknown",
+      "event": "schedule",
+      "branch": "main",
+      "created_at": "2026-11-14T13:41:02Z",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/actions/runs/43600990782",
+      "title": "Regressão"
+    },
+    {
+      "id": 43452877656,
+      "conclusion": "success",
+      "event": "push",
+      "branch": "main",
+      "created_at": "2026-11-13T15:28:00Z",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/actions/runs/43452877656",
+      "title": "Merge pull request #52 from camilamta275/feature/maestro-e2e-camila"
+    },
+    {
+      "id": 43445593188,
+      "conclusion": "failure",
+      "event": "schedule",
+      "branch": "main",
+      "created_at": "2026-11-13T14:44:22Z",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/actions/runs/43445593188",
+      "title": "Regressão"
+    },
+    {
+      "id": 43247881873,
+      "conclusion": "success",
+      "event": "schedule",
+      "branch": "main",
+      "created_at": "2026-11-12T15:26:53Z",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/actions/runs/43247881873",
+      "title": "Regressão"
+    },
+    {
+      "id": 43039755825,
+      "conclusion": "success",
+      "event": "schedule",
+      "branch": "main",
+      "created_at": "2026-11-11T14:34:21Z",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/actions/runs/43039755825",
+      "title": "Regressão"
+    },
+    {
+      "id": 42944658053,
+      "conclusion": "success",
+      "event": "push",
+      "branch": "main",
+      "created_at": "2026-11-11T02:14:39Z",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/actions/runs/42944658053",
+      "title": "Merge pull request #49 from camilamta275/etl_dashboard_fiscalize"
+    },
+    {
+      "id": 42924978311,
+      "conclusion": "success",
+      "event": "push",
+      "branch": "main",
+      "created_at": "2026-11-10T23:38:08Z",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/actions/runs/42924978311",
+      "title": "Merge pull request #46 from camilamta275/feature/tc19-cadastro-menor"
+    },
+    {
+      "id": 42924683177,
+      "conclusion": "success",
+      "event": "push",
+      "branch": "main",
+      "created_at": "2026-11-10T23:35:52Z",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/actions/runs/42924683177",
+      "title": "Merge pull request #48 from camilamta275/feat/medallion-clima-soft-de…"
+    },
+    {
+      "id": 42872707917,
+      "conclusion": "success",
+      "event": "push",
+      "branch": "main",
+      "created_at": "2026-11-10T18:11:51Z",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/actions/runs/42872707917",
+      "title": "Merge pull request #45 from camilamta275/feature/maestro-login-valida…"
+    },
+    {
+      "id": 42860606541,
+      "conclusion": "success",
+      "event": "push",
+      "branch": "main",
+      "created_at": "2026-11-10T17:01:30Z",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/actions/runs/42860606541",
+      "title": "Merge pull request #43 from camilamta275/feature/maestro-e2e-tc12-tc0…"
+    },
+    {
+      "id": 42840379432,
+      "conclusion": "success",
+      "event": "schedule",
+      "branch": "main",
+      "created_at": "2026-11-10T15:03:21Z",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/actions/runs/42840379432",
+      "title": "Regressão"
+    },
+    {
+      "id": 42820096141,
+      "conclusion": "failure",
+      "event": "push",
+      "branch": "main",
+      "created_at": "2026-11-10T12:56:59Z",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/actions/runs/42820096141",
+      "title": "Merge pull request #42 from camilamta275/gabidamasio-patch-1"
+    },
+    {
+      "id": 42758575667,
+      "conclusion": "failure",
+      "event": "push",
+      "branch": "main",
+      "created_at": "2026-11-10T04:52:30Z",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/actions/runs/42758575667",
+      "title": "Merge pull request #41 from camilamta275/feature/maestro-login-valida…"
+    },
+    {
+      "id": 42750558012,
+      "conclusion": "success",
+      "event": "push",
+      "branch": "main",
+      "created_at": "2026-11-10T03:36:36Z",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/actions/runs/42750558012",
+      "title": "Merge pull request #38 from camilamta275/fix/geocode-endereco-numero"
+    },
+    {
+      "id": 42750179990,
+      "conclusion": "success",
+      "event": "push",
+      "branch": "main",
+      "created_at": "2026-11-10T03:33:11Z",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/actions/runs/42750179990",
+      "title": "Merge pull request #39 from camilamta275/fix/versiona-assets"
+    },
+    {
+      "id": 42656999049,
+      "conclusion": "success",
+      "event": "schedule",
+      "branch": "main",
+      "created_at": "2026-11-09T16:39:34Z",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/actions/runs/42656999049",
+      "title": "Regressão"
+    },
+    {
+      "id": 42485989989,
+      "conclusion": "success",
+      "event": "schedule",
+      "branch": "main",
+      "created_at": "2026-11-08T13:39:23Z",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/actions/runs/42485989989",
+      "title": "Regressão"
+    },
+    {
+      "id": 42419757551,
+      "conclusion": "success",
+      "event": "push",
+      "branch": "main",
+      "created_at": "2026-11-07T22:15:33Z",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/actions/runs/42419757551",
+      "title": "Merge pull request #37 from camilamta275/etL_dashboard_implementation"
+    },
+    {
+      "id": 42376430147,
+      "conclusion": "success",
+      "event": "schedule",
+      "branch": "main",
+      "created_at": "2026-11-07T13:19:30Z",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/actions/runs/42376430147",
+      "title": "Regressão"
+    },
+    {
+      "id": 42233920435,
+      "conclusion": "success",
+      "event": "schedule",
+      "branch": "main",
+      "created_at": "2026-11-06T14:26:23Z",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/actions/runs/42233920435",
+      "title": "Regressão"
+    },
+    {
+      "id": 42159351735,
+      "conclusion": "success",
+      "event": "push",
+      "branch": "main",
+      "created_at": "2026-11-06T03:54:46Z",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/actions/runs/42159351735",
+      "title": "Merge pull request #35 from camilamta275/feature/gestor-status-update"
+    },
+    {
+      "id": 42056752755,
+      "conclusion": "success",
+      "event": "push",
+      "branch": "main",
+      "created_at": "2026-11-05T15:36:52Z",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/actions/runs/42056752755",
+      "title": "Merge pull request #32 from camilamta275/feature/demand-store"
+    },
+    {
+      "id": 42048650524,
+      "conclusion": "failure",
+      "event": "schedule",
+      "branch": "main",
+      "created_at": "2026-11-05T14:48:53Z",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/actions/runs/42048650524",
+      "title": "Regressão"
+    },
+    {
+      "id": 42040438066,
+      "conclusion": "success",
+      "event": "push",
+      "branch": "main",
+      "created_at": "2026-11-05T13:57:45Z",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/actions/runs/42040438066",
+      "title": "Merge pull request #30 from camilamta275/feature/rnf-sec-12-rate-limi…"
+    },
+    {
+      "id": 41971633306,
+      "conclusion": "success",
+      "event": "push",
+      "branch": "main",
+      "created_at": "2026-11-05T05:04:04Z",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/actions/runs/41971633306",
+      "title": "Merge pull request #29 from camilamta275/feature/rnf-sec-11-data-nasc…"
+    },
+    {
+      "id": 41969824628,
+      "conclusion": "success",
+      "event": "push",
+      "branch": "main",
+      "created_at": "2026-11-05T04:46:02Z",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/actions/runs/41969824628",
+      "title": "Merge pull request #28 from camilamta275/docs/auditoria-requisitos-v2"
+    },
+    {
+      "id": 41968854563,
+      "conclusion": "success",
+      "event": "push",
+      "branch": "main",
+      "created_at": "2026-11-05T04:36:27Z",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/actions/runs/41968854563",
+      "title": "Merge pull request #27 from camilamta275/feature/rnf-sec-10-maiores-d…"
+    },
+    {
+      "id": 41967375798,
+      "conclusion": "success",
+      "event": "push",
+      "branch": "main",
+      "created_at": "2026-11-05T04:22:12Z",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/actions/runs/41967375798",
+      "title": "Merge pull request #26 from camilamta275/feature/rnf-sec-06-anonimiza…"
+    },
+    {
+      "id": 41964735641,
+      "conclusion": "success",
+      "event": "push",
+      "branch": "main",
+      "created_at": "2026-11-05T03:57:02Z",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/actions/runs/41964735641",
+      "title": "Merge pull request #25 from camilamta275/feature/rnf-sec-07-consentim…"
+    },
+    {
+      "id": 41850325581,
+      "conclusion": "success",
+      "event": "schedule",
+      "branch": "main",
+      "created_at": "2026-11-04T14:42:57Z",
+      "url": "https://github.com/camilamta275/fiscalize-mobile/actions/runs/41850325581",
+      "title": "Regressão"
+    }
+  ]
+}
