@@ -102,6 +102,7 @@ export function RegisterView() {
             icon={Icons.arrowRight}
             onPress={() => router.replace('/login')}
             style={styles.successButton}
+            testID="register-success-login"
             title="Ir para o login"
           />
         </View>
@@ -135,6 +136,7 @@ export function RegisterView() {
           <Card style={styles.card}>
             <SectionTitle icon={Icons.person} title="Dados pessoais" />
             <TextField
+              testID="register-nome"
               error={fieldErrors.nome}
               label="Nome completo"
               onChangeText={setNome}
@@ -143,6 +145,7 @@ export function RegisterView() {
             />
             <TextField
               autoCapitalize="none"
+              testID="register-email"
               error={fieldErrors.email}
               keyboardType="email-address"
               label="E-mail"
@@ -151,6 +154,7 @@ export function RegisterView() {
               value={email}
             />
             <TextField
+              testID="register-cpf"
               error={fieldErrors.cpf}
               keyboardType="numeric"
               label="CPF"
@@ -159,6 +163,7 @@ export function RegisterView() {
               value={cpf}
             />
             <TextField
+              testID="register-data-nascimento"
               error={fieldErrors.dataNascimento}
               keyboardType="numeric"
               label="Data de nascimento"
@@ -183,6 +188,7 @@ export function RegisterView() {
           <Card style={styles.card}>
             <SectionTitle icon={Icons.mapPin} title="Endereço" />
             <TextField
+              testID="register-cep"
               error={fieldErrors.cep}
               hint={isLookingUpCep ? 'Buscando endereço…' : cepError ?? undefined}
               keyboardType="numeric"
@@ -197,6 +203,7 @@ export function RegisterView() {
               value={cep}
             />
             <TextField
+              testID="register-rua"
               error={fieldErrors.rua}
               label="Rua"
               onChangeText={setRua}
@@ -206,6 +213,7 @@ export function RegisterView() {
             <View style={styles.twoColumns}>
               <TextField
                 containerStyle={styles.flex}
+                testID="register-numero"
                 error={fieldErrors.numero}
                 label="Número"
                 onChangeText={setNumero}
@@ -214,6 +222,7 @@ export function RegisterView() {
               />
               <TextField
                 containerStyle={styles.flex}
+                testID="register-bairro"
                 error={fieldErrors.bairro}
                 label="Bairro"
                 onChangeText={setBairro}
@@ -224,6 +233,7 @@ export function RegisterView() {
             <View style={styles.twoColumns}>
               <TextField
                 containerStyle={styles.flex}
+                testID="register-cidade"
                 error={fieldErrors.cidade}
                 label="Cidade"
                 onChangeText={setCidade}
@@ -233,6 +243,7 @@ export function RegisterView() {
               <TextField
                 autoCapitalize="none"
                 containerStyle={styles.uf}
+                testID="register-estado"
                 error={fieldErrors.estado}
                 label="UF"
                 maxLength={2}
@@ -253,6 +264,7 @@ export function RegisterView() {
             <SectionTitle icon={Icons.lock} title="Acesso" />
             <TextField
               autoCapitalize="none"
+              testID="register-senha"
               error={fieldErrors.senha}
               label="Senha"
               onChangeText={setSenha}
@@ -262,6 +274,7 @@ export function RegisterView() {
             />
             <TextField
               autoCapitalize="none"
+              testID="register-confirmar-senha"
               error={fieldErrors.confirmarSenha}
               label="Confirmar senha"
               onChangeText={setConfirmarSenha}
@@ -282,6 +295,7 @@ export function RegisterView() {
               onPress={() => setPrivacyPolicyAccepted(!privacyPolicyAccepted)}
               style={styles.consentRow}>
               <View
+                testID="register-privacy-checkbox-box"
                 style={[
                   styles.checkbox,
                   { borderColor: privacyPolicyAccepted ? theme.primary : theme.border },
@@ -314,6 +328,7 @@ export function RegisterView() {
             icon={Icons.check}
             loading={isSubmitting}
             onPress={submit}
+            testID="register-submit"
             title="Criar conta"
           />
 

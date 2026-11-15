@@ -5,16 +5,84 @@ from src.transform import Transform
 from src.seed_mongo import Seed_Mongo
 
 
+# Created by AI.
 # Updated by AI.
-def run_clima(carregar_da_api: bool = False):
-    """
-    Executa o ETL de dados climáticos.
+def garantir_clima(
+    ext: Extract,
+    ld: Load,
+    seed: Seed_Mongo,
+    transformer: Transform,
+    data_inicio: str,
+    data_fim: str,
+    carregar_da_api: bool = False,
+):
+    """Garante que `clima_raw` cubra o intervalo dos chamados."""
+    df_clima_raw = ext.extract_collection_from_mongo("clima_raw")
+    df_clima = None
+    if not df_clima_raw.empty:
+        df_clima = transformer.transform_clima(df_clima_raw)
 
-    Parâmetros:
-        carregar_da_api: se True, extrai os dados da API Open-Meteo e
-            salva o bruto no Mongo antes de seguir o fluxo normal.
-            Se False, ainda busca a API quando a carga existente não
-            cobrir o intervalo real dos chamados.
+    precisa_carregar = (
+        carregar_da_api
+        or df_clima is None
+        or not clima_cobre(df_clima, data_inicio, data_fim)
+    )
+
+    if precisa_carregar:
+        print("Extraindo dados climáticos da API Open-Meteo!")
+        seed.extrair_clima_da_api_e_salvar_no_mongo(
+            ext,
+            ld,
+            data_inicio=data_inicio,
+            data_fim=data_fim,
+        )
+        df_clima_raw = ext.extract_collection_from_mongo("clima_raw")
+
+    return df_clima_raw
+
+
+# Created by AI.
+def garantir_populacao(
+    ext: Extract,
+    ld: Load,
+    seed: Seed_Mongo,
+    carregar_da_api: bool = False,
+):
+    """Garante que `populacao_ibge_raw` possua a carga mais recente do IBGE."""
+    df_populacao_raw = ext.extract_collection_from_mongo("populacao_ibge_raw")
+
+    if carregar_da_api or df_populacao_raw.empty:
+        print("Extraindo dados de população da API do IBGE!")
+        seed.extrair_populacao_da_api_e_salvar_no_mongo(ext, ld)
+        df_populacao_raw = ext.extract_collection_from_mongo("populacao_ibge_raw")
+
+    return df_populacao_raw
+
+
+# Created by AI.
+def carregar_tabelas(ld: Load, tabelas: dict[str, object]) -> None:
+    """Carrega as tabelas no SQLite e no Neon."""
+    for nome, df in tabelas.items():
+        print(f"Carregando {nome} no SQLite...")
+        ld.load_sqlite(df, nome)
+
+        print(f"Carregando {nome} no Neon...")
+        ld.load_neon(df, nome)
+
+
+# Created by AI.
+# Updated by AI.
+def run_etl(
+    carregar_clima_da_api: bool = False,
+    carregar_populacao_da_api: bool = False,
+):
+    """
+    Executa o pipeline medallion completo:
+
+    bronze (Mongo) -> silver (SQLite/Neon) -> gold (SQLite/Neon)
+
+    O backend continua sendo a fonte da verdade. O sync dos chamados é uma
+    etapa separada (`python -m src.sync_chamados`) ou a primeira task do flow.
     """
 
     ext = Extract()
@@ -23,88 +91,87 @@ def run_clima(carregar_da_api: bool = False):
     seed = Seed_Mongo()
 
     try:
-        log_inicio_etl("ETL de Clima")
+        log_inicio_etl("ETL Fiscalize (bronze -> silver -> gold)")
 
-        # 1. Chamados reais sincronizados do backend
-        print("Etapa 1: Lendo chamados da coleção chamados_raw!")
+        # 1. Bronze: chamados sincronizados do backend + clima + população
+        print("Etapa 1: Lendo chamados da coleção chamados_raw.")
         chamados = busca_chamados(ext)
-        print(f"{len(chamados)} chamados carregados!")
+        print(f"{len(chamados)} chamados carregados.")
 
         data_inicio, data_fim = intervalo_chamados(chamados)
         print(f"Intervalo de clima necessário: {data_inicio} a {data_fim}.")
 
-        # 2. Carga bruta existente e verificação de cobertura
-        df_clima_raw = ext.extract_collection_from_mongo("clima_raw")
-        df_clima = None
-        if not df_clima_raw.empty:
-            df_clima = transformer.transform_clima(df_clima_raw)
-
-        precisa_carregar = (
-            carregar_da_api
-            or df_clima is None
-            or not clima_cobre(df_clima, data_inicio, data_fim)
+        df_clima_raw = garantir_clima(
+            ext,
+            ld,
+            seed,
+            transformer,
+            data_inicio,
+            data_fim,
+            carregar_da_api=carregar_clima_da_api,
+        )
+        df_populacao_raw = garantir_populacao(
+            ext,
+            ld,
+            seed,
+            carregar_da_api=carregar_populacao_da_api,
         )
 
-        # 3. Extração da API quando necessário
-        if precisa_carregar:
-            print("Etapa 2: Extraindo dados climáticos da API!")
-            seed.extrair_clima_da_api_e_salvar_no_mongo(
-                ext,
-                ld,
-                data_inicio=data_inicio,
-                data_fim=data_fim,
-            )
-
-            print("Etapa 3: Buscando dados em MONGO!")
-            df_clima_raw = ext.extract_collection_from_mongo("clima_raw")
-            df_clima = transformer.transform_clima(df_clima_raw)
-
-        if df_clima is None or df_clima.empty:
-            raise ValueError("A coleção clima_raw está vazia.")
-
-        # 4. Transformação
-        print("Etapa 4: Transformando os dados!")
-        print(
-            f"Auditoria clima: {len(df_clima_raw)} documento(s) bronze "
-            f"e {len(df_clima)} registro(s) transformado(s)."
+        # 2. Silver
+        print("Etapa 2: Montando a camada silver.")
+        silver_chamado = transformer.build_silver_chamado(chamados)
+        silver_clima_diario = transformer.build_silver_clima_diario(df_clima_raw)
+        silver_bairro_populacao = transformer.build_silver_bairro_populacao(
+            df_populacao_raw
         )
 
-        # 5. Cruzamento chamados + clima
-        print("Etapa 5: Cruzando chamados com dados climáticos!")
-        df_final = transformer.merge_chamados_clima(
-            chamados,
-            df_clima
-        )
-        print(
-            f"Auditoria clima: {len(chamados)} chamado(s) de entrada e "
-            f"{len(df_final)} chamado(s) no destino."
+        carregar_tabelas(
+            ld,
+            {
+                "silver_chamado": silver_chamado,
+                "silver_clima_diario": silver_clima_diario,
+                "silver_bairro_populacao": silver_bairro_populacao,
+            },
         )
 
-        # 6. Carga no SQLite
-        print("Etapa 6: Salvando no SQLite!")
-        ld.load_sqlite(df_final, "chamados_clima")
+        # 3. Gold
+        print("Etapa 3: Gerando a camada gold a partir da silver.")
+        chamados_clima = transformer.build_gold_chamados_clima(
+            silver_chamado,
+            silver_clima_diario,
+        )
+        chamados_populacao = transformer.build_gold_chamados_populacao(
+            silver_chamado,
+            silver_bairro_populacao,
+        )
+        chamados_clima_diario = transformer.build_gold_chamados_clima_diario(
+            silver_chamado,
+            silver_clima_diario,
+        )
 
-        # 7. Carga no Neon
-        print("Etapa 7: Salvando no Neon!")
-        ld.load_neon(df_final, "chamados_clima")
+        carregar_tabelas(
+            ld,
+            {
+                "chamados_clima": chamados_clima,
+                "chamados_populacao": chamados_populacao,
+                "chamados_clima_diario": chamados_clima_diario,
+            },
+        )
 
-        log_fim_etl("ETL de Clima")
+        log_fim_etl("ETL Fiscalize (bronze -> silver -> gold)")
 
     finally:
         ext.close()
         ld.close()
 
 
-# Updated by AI.
+# Created by AI.
 def run_populacao(carregar_da_api: bool = False):
     """
-    Executa o ETL de população.
+    Atualiza apenas a camada de população e a gold `chamados_populacao`.
 
-    Parâmetros:
-        carregar_da_api: se True, extrai os dados do IBGE e salva o
-            bruto no Mongo antes de seguir o fluxo normal. Use True
-            apenas na primeira execução ou quando quiser atualizar os
-            dados brutos.
+    Útil para refletir chamados novos no Dashboard ETL sem consultar a API
+    de clima. As tabelas silver de clima não são regravadas.
     """
 
     ext = Extract()
@@ -115,48 +182,34 @@ def run_populacao(carregar_da_api: bool = False):
     try:
         log_inicio_etl("ETL de População")
 
-        # 1. Extração da API (opcional) e carga bruta no Mongo
-        if carregar_da_api:
-            print("Etapa 1: Extraindo dados de população da API!")
-            seed.extrair_populacao_da_api_e_salvar_no_mongo(ext, ld)
+        chamados = busca_chamados(ext)
+        print(f"{len(chamados)} chamados carregados.")
 
-        # 2. Busca dos dados brutos no Mongo
-        print("Etapa 2: Buscando dados em MONGO!")
-        df_populacao_raw = ext.extract_collection_from_mongo("populacao_ibge_raw")
-        if df_populacao_raw.empty:
-            raise ValueError("A coleção populacao_ibge_raw está vazia.")
+        df_populacao_raw = garantir_populacao(
+            ext,
+            ld,
+            seed,
+            carregar_da_api=carregar_da_api,
+        )
 
-        # 3. Transformação
-        print("Etapa 3: Transformando os dados!")
-        df_populacao = transformer.transform_populacao(
+        silver_chamado = transformer.build_silver_chamado(chamados)
+        silver_bairro_populacao = transformer.build_silver_bairro_populacao(
             df_populacao_raw
         )
-        print(
-            f"Auditoria população: {len(df_populacao_raw)} registro(s) "
-            f"na carga bronze e {len(df_populacao)} após o filtro de Recife."
+
+        carregar_tabelas(
+            ld,
+            {
+                "silver_chamado": silver_chamado,
+                "silver_bairro_populacao": silver_bairro_populacao,
+            },
         )
 
-        # 4. Leitura dos chamados reais
-        chamados = busca_chamados(ext)
-
-        # 5. Cruzamento
-        print("Etapa 4: Cruzando chamados e população!")
-        df_final = transformer.merge_chamados_populacao(
-            chamados,
-            df_populacao
+        chamados_populacao = transformer.build_gold_chamados_populacao(
+            silver_chamado,
+            silver_bairro_populacao,
         )
-        print(
-            f"Auditoria população: {len(chamados)} chamado(s) de entrada e "
-            f"{len(df_final)} bairro(s) agregados no destino."
-        )
-
-        # 6. SQLite
-        print("Etapa 5: Salvando no SQLite!")
-        ld.load_sqlite(df_final, "chamados_populacao")
-
-        # 7. Carga no Neon
-        print("Etapa 7: Salvando no Neon!")
-        ld.load_neon(df_final, "chamados_populacao")
+        carregar_tabelas(ld, {"chamados_populacao": chamados_populacao})
 
         log_fim_etl("ETL de População")
 
@@ -165,24 +218,30 @@ def run_populacao(carregar_da_api: bool = False):
         ld.close()
 
 
+# Created by AI.
 def log_inicio_etl(nome_etl: str):
     print("\n" + "=" * 50)
     print(f"  INICIANDO: {nome_etl}")
     print("=" * 50 + "\n")
 
+
+# Created by AI.
 def log_fim_etl(nome_etl: str):
     print("\n" + "=" * 50)
     print(f"  ✅ CONCLUÍDO: {nome_etl}")
     print("=" * 50 + "\n")
     print()
 
+
+# Created by AI.
+# Updated by AI.
 def main():
     """
-        Executa as ETLs do projeto.
+    Executa o ETL completo do projeto.
     """
 
-    run_clima()
-    run_populacao()
+    run_etl()
+
 
 if __name__ == "__main__":
     main()

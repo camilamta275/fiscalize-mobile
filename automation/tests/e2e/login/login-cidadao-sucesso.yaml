@@ -1,0 +1,35 @@
+# Created by AI.
+# TC01 - Autenticação do Cidadão com credenciais válidas.
+# Fonte: automation/docs/Saidas do Plano de Testes e Backlog/Casos de teste IA/saída-rodada-2.md
+# Pré-condição: backend rodando com o seed aplicado (cria o cidadão de teste).
+# Credenciais do cidadão criado pelo seed (backend/README.md, seção 8.3).
+# Para usar outra conta, altere o bloco env abaixo: ele tem prioridade sobre
+# o parâmetro -e da linha de comando.
+appId: br.com.fiscalize.mobile
+env:
+  CIDADAO_EMAIL: cidadao@fiscalize.gov.br
+  CIDADAO_SENHA: Cidadao@123456
+
+---
+- launchApp:
+    clearState: true
+
+- tapOn:
+    id: "login-email"
+- inputText: ${CIDADAO_EMAIL}
+
+- tapOn:
+    id: "login-password"
+- inputText: ${CIDADAO_SENHA}
+- hideKeyboard
+
+- tapOn:
+    id: "login-submit"
+
+# Resultado esperado: entra na tela "Meus Chamados" sem mensagem de erro
+- extendedWaitUntil:
+    visible: "Meus Chamados"
+    timeout: 15000
+- assertNotVisible: "Credenciais inválidas."
+- assertNotVisible:
+    id: "login-submit"

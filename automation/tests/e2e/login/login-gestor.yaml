@@ -1,0 +1,34 @@
+# Cobertura complementar mobile do gestor.
+# Não equivale ao caso WEB completo de TC06/TS09 e não deve ser tratado como
+# prova integral de acesso administrativo do gestor.
+# Provide test-manager credentials via Maestro -e; never commit them to this flow.
+# Sign in with OTP once on this emulator, then sign out without clearing app data.
+# The account must have at least one seeded occurrence visible in its list.
+appId: br.com.fiscalize.mobile
+
+---
+- launchApp
+- assertVisible:
+    id: "login-email"
+
+- tapOn:
+    id: "login-email"
+- inputText: ${MAESTRO_TC06_EMAIL}
+
+- tapOn:
+    id: "login-password"
+- inputText: ${MAESTRO_TC06_PASSWORD}
+- hideKeyboard
+
+- tapOn:
+    id: "login-submit"
+
+- assertVisible: "Ocorrências"
+- assertNotVisible: "Registrar nova ocorrência"
+- assertVisible:
+    text: "Abrir ocorrência .*"
+- tapOn:
+    text: "Abrir ocorrência .*"
+
+- assertVisible: "Atualizar status"
+- assertNotVisible: "Editar ocorrência"

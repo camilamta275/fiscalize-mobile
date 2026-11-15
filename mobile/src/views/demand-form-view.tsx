@@ -189,6 +189,7 @@ export function DemandFormView({ demandId }: { demandId?: string }) {
           <Card style={styles.card}>
             <SectionTitle icon={Icons.edit} title="O que aconteceu?" />
             <TextField
+              testID="demand-title"
               error={fieldErrors.title}
               label="Título"
               onChangeText={setTitle}
@@ -196,6 +197,7 @@ export function DemandFormView({ demandId }: { demandId?: string }) {
               value={title}
             />
             <TextField
+              testID="demand-description"
               error={fieldErrors.description}
               label="Descrição"
               multiline
@@ -311,6 +313,7 @@ export function DemandFormView({ demandId }: { demandId?: string }) {
           <Button
             loading={isSubmitting}
             onPress={submit}
+            testID="demand-submit"
             title={isEditing ? 'Salvar alterações' : 'Criar ocorrência'}
           />
         </ScrollView>

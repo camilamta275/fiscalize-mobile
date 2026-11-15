@@ -153,35 +153,37 @@ Em seguida, a tarefa `ler_chamados` lê `chamados_raw` e calcula o intervalo de 
 
 A tarefa `garantir_clima` verifica se a série climática já carregada cobre o intervalo dos chamados. Se não cobrir (ou se a coleção estiver vazia), consulta a Open-Meteo e grava a carga bruta em `clima_raw`. Caso contrário, reaproveita os dados existentes sem chamar a API.
 
+A tarefa `garantir_populacao` baixa a população do IBGE apenas quando `populacao_ibge_raw` estiver vazia.
+
 A tarefa `extrair_mongo` consulta as coleções do MongoDB utilizadas pela pipeline:
 
 - `clima_raw`: dados climáticos;
 - `populacao_ibge_raw`: dados populacionais.
 
-### 9.3. Transformação dos dados
+### 9.3. Camada silver
 
-Os dados são preparados para utilização nas próximas etapas:
+A tarefa `construir_silver` monta as tabelas normalizadas:
 
-- `transformar_clima`: organiza as informações climáticas, como data, temperatura e precipitação;
-- `transformar_populacao`: seleciona e organiza as informações de população por bairro.
+- `silver_chamado`: um registro por chamado, com bairro normalizado e data local de Recife;
+- `silver_clima_diario`: uma linha por dia, com temperatura e precipitação;
+- `silver_bairro_populacao`: um registro por bairro do Recife.
 
-Essa etapa padroniza os dados antes dos cruzamentos.
+### 9.4. Camada gold
 
-### 9.4. Cruzamento dos dados
+A tarefa `construir_gold` gera as tabelas do dashboard exclusivamente a partir da silver:
 
-Os chamados são combinados com as informações transformadas:
-
-- `cruzar_clima`: relaciona os chamados às informações climáticas correspondentes às suas datas;
-- `cruzar_populacao`: relaciona os chamados às informações populacionais dos bairros e calcula indicadores utilizados pela pipeline.
+- `chamados_clima`: chamados enriquecidos com clima;
+- `chamados_populacao`: chamados agregados por bairro com população e chamados por 1.000 habitantes;
+- `chamados_clima_diario`: chamados agregados por dia, junto com temperatura e precipitação.
 
 ### 9.5. Carregamento dos resultados
 
-Após os cruzamentos, os resultados são carregados em dois destinos:
+As tabelas silver e gold são carregadas em dois destinos:
 
-- **SQLite:** armazenamento local, nas tabelas `chamados_clima` e `chamados_populacao`;
-- **Neon PostgreSQL:** armazenamento no banco PostgreSQL, também nas tabelas `chamados_clima` e `chamados_populacao`.
+- **SQLite:** armazenamento local;
+- **Neon PostgreSQL:** armazenamento no banco PostgreSQL.
 
-O carregamento só acontece depois que os dados correspondentes foram preparados e cruzados.
+O carregamento no Neon apaga as linhas e insere a nova carga na mesma transação, sem `DROP TABLE`/`TRUNCATE`. O carregamento só acontece depois que os dados correspondentes foram preparados.
 
 ## 10. Acompanhamento da execução no Prefect
 
@@ -193,7 +195,7 @@ No painel, é possível acompanhar o histórico das execuções, consultar o est
 
 Os estados permitem identificar se uma execução foi concluída com sucesso ou se ocorreu alguma falha. Quando uma tarefa configurada para repetição falha, o Prefect também registra as tentativas realizadas.
 
-Durante o desenvolvimento, ocorreu uma falha no carregamento da tabela `chamados_clima` no Neon porque o usuário da conexão não tinha permissão para removê-la. O Prefect registrou o erro e realizou as tentativas de repetição configuradas. Após a correção do problema de permissão, uma nova execução foi concluída com sucesso.
+Durante o desenvolvimento, ocorreu uma falha no carregamento da tabela `chamados_clima` no Neon porque o usuário da conexão não tinha permissão para removê-la. O Prefect registrou o erro e realizou as tentativas de repetição configuradas. O carregamento foi ajustado para apagar as linhas e inserir a nova carga na mesma transação, sem `DROP TABLE`/`TRUNCATE`, e passou a concluir com sucesso para usuários com `INSERT` e `DELETE`.
 
 Esse caso demonstra a importância do monitoramento: além de coordenar as tarefas, o Prefect ajuda a localizar a etapa que falhou e fornece informações para investigar a causa.
 
@@ -204,8 +206,10 @@ Ao concluir a execução, espera-se que:
 - O fluxo `ETL Fiscalize` seja registrado pelo Prefect;
 - As tarefas sejam executadas respeitando suas dependências;
 - A coleção `chamados_raw` seja atualizada com os chamados atuais do backend;
-- Os dados climáticos e populacionais sejam transformados e cruzados com os chamados;
-- As tabelas `chamados_clima` e `chamados_populacao` sejam carregadas no SQLite e no Neon;
+- As camadas silver e gold sejam construídas a partir dos dados sincronizados;
+- As tabelas `silver_chamado`, `silver_clima_diario` e `silver_bairro_populacao` sejam carregadas no SQLite e no Neon;
+- As tabelas `chamados_clima`, `chamados_populacao` e `chamados_clima_diario` sejam carregadas no SQLite e no Neon;
+- O painel Streamlit consiga exibir chamados por bairro e a relação entre clima e chamados por dia;
 - O estado final do fluxo seja `Completed`, caso todas as etapas terminem sem erros;
 - O histórico e os logs estejam disponíveis no painel para acompanhamento e análise de falhas.
 

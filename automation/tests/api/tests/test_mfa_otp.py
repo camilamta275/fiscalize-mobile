@@ -139,9 +139,14 @@ def test_login_otp_locks_challenge_after_five_wrong_attempts(auth_security_data,
             },
             headers=request_headers,
         )
-        assert response.status_code == 401, f"tentativa {attempt + 1}"
+        expected_statuses = {401, 429} if attempt == 4 else {401}
+        assert response.status_code in expected_statuses, f"tentativa {attempt + 1}"
+        if response.status_code == 429:
+            assert response.headers.get("Retry-After")
 
-    assert challenge_row(database, challenge_token)["consumed_at"] is not None
+    locked_challenge = challenge_row(database, challenge_token)
+    assert locked_challenge["attempts"] == 5
+    assert locked_challenge["consumed_at"] is not None
 
     # O desafio é descartado: nem o código correto abre sessão.
     locked = requests.post(

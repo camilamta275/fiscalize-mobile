@@ -11,3 +11,17 @@ export type EtlDashboardResponse = {
   data: EtlDashboardRow[];
   updatedAt: string;
 };
+
+// Created by AI.
+export type EtlClimateRow = {
+  data: string;
+  temperatura: number | null;
+  precipitacao: number | null;
+  chamados: number;
+};
+
+// Created by AI.
+export type EtlClimateResponse = {
+  data: EtlClimateRow[];
+  updatedAt: string;
+};

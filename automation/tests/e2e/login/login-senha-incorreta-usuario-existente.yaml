@@ -1,0 +1,28 @@
+# TC02 / TS02 — senha incorreta de usuário cidadão existente.
+# Este fluxo representa autenticação negativa de conta existente e deve usar uma
+# conta de cidadão válida. Não deve usar credenciais administrativas.
+# Credenciais de teste devem ser fornecidas via variáveis externas do Maestro.
+appId: br.com.fiscalize.mobile
+
+---
+- launchApp
+
+- assertVisible:
+    id: "login-email"
+
+- tapOn:
+    id: "login-email"
+- inputText: ${MAESTRO_TC02_EMAIL}
+
+- tapOn:
+    id: "login-password"
+- inputText: "SenhaIncorreta123!"
+- hideKeyboard
+
+- tapOn:
+    id: "login-submit"
+
+- assertVisible: "Credenciais inválidas."
+- assertVisible:
+    id: "login-email"
+- assertNotVisible: "Ocorrências"
