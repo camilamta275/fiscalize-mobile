@@ -1,8 +1,6 @@
-import uuid
-
 import requests
 from automation.tests.api.config.settings import Endpoints as endpoints
-from automation.tests.api.conftest import profile_fields
+from automation.tests.api.conftest import profile_fields, synthetic_client_ip
 
 # Updated by AI.
 def test_create_user(create_uuid):
@@ -148,6 +146,6 @@ def test_create_user_empty_email(create_uuid):
     resp = requests.post(
         endpoints.REGISTER,
         json=new_user_data,
-        headers={"X-Forwarded-For": f"198.51.100.{uuid.uuid4().int % 254 + 1}"},
+        headers={"X-Forwarded-For": synthetic_client_ip()},
     )
     assert resp.status_code == 400  # Espera-se um erro de validação (400 Bad Request)

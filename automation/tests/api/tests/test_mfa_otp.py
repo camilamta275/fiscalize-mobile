@@ -14,6 +14,7 @@ from automation.tests.api.conftest import (
     recover_otp_code,
     register_account,
     request_login_challenge,
+    synthetic_client_ip,
 )
 
 # Created by AI.
@@ -124,7 +125,7 @@ def test_login_otp_rejects_wrong_code(auth_security_data, database):
 def test_login_otp_locks_challenge_after_five_wrong_attempts(auth_security_data, database):
     email, password = new_account(auth_security_data)
     identity = device_identity()
-    request_headers = {"X-Forwarded-For": f"198.51.100.{uuid.uuid4().int % 254 + 1}"}
+    request_headers = {"X-Forwarded-For": synthetic_client_ip()}
     challenge_token = request_login_challenge(email, password, identity["deviceId"])
     code = recover_otp_code(database, challenge_token)
     wrong_code = "000000" if code != "000000" else "111111"
@@ -228,13 +229,20 @@ def test_login_otp_rejects_expired_challenge(auth_security_data, database):
     assert response.status_code == 401
 
 # Created by AI.
+# Updated by AI.
 def test_verify_otp_rejects_malformed_code():
+    """A code shorter than six digits fails input validation, not the challenge."""
+    # Pinned to its own bucket: this is the only OTP test that asserts a 400
+    # instead of skipping on 429, so a leaked bucket would hide the regression
+    # behind a false rate-limit failure.
     response = requests.post(
         endpoints.MFA_VERIFY,
+        headers={"X-Forwarded-For": synthetic_client_ip()},
         json={"challengeToken": "not-a-real-challenge", "code": "123"},
+        timeout=10,
     )
 
-    assert response.status_code == 400
+    assert response.status_code == 400, response.text
     assert "6 dígitos" in response.json()["error"]
 
 # Created by AI.

@@ -5,6 +5,7 @@ import pytest
 import requests
 
 from automation.tests.api.config.settings import Endpoints as endpoints
+from automation.tests.api.conftest import synthetic_client_ip
 
 # Created by AI.
 GENERAL_LIMIT = int(os.getenv("FISCALIZE_RATE_LIMIT_GENERAL_MAX", "100"))
@@ -15,10 +16,10 @@ DEMAND_LIMIT = int(os.getenv("FISCALIZE_RATE_LIMIT_DEMAND_MAX", "10"))
 
 
 # Created by AI.
+# Updated by AI.
 def client_ip_headers():
     """Return a synthetic client IP for an isolated rate-limit bucket."""
-    octet = uuid.uuid4().int % 254 + 1
-    return {"X-Forwarded-For": f"198.51.100.{octet}"}
+    return {"X-Forwarded-For": synthetic_client_ip()}
 
 
 # Created by AI.
@@ -161,16 +162,17 @@ def test_demand_submission_limit_returns_429(authenticate_user):
 
 
 # Created by AI.
+# Updated by AI.
 def test_different_client_ips_have_independent_buckets():
     """Different client IPs have independent general-route counters."""
     first = requests.get(
         f"{endpoints.BASE_URL}/demands/public",
-        headers={"X-Forwarded-For": "198.51.100.10"},
+        headers={"X-Forwarded-For": synthetic_client_ip()},
         timeout=10,
     )
     second = requests.get(
         f"{endpoints.BASE_URL}/demands/public",
-        headers={"X-Forwarded-For": "198.51.100.11"},
+        headers={"X-Forwarded-For": synthetic_client_ip()},
         timeout=10,
     )
 

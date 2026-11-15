@@ -2,6 +2,7 @@ import hashlib
 import itertools
 import json
 import os
+import secrets
 import uuid
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
@@ -14,16 +15,31 @@ from psycopg.rows import dict_row
 from automation.tests.api.config.settings import Endpoints as endpoints
 
 # Created by AI.
-_RATE_LIMIT_IP_COUNTER = itertools.count(1)
+# Updated by AI.
+# 198.18.0.0/15 (RFC 2544) is reserved for benchmarking, so no real client can
+# own these addresses. The allocator starts at a random offset on purpose: two
+# pytest processes started within the same rate-limit window -- the CI smoke
+# step followed by the full API suite, or a local rerun -- used to receive the
+# same 198.51.100.x bucket for the same test position and inherited the
+# previous run's exhausted counters, surfacing as an intermittent HTTP 429.
+_RATE_LIMIT_IP_SPACE = 129_032
+_RATE_LIMIT_IP_BASE = secrets.randbelow(_RATE_LIMIT_IP_SPACE)
+_RATE_LIMIT_IP_COUNTER = itertools.count()
 
 # Created by AI.
+def synthetic_client_ip() -> str:
+    """Return a client IP whose rate-limit bucket is unique for this session."""
+    index = (_RATE_LIMIT_IP_BASE + next(_RATE_LIMIT_IP_COUNTER)) % _RATE_LIMIT_IP_SPACE
+    second_octet = 18 + index // 64_516
+    remainder = index % 64_516
+    return f"198.{second_octet}.{remainder // 254 + 1}.{remainder % 254 + 1}"
+
+# Created by AI.
+# Updated by AI.
 @pytest.fixture(autouse=True)
 def isolate_rate_limit_bucket(monkeypatch):
     """Use one synthetic client IP per test to avoid cross-test throttling."""
-    test_number = next(_RATE_LIMIT_IP_COUNTER)
-    if test_number > 254:
-        pytest.fail("A suíte excedeu o número de IPs sintéticos disponíveis.")
-    test_ip = f"198.51.100.{test_number}"
+    test_ip = synthetic_client_ip()
     original_request = requests.sessions.Session.request
 
     def request_with_isolated_ip(session, method, url, **kwargs):
