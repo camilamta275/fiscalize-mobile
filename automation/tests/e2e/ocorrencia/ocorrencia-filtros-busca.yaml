@@ -1,0 +1,46 @@
+﻿# Created by AI.
+# Listagem de Ocorrências - Busca por endereço, filtro por status e ordenação.
+# Pré-condição: backend rodando com o seed aplicado (cria o cidadão de teste).
+appId: br.com.fiscalize.mobile
+env:
+  CIDADAO_EMAIL: cidadao@fiscalize.gov.br
+  CIDADAO_SENHA: Cidadao@123456
+
+---
+- launchApp:
+    clearState: true
+
+- tapOn:
+    id: "login-email"
+- inputText: ${CIDADAO_EMAIL}
+- tapOn:
+    id: "login-password"
+- inputText: ${CIDADAO_SENHA}
+- hideKeyboard
+- tapOn:
+    id: "login-submit"
+
+- extendedWaitUntil:
+    visible: "Meus Chamados"
+    timeout: 15000
+
+# Valida busca por endereço e botão de limpar busca
+- tapOn: "Buscar por endereço..."
+- inputText: "Rua das Flores"
+- hideKeyboard
+- assertVisible: "Limpar busca"
+- tapOn: "Limpar busca"
+
+# Valida filtro por status
+- tapOn: "Todos os status"
+- assertVisible: "Filtrar por status"
+- tapOn: "Aberto"
+- assertNotVisible: "Filtrar por status"
+- assertVisible: "Aberto"
+
+# Valida ordenação da lista
+- tapOn: "Mais recentes"
+- assertVisible: "Ordenar ocorrências"
+- tapOn: "Por prioridade"
+- assertNotVisible: "Ordenar ocorrências"
+- assertVisible: "Por prioridade"

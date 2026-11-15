@@ -1,0 +1,101 @@
+appId: br.com.fiscalize.mobile
+
+---
+- launchApp:
+    clearState: true
+
+- tapOn:
+    id: "login-email"
+- inputText: ${MAESTRO_TC03_EMAIL}
+- tapOn:
+    id: "login-password"
+- inputText: ${MAESTRO_TC03_PASSWORD}
+- hideKeyboard
+- tapOn:
+    id: "login-submit"
+- extendedWaitUntil:
+    visible: "Meus Chamados"
+    timeout: 15000
+
+- evalScript: ${output.title = 'TC03 E2E ' + Date.now()}
+
+- tapOn: "Registrar nova ocorrência"
+- assertVisible: "Registre um problema urbano"
+
+- tapOn:
+    text: "Ex: Buraco na via"
+- inputText: ${output.title}
+- tapOn:
+    text: "Descreva o problema com detalhes, incluindo pontos de referência."
+- inputText: "Buraco na rua oferece risco para pedestres e veículos."
+- hideKeyboard
+
+- scrollUntilVisible:
+    element:
+      text: "Infraestrutura"
+- tapOn: "Infraestrutura"
+
+- scrollUntilVisible:
+    element:
+      text: "Rua ou avenida"
+- tapOn:
+    text: "Rua ou avenida"
+- inputText: "Rua das Flores"
+- scrollUntilVisible:
+    element:
+      text: "Ex: 123"
+- tapOn:
+    text: "Ex: 123"
+- inputText: "123"
+- scrollUntilVisible:
+    element:
+      text: "Ex: Boa Viagem"
+- tapOn:
+    text: "Ex: Boa Viagem"
+- inputText: "Boa Vista"
+- scrollUntilVisible:
+    element:
+      text: "Recife"
+- tapOn:
+    text: "Recife"
+- inputText: "Recife"
+- scrollUntilVisible:
+    element:
+      text: "PE"
+- tapOn:
+    text: "PE"
+- inputText: "PE"
+- hideKeyboard
+
+- scrollUntilVisible:
+    element:
+      text: "00000-000"
+    direction: UP
+- tapOn:
+    text: "00000-000"
+- inputText: "50050000"
+- hideKeyboard
+- extendedWaitUntil:
+    visible: "Buscando endereço…"
+    timeout: 15000
+- extendedWaitUntil:
+    visible: "Calculando…"
+    timeout: 15000
+- extendedWaitUntil:
+    visible: "Preenchida automaticamente"
+    timeout: 15000
+
+- scrollUntilVisible:
+    element:
+      id: "demand-submit"
+- tapOn:
+    id: "demand-submit"
+- extendedWaitUntil:
+    visible: "Ocorrência registrada!"
+    timeout: 15000
+
+- tapOn: "Voltar para a lista"
+- extendedWaitUntil:
+    visible: ${output.title}
+    timeout: 15000
+- assertVisible: "Aberto"
