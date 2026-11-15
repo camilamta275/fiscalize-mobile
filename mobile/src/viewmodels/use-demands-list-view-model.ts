@@ -4,7 +4,9 @@ import { useCallback, useEffect, useState } from 'react';
 import type { DemandStatus } from '@/models/demand';
 import { ApiError } from '@/models/api-error';
 import { useDemands } from '@/contexts/demand-context';
+import * as categoryService from '@/services/category-service';
 import * as demandService from '@/services/demand-service';
+import type { Category } from '@/models/category';
 import type { DemandOrganization } from '@/services/demand-service';
 
 /**
@@ -30,10 +32,12 @@ export function useDemandsListViewModel() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<DemandStatus | null>(null);
   const [orgaoFilter, setOrgaoFilter] = useState<string | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState<number | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [sortBy, setSortBy] = useState<'recent' | 'oldest' | 'priority' | 'sla'>('recent');
   const [organizations, setOrganizations] = useState<DemandOrganization[]>([]);
 
-  const listKey = JSON.stringify([search, statusFilter, orgaoFilter, sortBy]);
+  const listKey = JSON.stringify([search, statusFilter, orgaoFilter, categoryFilter, sortBy]);
   // Only a list produced by the current filters may be shown; anything else
   // in the store belongs to a previous query.
   const cached = list?.key === listKey ? list : null;
@@ -54,6 +58,7 @@ export function useDemandsListViewModel() {
           regiao: search || undefined,
           status: statusFilter ?? undefined,
           orgao: orgaoFilter ?? undefined,
+          categoria: categoryFilter ?? undefined,
           ordenacao: sortBy,
         });
         storeListPage(listKey, result);
@@ -67,7 +72,7 @@ export function useDemandsListViewModel() {
         setIsLoadingMore(false);
       }
     },
-    [search, statusFilter, orgaoFilter, sortBy, listKey, storeListPage]
+    [search, statusFilter, orgaoFilter, categoryFilter, sortBy, listKey, storeListPage]
   );
 
   const refresh = useCallback(() => fetchPage(1, 'refresh'), [fetchPage]);
@@ -88,6 +93,7 @@ export function useDemandsListViewModel() {
           regiao: search || undefined,
           status: statusFilter ?? undefined,
           orgao: orgaoFilter ?? undefined,
+          categoria: categoryFilter ?? undefined,
           ordenacao: sortBy,
         })
         .then((result) => storeListPage(listKey, result))
@@ -110,6 +116,10 @@ export function useDemandsListViewModel() {
   );
 
   useEffect(() => {
+    void categoryService
+      .list()
+      .then(setCategories)
+      .catch(() => setCategories([]));
     void demandService
       .listOrganizations()
       .then(setOrganizations)
@@ -129,6 +139,9 @@ export function useDemandsListViewModel() {
     setStatusFilter,
     orgaoFilter,
     setOrgaoFilter,
+    categoryFilter,
+    setCategoryFilter,
+    categories,
     sortBy,
     setSortBy,
     organizations,

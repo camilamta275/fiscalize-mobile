@@ -6,6 +6,7 @@ import * as authService from '@/services/auth-service';
 import { setAuthTokens, setTokenRotationHandler } from '@/services/api-client';
 import { useStorageState } from '@/hooks/use-storage-state';
 import { getDeviceIdentity } from '@/services/device-service';
+import { registerPushToken } from '@/services/notification-service';
 
 /**
  * Context — the app's auth session, following the pattern in
@@ -55,6 +56,11 @@ export function SessionProvider({ children }: PropsWithChildren) {
 
   // A restored token still needs its usuario — the token alone was never
   // shown to the user, so there's nothing to render until this resolves.
+  useEffect(() => {
+    if (!usuario) return;
+    void registerPushToken();
+  }, [usuario]);
+
   useEffect(() => {
     if (isRestoringToken || isRestoringRefreshToken) return;
 
