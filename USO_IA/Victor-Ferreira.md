@@ -25,3 +25,15 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Implementação, documentação e validação técnica.
 - **Tipo de contribuição da IA:** Análise do código existente, implementação, atualização da documentação e testes de sintaxe/transformação.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0002
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Victor Ferreira
+- **Arquivo / Arquivos alterado(s):** automation/tests/e2e/register/register-navigation.yaml, automation/README.md
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Criado E2E mobile de navegação para cadastro e Política de Privacidade, com instruções de execução no README.
+- **Tratamento de dados pessoais:** Não houve. O teste não utiliza credenciais nem dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** AI assistant using Copilot SDK in VS Code (versão disponibilizada na sessão)
+- **Finalidade do uso da IA:** Implementar um teste E2E mobile distinto dos cenários de login excluídos.
+- **Etapa da atividade:** Análise, implementação, documentação e validação técnica.
+- **Tipo de contribuição da IA:** Análise dos fluxos existentes, criação do fluxo Maestro, atualização da documentação e revisão de consistência.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
