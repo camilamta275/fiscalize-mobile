@@ -1,11 +1,12 @@
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/ui/card';
 import { Icon } from '@/components/ui/icon';
+import { InlineMessage } from '@/components/ui/inline-message';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { Icons } from '@/constants/icons';
 import { Radius, Spacing } from '@/constants/theme';
@@ -16,33 +17,46 @@ import {
   type AppNotification,
 } from '@/services/notification-service';
 
+// Updated by AI.
 export function NotificationsView() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const [items, setItems] = useState<AppNotification[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    void load();
-  }, []);
-
-  const load = async () => {
+  // Updated by AI.
+  const load = useCallback(async () => {
+    setError(null);
+    setLoading(true);
     try {
       const next = await listNotifications();
       setItems(next);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Não foi possível carregar notificações.');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void load();
+  }, [load]);
+
+  // Updated by AI.
   const handlePress = async (item: AppNotification) => {
     if (item.lida) return;
-    await markNotificationRead(item.id);
-    setItems((current) =>
-      current.map((entry) =>
-        entry.id === item.id ? { ...entry, lida: true } : entry
-      )
-    );
+    try {
+      await markNotificationRead(item.id);
+      setItems((current) =>
+        current.map((entry) =>
+          entry.id === item.id ? { ...entry, lida: true } : entry
+        )
+      );
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Não foi possível marcar a notificação.');
+    }
   };
 
   return (
@@ -56,6 +70,13 @@ export function NotificationsView() {
           <ThemedText themeColor="mutedForeground" type="small">
             Carregando notificações...
           </ThemedText>
+        ) : error ? (
+          <View style={styles.errorState}>
+            <InlineMessage message={error} />
+            <ThemedText onPress={() => void load()} themeColor="primary" type="linkPrimary">
+              Tentar novamente
+            </ThemedText>
+          </View>
         ) : items.length === 0 ? (
           <Card style={styles.emptyCard}>
             <ThemedText type="subtitle">Nenhuma notificação</ThemedText>
@@ -99,6 +120,7 @@ export function NotificationsView() {
 const styles = StyleSheet.create({
   root: { flex: 1 },
   content: { gap: Spacing.two, padding: Spacing.three },
+  errorState: { gap: Spacing.two },
   emptyCard: { alignItems: 'flex-start', gap: Spacing.one },
   item: {
     padding: Spacing.three,

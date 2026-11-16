@@ -2,6 +2,22 @@
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
+## Atualizações e funcionamento offline
+
+O app usa `expo-updates` com runtime baseado na versão do aplicativo. Para
+builds EAS, configure `EXPO_PUBLIC_EAS_PROJECT_ID` com o ID do projeto Expo;
+os perfis `development`, `preview` e `production` usam canais homônimos.
+
+```bash
+set EXPO_PUBLIC_EAS_PROJECT_ID=seu-project-id
+npx eas update --channel preview --message "Atualização do app"
+```
+
+O token e o refresh token permanecem no `SecureStore`. A última lista e os
+detalhes de demandas são persistidos no `AsyncStorage`, isolados por usuário.
+Sem rede, o app mantém a sessão e exibe a última consulta disponível; criação,
+edição, exclusão e alterações de status continuam exigindo conexão.
+
 ## Get started
 
 1. Install dependencies
