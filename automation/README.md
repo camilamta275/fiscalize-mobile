@@ -64,6 +64,12 @@ minuto fora da hora cheia, e a regressão também pode ser disparada manualmente
 em **Actions > Regressão > Run workflow**. Os relatórios de cada execução e a
 issue automática de falha estão descritos em [Execution reports](#execution-reports).
 
+A política de manutenção da TAS está em [docs/tas.md](../docs/tas.md). Registre
+demandas manuais pelo [formulário de manutenção](../.github/ISSUE_TEMPLATE/tas-manutencao.yml);
+falhas de CI continuam sendo abertas/atualizadas automaticamente com o rótulo
+`falha-ci`. A [demonstração simulada](../docs/evidencias/manutencao-tas-simulada.md)
+mostra o registro, a classificação e o encaminhamento.
+
 Configure a proteção da branch principal no GitHub em **Settings > Branches >
 Branch protection rules** (ou em **Rulesets**) com as seguintes opções:
 

@@ -38,3 +38,27 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Ajuste e validação de teste de integração da API.
 - **Tipo de contribuição da IA:** Análise do resultado CI, edição do teste e validação de sintaxe Python.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0003
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Lucas Rodrigues
+- **Arquivo / Arquivos alterado(s):** `docs/tas.md`, `USO_IA/Lucas-Rodrigues.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Documentada política da TAS para classificar falhas, priorizar correções, tratar instabilidade, revisar e descontinuar testes.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** GitHub Copilot via Copilot SDK no VS Code; versão ChatGPT 6.1 Sol
+- **Finalidade do uso da IA:** Elaborar a política de manutenção da automação de testes do projeto Fiscalize.
+- **Etapa da atividade:** Definição e documentação da política de manutenção.
+- **Tipo de contribuição da IA:** Análise da documentação existente e redação da política, alinhada ao fluxo e às métricas já descritos no repositório.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0004
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Lucas Rodrigues
+- **Arquivo / Arquivos alterado(s):** `.github/ISSUE_TEMPLATE/tas-manutencao.yml`, `.github/workflows/regressao.yml`, `automation/README.md`, `docs/tas.md`, `docs/evidencias/manutencao-tas-simulada.md`, `USO_IA/Lucas-Rodrigues.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Criado formulário obrigatório de manutenção, triagem nas issues automáticas de CI e demonstração simulada com classificação, responsável e prazo.
+- **Tratamento de dados pessoais:** Houve tratamento limitado aos nomes de integrantes já presentes na documentação consultada e ao nome do revisor para o registro obrigatório; nenhum dado de cidadão, credencial ou dado sensível foi tratado.
+- **Alterado pela IA (nome da IA, versão da IA):** GitHub Copilot via Copilot SDK no VS Code; versão ChatGPT 6.1 Sol
+- **Finalidade do uso da IA:** Implementar os mecanismos de registro e acompanhamento da política de manutenção da TAS e demonstrar sua aplicação.
+- **Etapa da atividade:** Configuração de issues do GitHub, integração com a pipeline e elaboração da evidência simulada.
+- **Tipo de contribuição da IA:** Criação do formulário, atualização do workflow e da documentação, e produção de um registro de demonstração fictício.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
