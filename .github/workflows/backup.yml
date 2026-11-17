@@ -53,8 +53,8 @@ defaults:
 
 # Created by AI.
 env:
-  # Versão do cliente (pg_dump/pg_restore/psql) e do Postgres de teste do
-  # restore em produção. Deve ser igual ou maior que a versão do Postgres de
+  # Versão do cliente (pg_dump/pg_restore/psql) e dos Postgres temporários dos
+  # jobs de teste e de produção. Deve ser igual ou maior que a versão do Postgres de
   # produção. Configure em Settings > Secrets and variables > Actions >
   # Variables > BACKUP_PG_VERSION. TODO: confirmar a versão de produção.
   PG_VERSION: ${{ vars.BACKUP_PG_VERSION || '16' }}
@@ -68,8 +68,9 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        # Mesma imagem do workflow de regressão.
-        image: postgres:16
+        # Mesma versão usada pelo cliente (BACKUP_PG_VERSION, padrão 16), para
+        # o teste refletir a versão de produção quando ela for configurada.
+        image: postgres:${{ vars.BACKUP_PG_VERSION || '16' }}
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -143,7 +144,7 @@ jobs:
       # Created by AI.
       - name: Criar banco vazio para o restore
         run: >-
-          docker run --rm --network host -e PGPASSWORD=postgres postgres:16
+          docker run --rm --network host -e PGPASSWORD=postgres "postgres:$PG_VERSION"
           psql -h localhost -U postgres -XAtq -c "CREATE DATABASE fiscalize_restore"
 
       # Created by AI.
