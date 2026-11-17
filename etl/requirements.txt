@@ -3,6 +3,7 @@ requests
 pymongo
 python-dotenv
 pandas
+pyspark==4.0.1
 beautifulsoup4
 sqlalchemy 
 psycopg2-binary
