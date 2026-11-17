@@ -1,0 +1,276 @@
+name: Backup do banco
+
+# Created by AI.
+# RNF-SEC-05 e RNF-SEC-15: backup lógico do PostgreSQL cifrado com AES-256
+# (pg_dump | gpg --symmetric --cipher-algo AES256), teste de restore e
+# verificação. Scripts em ops/backup/; runbook em
+# docs/RNF-SEC/RUNBOOK-RESTAURACAO-BACKUP.md.
+#
+# Dois modos:
+#   - teste: roda em push/PR que mexa nos scripts, no workflow ou no submódulo
+#     do backend, e na execução manual. Usa um Postgres temporário do CI.
+#   - produção: agendado diariamente. Só executa se os secrets
+#     BACKUP_DATABASE_URL e BACKUP_PASSPHRASE estiverem cadastrados; sem eles,
+#     o job é pulado com um aviso.
+on:
+  push:
+    paths:
+      - "ops/backup/**"
+      - ".github/workflows/backup.yml"
+      - "backend"
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "ops/backup/**"
+      - ".github/workflows/backup.yml"
+      - "backend"
+  # 06:47 UTC = 03:47 em Recife: fora do expediente, fora da hora cheia e
+  # depois da regressão diária (06:23 UTC).
+  schedule:
+    - cron: "47 6 * * *"
+  workflow_dispatch:
+    inputs:
+      producao:
+        description: "Executar também o backup de produção (exige os secrets)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+# Created by AI.
+# Nunca roda dois backups ao mesmo tempo na mesma ref e não cancela um backup
+# em andamento.
+concurrency:
+  group: backup-${{ github.ref }}
+  cancel-in-progress: false
+
+# Created by AI.
+defaults:
+  run:
+    # `shell: bash` explícito ativa -eo pipefail em todos os passos.
+    shell: bash
+
+# Created by AI.
+env:
+  # Versão do cliente (pg_dump/pg_restore/psql) e do Postgres de teste do
+  # restore em produção. Deve ser igual ou maior que a versão do Postgres de
+  # produção. Configure em Settings > Secrets and variables > Actions >
+  # Variables > BACKUP_PG_VERSION. TODO: confirmar a versão de produção.
+  PG_VERSION: ${{ vars.BACKUP_PG_VERSION || '16' }}
+  BACKUP_DIR: backups
+
+jobs:
+  # Created by AI.
+  teste:
+    name: Teste de backup e restore
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        # Mesma imagem do workflow de regressão.
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: fiscalize
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d fiscalize"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/fiscalize?schema=public
+      SOURCE_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/fiscalize?schema=public
+      TARGET_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/fiscalize_restore?schema=public
+      JWT_SECRET: ci-only-secret
+      NODE_ENV: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Instalar dependências do backend
+        working-directory: backend
+        run: npm ci
+
+      # Created by AI.
+      - name: Preparar banco de origem (migrations + seed)
+        working-directory: backend
+        run: |
+          npx prisma generate
+          npx prisma migrate deploy
+          npm run seed
+
+      # Created by AI.
+      - name: Gerar passphrase efêmera
+        run: |
+          passphrase="$(openssl rand -base64 32)"
+          echo "::add-mask::$passphrase"
+          echo "BACKUP_PASSPHRASE=$passphrase" >> "$GITHUB_ENV"
+
+      # Created by AI.
+      - name: Gerar backup cifrado
+        run: |
+          output="$(ops/backup/docker-run.sh backup.sh)"
+          echo "BACKUP_FILE=$BACKUP_DIR/$(basename "$output")" >> "$GITHUB_ENV"
+
+      # Created by AI.
+      - name: Conferir cifragem AES-256
+        run: |
+          if head -c 5 "$BACKUP_FILE" | grep -q PGDMP; then
+            echo "::error::O arquivo de backup está em texto puro."
+            exit 1
+          fi
+          packets="$(docker run --rm -e HOME=/tmp -v "$PWD/$BACKUP_DIR:/b:ro" \
+            "postgres:$PG_VERSION" gpg --batch --list-packets \
+            "/b/$(basename "$BACKUP_FILE")" 2>&1 || true)"
+          echo "$packets" | grep -E "symkey enc packet"
+          # No OpenPGP, o algoritmo de cifra 9 é o AES-256.
+          echo "$packets" | grep -q "cipher 9" \
+            || { echo "::error::O backup não está cifrado com AES-256."; exit 1; }
+
+      # Created by AI.
+      - name: Criar banco vazio para o restore
+        run: >-
+          docker run --rm --network host -e PGPASSWORD=postgres postgres:16
+          psql -h localhost -U postgres -XAtq -c "CREATE DATABASE fiscalize_restore"
+
+      # Created by AI.
+      - name: Restore com passphrase errada deve falhar
+        env:
+          RESTORE_CONFIRM: fiscalize_restore
+        run: |
+          if BACKUP_PASSPHRASE="$(openssl rand -base64 32)" \
+            ops/backup/docker-run.sh restore.sh "$BACKUP_FILE"; then
+            echo "::error::O restore aceitou uma passphrase errada."
+            exit 1
+          fi
+
+      # Created by AI.
+      - name: Restaurar backup
+        env:
+          RESTORE_CONFIRM: fiscalize_restore
+        run: ops/backup/docker-run.sh restore.sh "$BACKUP_FILE"
+
+      # Created by AI.
+      - name: Verificar restore (contagem de linhas)
+        env:
+          VERIFY_MODE: exact
+        run: |
+          {
+            echo "### Teste de backup e restore"
+            echo
+            ops/backup/docker-run.sh verify.sh
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+
+  # Created by AI.
+  verificar-producao:
+    name: Verificar configuração de produção
+    if: >-
+      github.event_name == 'schedule' ||
+      (github.event_name == 'workflow_dispatch' && inputs.producao)
+    runs-on: ubuntu-latest
+    outputs:
+      habilitado: ${{ steps.secrets.outputs.habilitado }}
+    steps:
+      # Created by AI.
+      - name: Conferir secrets
+        id: secrets
+        env:
+          HAS_DATABASE_URL: ${{ secrets.BACKUP_DATABASE_URL != '' }}
+          HAS_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE != '' }}
+        run: |
+          if [ "$HAS_DATABASE_URL" = "true" ] && [ "$HAS_PASSPHRASE" = "true" ]; then
+            echo "habilitado=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "habilitado=false" >> "$GITHUB_OUTPUT"
+            message="Backup de produção desativado: cadastre os secrets BACKUP_DATABASE_URL e BACKUP_PASSPHRASE."
+            echo "::notice::$message"
+            echo "$message" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  # Created by AI.
+  producao:
+    name: Backup de produção
+    needs: verificar-producao
+    if: needs.verificar-producao.outputs.habilitado == 'true'
+    runs-on: ubuntu-latest
+    services:
+      # Banco descartável para o teste de restore. Mesma versão do cliente.
+      postgres:
+        image: postgres:${{ vars.BACKUP_PG_VERSION || '16' }}
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: fiscalize_restore
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d fiscalize_restore"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    env:
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+      TARGET_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/fiscalize_restore
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Created by AI.
+      # TODO: usar um usuário somente leitura no BACKUP_DATABASE_URL.
+      - name: Gerar backup cifrado
+        env:
+          DATABASE_URL: ${{ secrets.BACKUP_DATABASE_URL }}
+        run: |
+          output="$(ops/backup/docker-run.sh backup.sh)"
+          echo "BACKUP_FILE=$BACKUP_DIR/$(basename "$output")" >> "$GITHUB_ENV"
+
+      # Created by AI.
+      # Prova que o arquivo do dia é restaurável. O banco do serviço é
+      # destruído junto com o runner ao fim do job.
+      - name: Testar restore
+        env:
+          RESTORE_CONFIRM: fiscalize_restore
+        run: ops/backup/docker-run.sh restore.sh "$BACKUP_FILE"
+
+      # Created by AI.
+      - name: Verificar restore (schema e migrations)
+        env:
+          SOURCE_DATABASE_URL: ${{ secrets.BACKUP_DATABASE_URL }}
+          VERIFY_MODE: schema
+        run: |
+          {
+            echo "### Backup de produção: $(basename "$BACKUP_FILE")"
+            echo
+            ops/backup/docker-run.sh verify.sh
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+
+      # Created by AI.
+      # Destino PROVISÓRIO: artefato do GitHub Actions, retido por 30 dias.
+      # Em repositório público, qualquer usuário autenticado no GitHub consegue
+      # baixar artefatos; por isso só sobe o arquivo cifrado. TODO: definir o
+      # destino offsite definitivo (ver documento da RNF-SEC-15).
+      - name: Publicar backup cifrado (retenção de 30 dias)
+        uses: actions/upload-artifact@v4
+        with:
+          name: backup-fiscalize-${{ github.run_id }}
+          path: |
+            ${{ env.BACKUP_DIR }}/*.dump.gpg
+            ${{ env.BACKUP_DIR }}/*.dump.gpg.sha256
+          if-no-files-found: error
+          retention-days: 30
+          # O dump já é comprimido pelo pg_dump e o gpg não comprime dado
+          # cifrado de forma útil.
+          compression-level: 0
