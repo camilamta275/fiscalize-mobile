@@ -7,10 +7,20 @@
 | Requisito | Status | Resumo |
 |---|---|---|
 | RNF-SEC-05 — Criptografia no banco | **Parcial (backups atendidos)** | Backups cifrados com AES-256. Criptografia dos volumes é responsabilidade do provedor (TODO: evidência) |
-| RNF-SEC-13 — SQL injection e validação | **Em andamento (Prioridade 3)** | SQL injection já atendido pelo Prisma. Validação com Zod a implementar |
+| RNF-SEC-13 — SQL injection e validação | **Atendido nas rotas do app (admin e gestor como recomendação)** | SQL injection já atendido. Validação com Zod nas rotas de auth e denúncias; P2000 vira 400 |
 | RNF-SEC-14 | **Lacuna no documento** | O número não existe na v1 nem na v2 dos requisitos |
 | RNF-SEC-15 — Backup e SLA | **Parcial (backup pronto; produção depende de secrets e de decisões)** | Scripts, workflow, teste de restore e runbook prontos |
 | RNF-SEC-16 — Logs de segurança | **Atendido no código (centralização e retenção dependem da plataforma)** | Logger com mascaramento, logs sem e-mail ou token, eventos de falha de login e bloqueio |
+
+**Onde está o código:**
+
+| Repositório | O que contém |
+|---|---|
+| `camilamta275/fiscalize-mobile` | Backup e restauração: `ops/backup/`, `.github/workflows/backup.yml` e esta documentação |
+| `rapheto/fiscalize-backend` (submódulo `backend/`), branch `feature/rnf-sec-05-13-15-16` | Logs (RNF-SEC-16) e validação (RNF-SEC-13) |
+
+Depois do merge no backend, o ponteiro do submódulo no repositório mobile
+precisa ser atualizado.
 
 Escopo deliberado: mudanças pequenas e pontuais. Quando uma parte do requisito
 não faz sentido no código, ou não cabe ao time, ela não foi implementada e a
@@ -108,22 +118,189 @@ Recomendação: reavaliar se o sistema passar a guardar dados sensíveis
 
 ## RNF-SEC-13 — Proteção contra SQL injection e validação de entradas
 
-> Em andamento. Esta seção será completada na Prioridade 3.
+> O backend deve utilizar um ORM ou query builder com consultas parametrizadas
+> em todas as interações com o PostgreSQL. Todas as entradas enviadas pelo app
+> (textos, imagens e coordenadas) devem ser sanitizadas e validadas
+> estritamente por esquemas no servidor (ex.: Zod ou Joi).
 
 ### O que já existia
 
-- **SQL injection: atendido.** Todo o acesso ao PostgreSQL passa pelo Prisma,
-  que usa consultas parametrizadas. As únicas consultas SQL escritas à mão são
-  `prisma.$queryRaw\`SELECT 1\`` (`backend/src/config/prisma.ts` e
-  `backend/src/config/health.ts`), em template tagged, que também é
-  parametrizado. Não há `$queryRawUnsafe` nem `$executeRawUnsafe`.
-  Para conferir:
-  `grep -rnE "queryRawUnsafe|executeRawUnsafe" backend/src` não retorna nada.
-- **Validação:** feita manualmente nos controllers. O pacote `zod` está nas
-  dependências do backend, mas não é usado.
-- Um texto maior que a coluna gera o erro `P2000` do Prisma, que hoje vira
+- **SQL injection: atendido.**
+  - O banco principal é acessado só pelo Prisma, que usa consultas
+    parametrizadas.
+  - As únicas consultas SQL escritas à mão nesse banco são
+    ``prisma.$queryRaw`SELECT 1` `` (`backend/src/config/prisma.ts` e
+    `backend/src/config/health.ts`). Elas usam template tagged, que também é
+    parametrizado.
+  - Não há `$queryRawUnsafe` nem `$executeRawUnsafe`. Para conferir,
+    `grep -rnE "queryRawUnsafe|executeRawUnsafe" backend/src` não retorna nada.
+  - **Exceção ao Prisma:** o `backend/src/services/etlDashboardService.ts`
+    consulta o banco do ETL (Neon) com `pg.Pool`. As duas consultas são SQL
+    fixo (`SELECT … FROM chamados_populacao` e `… chamados_clima_diario`), sem
+    nenhum valor vindo da requisição. Não há vetor de injection. Se um dia
+    receberem filtros, devem usar parâmetros (`$1`, `$2`).
+- **Validação:** feita manualmente nos controllers (campos obrigatórios,
+  formato de e-mail, política de senha, idade, coordenadas, status). O pacote
+  `zod` estava nas dependências do backend, mas não era usado.
+- Um texto maior que a coluna gerava o erro `P2000` do Prisma, que virava
   HTTP 500.
 - Não há upload de imagem: a foto da denúncia fica só no aparelho.
+
+### O que foi implementado
+
+**Abordagem: validação aditiva.** Os schemas Zod rodam antes do controller e
+rejeitam só o que a validação manual não tratava e virava erro 500 ou dado
+corrompido:
+
+- tipo errado: objeto, array ou booleano onde se espera texto ou número;
+- texto maior que a coluna do banco.
+
+Campos ausentes ou vazios passam para o controller, que continua respondendo
+com as mesmas mensagens. O `validate()` **não altera `req.body`**, então
+requisições válidas seguem exatamente o mesmo caminho de antes.
+
+| Arquivo | Função |
+|---|---|
+| `backend/src/middlewares/validate.ts` (novo) | `validate(schema)`: em caso de falha, responde 400 no formato atual (`{ error, statusCode, timestamp }`) com a mensagem do primeiro problema. Corpo ausente ou em array é tratado como objeto vazio e segue para o controller |
+| `backend/src/validators/fields.ts` (novo) | Blocos reutilizáveis: `text(campo, max)`, `stringOnly`, `integerId` e `coordinate` |
+| `backend/src/validators/authSchemas.ts` (novo) | `registerSchema`, `loginSchema`, `refreshTokenSchema`, `updateMeSchema`, `changePasswordSchema` |
+| `backend/src/validators/demandSchemas.ts` (novo) | `demandSchema` (criar e editar) e `demandStatusSchema` |
+| `backend/src/routes/authRoutes.ts` e `demandRoutes.ts` | `validate()` depois do rate limiter, do `authenticate` e do `requireRole`. Sem token, a resposta continua 401 |
+| `backend/src/middlewares/errorMiddleware.ts` | `P2000` → 400 "Valor maior que o tamanho permitido para o campo." Cobre combinações que o Zod não vê, como o endereço composto da denúncia (`chamado.endereco`, 255 caracteres) |
+| `backend/src/validators/schemas.test.ts` (novo) | Testes com os payloads reais do app (`mobile/src/services/`), campos vazios, números em campos de texto, tamanho, tipo e o middleware |
+
+Rotas cobertas, todas usadas pelo app:
+
+| Rota | Tela do app |
+|---|---|
+| `POST /auth/register` | Cadastro |
+| `POST /auth/login` | Login |
+| `POST /auth/refresh` | Renovação automática de sessão (`api-client.ts`) |
+| `POST /auth/logout` | Sair |
+| `PUT /auth/me` | Editar perfil |
+| `PATCH /auth/me/password` | Trocar senha |
+| `POST /demands` e `PUT /demands/:id` | Nova denúncia e editar denúncia |
+| `PATCH /demands/:id/status` | Gestor atualiza o status |
+
+Limites aplicados, iguais ao tamanho das colunas em `prisma/schema.prisma`:
+
+| Campos | Limite |
+|---|---|
+| `nome` | 150 |
+| `email` (cadastro e perfil) | 100 |
+| `cpf` | 30 |
+| `rua` | 150 |
+| `numero` | 20 |
+| `bairro` | 100 |
+| `cidade` | 100 |
+| `estado` | 2 |
+| `cep` | 9 |
+| `complemento` | 150 |
+| `deviceName` | 120 |
+| `title` (coluna `subcategoria`) | 100 |
+| `location` | 255 |
+| `status_id` | 30 |
+| `description` | 5000 (`DEMAND_DESCRIPTION_MAX`) |
+
+O limite da `description` é a única regra nova que não vem do banco: a coluna
+`descricao` é `text` sem limite. Ver a pendência sobre o app.
+
+Decisões para não mudar o comportamento atual:
+
+- **Login:** sem limite de tamanho em `email` e `senha`, só a checagem de
+  tipo. Nenhuma conta existente passa a ter outra resposta de login.
+- **Números em campos de texto** (por exemplo, `numero: 123`) continuam
+  aceitos, porque os controllers já convertem com `String()`.
+- **`category_id`:** aceita qualquer inteiro, em número ou texto. `0` e
+  negativos continuam chegando ao controller e ao service, com as mensagens
+  atuais.
+- **Mensagens reaproveitadas** quando o sentido é o mesmo:
+  - coordenada inválida usa "Coordenadas inválidas. Use a localização obtida
+    pelo CEP ou pelo GPS.";
+  - status inválido usa "Status inválido.";
+  - refresh token inválido usa "Refresh token obrigatório.";
+  - na troca de senha, campos inválidos usam "Informe a senha atual, a nova
+    senha e a confirmação.".
+- **Mensagens novas**, só para casos que antes davam 500 ou passavam
+  indevidamente:
+  - "`<campo>` deve ser texto com até N caracteres.";
+  - "email e senha devem ser texto.";
+  - "Senha deve ser texto.";
+  - "category_id deve ser um número inteiro.".
+
+**Antes e depois**, com as mesmas requisições contra o código do `main` e o
+desta branch:
+
+| Requisição | Antes (`main`) | Depois |
+|---|---|---|
+| `POST /demands`, payload do app | 201 | 201 |
+| `POST /demands` sem `title` | 400 "Campos obrigatórios: title, description, category_id" | igual |
+| `POST /demands` com `title` de 101 caracteres | **500** "Erro ao processar dados." | 400 "title deve ser texto com até 100 caracteres." |
+| `POST /demands` com `category_id: "abc"` | **500** "Erro interno do servidor." | 400 "category_id deve ser um número inteiro." |
+| `POST /demands` com `latitude: true` | **201** (salvava a coordenada 1) | 400 "Coordenadas inválidas. …" |
+| `POST /demands` com endereço composto maior que 255 caracteres | **500** | 400 "Valor maior que o tamanho permitido para o campo." (P2000) |
+| `POST /auth/login` com `email` como objeto | **500** | 400 "email e senha devem ser texto." |
+| `POST /auth/login` sem campos | 400 "Campos obrigatórios: email, senha" | igual |
+| `POST /auth/register` com corpo em array | 400 "Campos obrigatórios: …" | igual |
+
+### O que não foi implementado e por quê
+
+- **Validação de imagens:** não há upload. A foto da denúncia fica só no
+  aparelho e não é enviada ao backend. Quando houver upload, validar tipo MIME
+  real (assinatura do arquivo, não a extensão), tamanho máximo e dimensões, e
+  remover metadados EXIF, que podem conter a localização do usuário.
+- **Rotas de admin e gestor** (`/admin/*`, `/gestor/*`, `/categories`,
+  `/metrics`): não são chamadas pelo app do cidadão e ficaram fora do escopo.
+  **Recomendação:** aplicar o mesmo `validate()` nelas, começando pelas que
+  gravam dados (órgãos, regras de roteamento, categorias).
+- **Rotas de auth já validadas por tipo no controller** (`/auth/2fa/verify`,
+  `/auth/2fa/request-critical`, `DELETE /auth/me`, `/auth/me/anonymization`,
+  `/auth/me/export`): já checam tipo e valores permitidos e não gravam texto
+  livre. Ficaram sem schema para não duplicar regras.
+- **Sanitização por transformação** (trim, remoção de HTML): o `validate()`
+  não altera os dados, de propósito, para não mudar o comportamento atual. O
+  risco de injeção de HTML não se aplica ao app nativo, que renderiza texto
+  puro, e as consultas já são parametrizadas. Se surgir uma interface web que
+  exiba esses textos, ela deve escapar o conteúdo na saída.
+- **Remover campos desconhecidos do corpo** (`strict`): os schemas usam
+  `looseObject`. Os controllers já pegam só os campos que conhecem e repassam
+  valores explícitos aos services, então não há risco de atribuição em massa.
+
+### Débito técnico
+
+**Duplicação entre o Zod e a validação manual dos controllers.** A
+obrigatoriedade dos campos, o formato do e-mail, a política de senha, a faixa
+das coordenadas e outras regras continuam nos controllers, e o Zod cuida de
+tipo e tamanho. A mesma entrada é validada em dois lugares, com dois estilos.
+Isso foi deliberado, para manter as mensagens atuais e não refatorar os
+controllers agora.
+
+Consequência conhecida: numa requisição com dois problemas ao mesmo tempo (por
+exemplo, `estado: "PER"` e `numero` ausente), a mensagem do Zod aparece
+primeiro. Antes aparecia a do controller. O app não gera esse caso, porque
+limita `estado` a 2 caracteres.
+
+**Caminho para quitar:** mover gradualmente as regras dos controllers para os
+schemas, usando mensagens personalizadas por campo, e remover as checagens
+manuais rota a rota, com a suíte de API como rede de segurança.
+
+### Como verificar
+
+1. **Testes unitários:** `cd backend && npm test`. O arquivo
+   `src/validators/schemas.test.ts` deve passar.
+2. **Suíte de API** com a API em `NODE_ENV=test`, como no CI: 74 testes
+   passaram e 2 foram pulados, o mesmo resultado de antes das mudanças.
+3. **Manual:** repetir as requisições da tabela "Antes e depois".
+
+### Pendências
+
+| TODO | Responsável sugerido |
+|---|---|
+| Testar manualmente no app (Expo) os fluxos das rotas cobertas | Samuel Araújo |
+| Adicionar `maxLength` no app para o título (100) e a descrição (5000) da denúncia, para o usuário ver o limite antes de enviar | Mobile |
+| Aplicar `validate()` nas rotas de admin e gestor | Backend |
+| Reduzir a duplicação entre o Zod e os controllers (ver Débito técnico) | Backend |
+| Definir a validação de imagens quando houver upload | Grupo |
 
 ---
 
