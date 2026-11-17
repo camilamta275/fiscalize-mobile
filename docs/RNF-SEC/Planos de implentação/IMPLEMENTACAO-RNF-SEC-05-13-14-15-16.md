@@ -10,7 +10,7 @@
 | RNF-SEC-13 — SQL injection e validação | **Em andamento (Prioridade 3)** | SQL injection já atendido pelo Prisma. Validação com Zod a implementar |
 | RNF-SEC-14 | **Lacuna no documento** | O número não existe na v1 nem na v2 dos requisitos |
 | RNF-SEC-15 — Backup e SLA | **Parcial (backup pronto; produção depende de secrets e de decisões)** | Scripts, workflow, teste de restore e runbook prontos |
-| RNF-SEC-16 — Logs de segurança | **Em andamento (Prioridade 2)** | — |
+| RNF-SEC-16 — Logs de segurança | **Atendido no código (centralização e retenção dependem da plataforma)** | Logger com mascaramento, logs sem e-mail ou token, eventos de falha de login e bloqueio |
 
 Escopo deliberado: mudanças pequenas e pontuais. Quando uma parte do requisito
 não faz sentido no código, ou não cabe ao time, ela não foi implementada e a
@@ -316,7 +316,128 @@ e clima), que podem ser regenerados rodando o ETL novamente. Ver a pendência.
 
 ## RNF-SEC-16 — Monitoramento e auditoria de logs de segurança
 
-> Em andamento. Esta seção será completada na Prioridade 2.
+> O servidor deve registrar centralizadamente os logs de auditoria para eventos
+> críticos (ex.: múltiplas tentativas malsucedidas de login, alterações de
+> permissão e falhas de requisição). É estritamente proibido gravar dados
+> pessoais (PII), senhas ou tokens completos em texto puro nesses arquivos de
+> log.
+
+### O que já existia
+
+- **Alterações de permissão: atendido.** A tabela `audit_logs`
+  (`backend/src/services/auditLogService.ts`) registra as ações de admin:
+  mudança de perfil, ativação e desativação de usuário, órgãos e regras de
+  roteamento. A consulta é restrita a admins.
+- **Bloqueio de conta:** já implementado pela RNF-SEC-02 (5 tentativas,
+  bloqueio de 15 minutos, campos `tentativas_login_falhas` e `bloqueado_ate`),
+  mas sem nenhum registro de auditoria.
+- **Logs com dados pessoais:**
+  - `otpService.ts` registrava o e-mail do usuário junto com o código OTP fora
+    de produção;
+  - o `errorMiddleware.ts` registrava objetos de erro inteiros (`details`,
+    `meta` do Prisma e o erro bruto);
+  - as falhas de SMTP registravam a mensagem do servidor de e-mail, que pode
+    conter o destinatário.
+- O modelo `usuario_audit` existe no schema, mas nunca foi usado.
+- Todos os logs eram `console.*` em texto livre.
+
+### O que foi implementado
+
+Todas as mudanças estão no backend. As respostas HTTP, as mensagens, os
+contadores e o bloqueio do login **não mudaram**.
+
+| Arquivo | Mudança |
+|---|---|
+| `backend/src/utils/logger.ts` (novo) | Logger estruturado com **pino**: JSON em stdout, coletado pela plataforma de hospedagem. Mascara (`[REDACTED]`) os campos `senha`, `password`, `novaSenha`, `senhaAtual`, `token`, `accessToken`, `refreshToken`, `refresh_token`, `challengeToken`, `authorization`, `cookie`, `email`, `cpf`, `otp` e `codigo`, na raiz e um nível abaixo. Nível configurável por `LOG_LEVEL` |
+| `backend/src/utils/logger.ts` | `logSecurityEvent()`: eventos com `category: "security"`, identificados só pelo id interno do usuário (UUID) |
+| `backend/src/utils/logger.ts` | `safeErrorInfo()`: registra nome, mensagem e pilha do erro, sem propriedades extras (`meta`, `detail`) que podem trazer valores enviados pelo usuário |
+| `backend/src/services/authService.ts` (`login`) | Um `logSecurityEvent` antes de cada falha (tabela abaixo) |
+| `backend/src/services/otpService.ts` | O log de desenvolvimento passa a ser `[MFA DEV] OTP (<finalidade>): <código>`, sem o e-mail. O código continua visível em desenvolvimento, sem precisar de nenhuma variável. Em produção (`NODE_ENV=production`) o código nunca é registrado: sem Gmail configurado, a função lança 503 antes do log. As falhas de SMTP registram só `code` e `responseCode` |
+| `backend/src/middlewares/errorMiddleware.ts` | Registra só método, rota, status e código Prisma ou modelo. Não registra mais `details`, `meta` nem o objeto de erro inteiro |
+| `backend/src/utils/logger.test.ts` (novo) | Teste unitário: e-mail, senha, CPF, tokens e OTP mascarados; `safeErrorInfo` descarta `meta` e `detail` |
+
+Eventos de segurança registrados:
+
+| Evento | Quando | Campos |
+|---|---|---|
+| `login_falha` | Senha incorreta | `userId`, `tentativas` |
+| `conta_bloqueada` | A 5ª falha bloqueia a conta | `userId`, `tentativas` |
+| `login_conta_bloqueada` | Tentativa de login durante o bloqueio | `userId` |
+| `login_usuario_inativo` | Login de usuário inativo | `userId` |
+| `login_usuario_inexistente` | E-mail não cadastrado | Nenhum (nem o e-mail) |
+
+Exemplo real, do teste local:
+
+```json
+{"level":40,"service":"fiscalize-backend","category":"security","event":"conta_bloqueada","userId":"3302db1a-…","tentativas":5,"msg":"Evento de segurança: conta_bloqueada"}
+```
+
+**Por que log e não banco.** O plano inicial era reaproveitar a `usuario_audit`
+ou a `audit_logs`, mas as duas têm FK para `usuario` com `ON DELETE NO
+ACTION`. A exclusão de conta (RNF-SEC-08, `deleteOrAnonymize`) faz
+`prisma.usuario.delete`. Bastaria uma linha de auditoria para que a exclusão
+da conta daquele usuário passasse a falhar, quebrando o direito ao
+esquecimento. As alternativas exigiam uma migration (FK com `CASCADE`) ou uma
+mudança no fluxo de exclusão. A decisão foi registrar os eventos no log
+estruturado: sem migration, sem escrita no banco e sem mexer na exclusão. A
+`audit_logs` continua sendo usada para as ações de admin.
+
+**Endereço IP.** Não é registrado. O IP é dado pessoal pela LGPD, e o requisito
+proíbe dados pessoais nesses logs. A proteção por IP continua sendo feita pelo
+rate limiting (RNF-SEC-12).
+
+### O que não foi implementado e por quê
+
+- **Migrar os demais `console.*` do backend** (cerca de 30, em `server.ts`,
+  `cron.ts`, `redis.ts`, `demandService.ts` e outros): fora do escopo de
+  mudanças pontuais. Eles registram mensagens operacionais sem dados pessoais.
+  Recomendação: migrar aos poucos para o `logger`.
+- **Ferramenta de centralização dedicada** (por exemplo, um agregador externo
+  de logs): os logs vão para stdout em JSON, que a plataforma de hospedagem
+  coleta. Contratar uma ferramenta exige decisão de fornecedor (ver o documento
+  de Gestão de fornecedores).
+- **Alertas automáticos** (por exemplo, vários `conta_bloqueada` em poucos
+  minutos): dependem da ferramenta de centralização.
+- **Persistir os eventos no banco:** ver "Por que log e não banco" acima.
+
+### Limitações conhecidas
+
+- O mascaramento do pino funciona por **nome de campo**, na raiz e um nível
+  abaixo. Um dado pessoal concatenado dentro de uma mensagem de texto não é
+  mascarado. Por isso os pontos alterados não colocam dados pessoais na
+  mensagem. As mensagens de `AppError`, que vão para o log, foram revisadas:
+  só contêm IDs, status e textos fixos.
+- Em desenvolvimento e teste, o código OTP aparece no log por decisão
+  explícita, para permitir login local sem Gmail.
+
+### Como verificar
+
+1. **Teste unitário:** `cd backend && npm test`. O arquivo
+   `src/utils/logger.test.ts` deve passar.
+2. **Suíte de API** com a API em `NODE_ENV=test`, como no CI: 74 testes
+   passaram e 2 foram pulados, igual a antes das mudanças.
+3. **Inspeção do log** após rodar a suíte:
+
+   ```bash
+   grep -o '"event":"[a-z_]*"' api.log | sort | uniq -c   # eventos de segurança
+   grep -cE '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[a-z]{2,}' api.log   # e-mails: 0
+   grep -c 'eyJ\|Bearer' api.log                           # tokens: 0
+   ```
+
+   Resultado no teste local: `login_falha` 6, `conta_bloqueada` 1,
+   `login_conta_bloqueada` 1, `login_usuario_inexistente` 21; nenhum e-mail e
+   nenhum token.
+4. **Em produção:** filtrar os logs do serviço na Railway por
+   `"category":"security"`.
+
+### Pendências
+
+| TODO | Responsável sugerido |
+|---|---|
+| Confirmar a retenção dos logs no plano atual da Railway e se ela atende ao período de auditoria desejado | Quem administra a conta da Railway |
+| Decidir se os eventos de segurança precisam ficar no banco. Se sim, criar uma migration com tabela própria ou FK `ON DELETE SET NULL`/`CASCADE`, preservando a RNF-SEC-08 | Grupo |
+| Definir alertas para picos de `conta_bloqueada` e `login_usuario_inexistente` (possível ataque de força bruta ou de enumeração) | Grupo |
+| Migrar gradualmente os demais `console.*` para o `logger` | Backend |
 
 ---
 
