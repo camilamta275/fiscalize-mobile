@@ -37,7 +37,9 @@ backup_file="$1"
 require_env TARGET_DATABASE_URL BACKUP_PASSPHRASE RESTORE_CONFIRM
 require_cmd gpg pg_restore psql
 
-target_url="$(libpq_url "$TARGET_DATABASE_URL")"
+# A senha vai em PGPASSWORD; PG_URL fica sem senha (não aparece em `ps`).
+use_pg_url "$TARGET_DATABASE_URL"
+target_url="$PG_URL"
 
 if [ -f "$backup_file.sha256" ]; then
   expected="$(awk '{print $1}' "$backup_file.sha256")"

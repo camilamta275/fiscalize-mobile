@@ -44,8 +44,12 @@ WHERE table_type = 'BASE TABLE'
 ORDER BY table_schema, table_name;"
 
 # Created by AI.
+# O subshell isola o PGPASSWORD de cada banco.
 table_counts() {
-  psql "$(libpq_url "$1")" -XAtq -v ON_ERROR_STOP=1 -c "$COUNT_SQL"
+  (
+    use_pg_url "$1"
+    psql "$PG_URL" -XAtq -v ON_ERROR_STOP=1 -c "$COUNT_SQL"
+  )
 }
 
 source_counts="$(table_counts "$SOURCE_DATABASE_URL")"

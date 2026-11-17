@@ -43,11 +43,12 @@ output="$BACKUP_DIR/fiscalize-$stamp.dump.gpg"
 PARTIAL_FILE="$output.partial"
 
 use_temp_gnupghome
+use_pg_url "$DATABASE_URL"
 log "Iniciando backup com $(pg_dump --version)."
 
 # Com pipefail, uma falha do pg_dump derruba o pipeline e o arquivo parcial é
 # removido pelo trap. O arquivo final só aparece se tudo der certo.
-pg_dump --format=custom --no-password --dbname="$(libpq_url "$DATABASE_URL")" \
+pg_dump --format=custom --no-password --dbname="$PG_URL" \
   | gpg "${GPG_BASE_OPTS[@]}" \
       --symmetric \
       --cipher-algo AES256 \

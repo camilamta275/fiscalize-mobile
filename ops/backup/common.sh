@@ -54,6 +54,24 @@ libpq_url() {
 }
 
 # Created by AI.
+# Prepara a conexão sem expor a senha na linha de comando (visível em `ps`):
+# define PG_URL com a URL sem senha e exporta a senha em PGPASSWORD, já
+# decodificada do percent-encoding da URL (ex.: %40 -> @). Se a URL não tiver
+# senha, mantém o PGPASSWORD que já estiver no ambiente.
+# Use dentro de um subshell quando houver mais de um banco no mesmo script.
+use_pg_url() {
+  local url password
+  url="$(libpq_url "$1")"
+  password="$(printf '%s' "$url" | sed -nE 's#^[a-zA-Z]+://[^:/@]*:([^@]*)@.*#\1#p')"
+  if [ -n "$password" ]; then
+    PGPASSWORD="$(printf '%b' "${password//%/\\x}")"
+    export PGPASSWORD
+  fi
+  # shellcheck disable=SC2034  # PG_URL é usado por quem chama a função.
+  PG_URL="$(printf '%s' "$url" | sed -E 's#^([a-zA-Z]+://[^:/@]*):[^@]*@#\1@#')"
+}
+
+# Created by AI.
 sha256_of() {
   if command -v sha256sum >/dev/null 2>&1; then
     sha256sum "$1" | awk '{print $1}'
