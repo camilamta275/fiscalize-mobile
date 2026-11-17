@@ -86,7 +86,7 @@ def normalizar_bairro_coluna(nome_coluna: str):
     return F.when(
         original.isNull()
         | (texto == "")
-        | F.upper(F.trim(original)).isin(*valores_invalidos),
+        | texto.isin(*valores_invalidos),
         F.lit(None).cast("string"),
     ).otherwise(texto)
 
@@ -376,6 +376,9 @@ class SparkTransform:
         """
         Monta a tabela silver_bairro_populacao a partir dos
         dados demográficos do Censo 2022 disponibilizados pelo IBGE.
+
+        codigo_bairro e populacao são convertidos para BIGINT,
+        conforme os tipos definidos no Neon.
         """
 
         if not isinstance(data, pd.DataFrame):
@@ -456,7 +459,9 @@ class SparkTransform:
             df = df.withColumn(
                 coluna,
                 F.when(
-                    F.trim(F.col(coluna)).isin(*valores_invalidos),
+                    F.upper(F.trim(F.col(coluna))).isin(
+                        *valores_invalidos
+                    ),
                     F.lit(None).cast("string"),
                 ).otherwise(F.trim(F.col(coluna))),
             )
@@ -472,10 +477,30 @@ class SparkTransform:
             normalizar_bairro_coluna("bairro"),
         )
 
-        # Converte população para número.
+        # Remove o sufixo decimal .0 de valores populacionais.
+        # Isso permite tratar valores recebidos como 1234.0
+        # sem perder a informação da contagem inteira.
         df = df.withColumn(
             "populacao",
-            F.expr("try_cast(`populacao` AS DOUBLE)"),
+            F.regexp_replace(
+                F.col("populacao"),
+                r"\.0+$",
+                "",
+            ),
+        )
+
+        # Converte o código do bairro para BIGINT.
+        # Valores inválidos são transformados em NULL.
+        df = df.withColumn(
+            "codigo_bairro",
+            F.expr("try_cast(`codigo_bairro` AS BIGINT)"),
+        )
+
+        # Converte população para BIGINT.
+        # Valores ausentes ou inválidos permanecem como NULL.
+        df = df.withColumn(
+            "populacao",
+            F.expr("try_cast(`populacao` AS BIGINT)"),
         )
 
         # Remove registros sem código ou nome de bairro.

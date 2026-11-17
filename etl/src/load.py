@@ -120,9 +120,14 @@ class Load:
         """
         Insere ou atualiza documentos usando id_field como chave.
 
-        Diferente de load_mongo, esta carga é idempotente: rodar o sync
-        duas vezes não duplica chamados. Documentos que não existem mais
-        no backend também são removidos da coleção.
+        A operação é idempotente: executar o sync novamente não duplica
+        chamados.
+
+        Documentos que não existem mais na origem são preservados,
+        evitando exclusões de dados de outras cargas ou execuções.
+
+        Retorna:
+            Quantidade de registros gravados e quantidade removida.
         """
         if not records:
             print(
@@ -135,7 +140,6 @@ class Load:
         synced_at = datetime.now(timezone.utc)
 
         operations = []
-        ids = []
 
         for record in records:
             document = dict(record)
@@ -146,7 +150,6 @@ class Load:
                     f"para a coleção {collection_name}."
                 )
 
-            ids.append(document[id_field])
             document["data_extracao"] = synced_at
             document["synced_at"] = synced_at
 
@@ -160,9 +163,9 @@ class Load:
 
         collection.bulk_write(operations, ordered=False)
 
-        deleted = collection.delete_many(
-            {id_field: {"$nin": ids}}
-        ).deleted_count
+        # Preserva documentos que não estão na origem atual.
+        # Não realiza exclusões automáticas no MongoDB.
+        deleted = 0
 
         print(
             f"Chamados sincronizados em {collection_name}: "

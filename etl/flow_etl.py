@@ -1,4 +1,5 @@
 from prefect import flow, task
+from prefect.cache_policies import NO_CACHE
 
 from src.chamados import busca_chamados, clima_cobre, intervalo_chamados
 from src.extract import Extract
@@ -130,7 +131,11 @@ def construir_silver(chamados, clima_bruto, populacao_bruta):
     }
 
 
-@task(name="Construir camada gold com Spark", log_prints=True)
+@task(
+    name="Construir camada gold com Spark",
+    log_prints=True,
+    cache_policy=NO_CACHE,
+)
 def construir_gold(silver: dict):
     """
     Gera as tabelas Gold exclusivamente a partir
@@ -163,7 +168,11 @@ def construir_gold(silver: dict):
     }
 
 
-@task(name="Carregar no SQLite", log_prints=True)
+@task(
+    name="Carregar no SQLite",
+    log_prints=True,
+    cache_policy=NO_CACHE,
+)
 def carregar_sqlite(tabelas: dict, camada: str):
     """
     Persiste os DataFrames da camada Silver ou Gold no SQLite.
@@ -185,6 +194,7 @@ def carregar_sqlite(tabelas: dict, camada: str):
     log_prints=True,
     retries=2,
     retry_delay_seconds=5,
+    cache_policy=NO_CACHE,
 )
 def carregar_neon(tabelas: dict, camada: str):
     """
