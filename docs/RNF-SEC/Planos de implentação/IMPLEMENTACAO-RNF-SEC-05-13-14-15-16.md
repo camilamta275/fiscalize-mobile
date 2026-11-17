@@ -22,6 +22,12 @@
 Depois do merge no backend, o ponteiro do submódulo no repositório mobile
 precisa ser atualizado.
 
+**Testes no CI:** o `regressao.yml` do mobile já roda `npm test` do backend
+(jobs `unit` e `regression`) na versão apontada pelo submódulo. O backend não
+tinha CI próprio; foi adicionado `backend/.github/workflows/ci.yml`, que roda
+`npm ci`, `npm run build` e `npm test` em cada push e PR do repositório do
+backend.
+
 Escopo deliberado: mudanças pequenas e pontuais. Quando uma parte do requisito
 não faz sentido no código, ou não cabe ao time, ela não foi implementada e a
 justificativa está registrada abaixo. Itens que dependem de informações que
@@ -162,10 +168,10 @@ requisições válidas seguem exatamente o mesmo caminho de antes.
 | Arquivo | Função |
 |---|---|
 | `backend/src/middlewares/validate.ts` (novo) | `validate(schema)`: em caso de falha, responde 400 no formato atual (`{ error, statusCode, timestamp }`) com a mensagem do primeiro problema. Corpo ausente ou em array é tratado como objeto vazio e segue para o controller |
-| `backend/src/validators/fields.ts` (novo) | Blocos reutilizáveis: `text(campo, max)`, `stringOnly`, `integerId` e `coordinate` |
+| `backend/src/validators/fields.ts` (novo) | Blocos reutilizáveis: `text(campo, max)`, `freeText(campo)` (só tipo, sem limite), `stringOnly`, `integerId` e `coordinate` |
 | `backend/src/validators/authSchemas.ts` (novo) | `registerSchema`, `loginSchema`, `refreshTokenSchema`, `updateMeSchema`, `changePasswordSchema` |
 | `backend/src/validators/demandSchemas.ts` (novo) | `demandSchema` (criar e editar) e `demandStatusSchema` |
-| `backend/src/routes/authRoutes.ts` e `demandRoutes.ts` | `validate()` depois do rate limiter, do `authenticate` e do `requireRole`. Sem token, a resposta continua 401 |
+| `backend/src/routes/authRoutes.ts` e `demandRoutes.ts` | `validate()` depois do rate limiter, do `authenticate` e do `requireRole`. Sem token, a resposta continua 401. O logout ficou sem `validate()` (ver abaixo) |
 | `backend/src/middlewares/errorMiddleware.ts` | `P2000` → 400 "Valor maior que o tamanho permitido para o campo." Cobre combinações que o Zod não vê, como o endereço composto da denúncia (`chamado.endereco`, 255 caracteres) |
 | `backend/src/validators/schemas.test.ts` (novo) | Testes com os payloads reais do app (`mobile/src/services/`), campos vazios, números em campos de texto, tamanho, tipo e o middleware |
 
@@ -176,7 +182,6 @@ Rotas cobertas, todas usadas pelo app:
 | `POST /auth/register` | Cadastro |
 | `POST /auth/login` | Login |
 | `POST /auth/refresh` | Renovação automática de sessão (`api-client.ts`) |
-| `POST /auth/logout` | Sair |
 | `PUT /auth/me` | Editar perfil |
 | `PATCH /auth/me/password` | Trocar senha |
 | `POST /demands` e `PUT /demands/:id` | Nova denúncia e editar denúncia |
@@ -200,10 +205,7 @@ Limites aplicados, iguais ao tamanho das colunas em `prisma/schema.prisma`:
 | `title` (coluna `subcategoria`) | 100 |
 | `location` | 255 |
 | `status_id` | 30 |
-| `description` | 5000 (`DEMAND_DESCRIPTION_MAX`) |
-
-O limite da `description` é a única regra nova que não vem do banco: a coluna
-`descricao` é `text` sem limite. Ver a pendência sobre o app.
+| `description` | Sem limite: a coluna `descricao` é `text`. Só o tipo é checado |
 
 Decisões para não mudar o comportamento atual:
 
@@ -226,7 +228,8 @@ Decisões para não mudar o comportamento atual:
   - "`<campo>` deve ser texto com até N caracteres.";
   - "email e senha devem ser texto.";
   - "Senha deve ser texto.";
-  - "category_id deve ser um número inteiro.".
+  - "description deve ser texto.";
+  - "category_id deve ser um número inteiro."
 
 **Antes e depois**, com as mesmas requisições contra o código do `main` e o
 desta branch:
@@ -243,6 +246,25 @@ desta branch:
 | `POST /auth/login` sem campos | 400 "Campos obrigatórios: email, senha" | igual |
 | `POST /auth/register` com corpo em array | 400 "Campos obrigatórios: …" | igual |
 
+**Mudanças de status HTTP aceitas (casos de borda).** Payloads que o app não
+envia, porque os campos têm tipo fixo nos services do app, mas que mudaram de
+resposta. Medido com as mesmas requisições contra o `main` e esta branch:
+
+| Requisição | Antes (`main`) | Depois | Por que a mudança é aceita |
+|---|---|---|---|
+| `POST /demands` com `category_id: "1.0"` | 201 | 400 "category_id deve ser um número inteiro." | O app envia o id como número inteiro. `"1.0"` só era aceito por acaso, via `Number()` |
+| `POST /demands` com `category_id: 1.5` | 201 | 400 (mesma mensagem) | Id fracionário não é válido |
+| `POST /demands` com `category_id: true` | 201 | 400 (mesma mensagem) | `Number(true)` virava a categoria 1 |
+| `POST /demands` com `numero: true` | 201 | 400 "numero deve ser texto com até 20 caracteres." | Gravava o texto `"true"` |
+| `PUT /auth/me` com `numero: true` | 200 | 400 (mesma mensagem) | Idem |
+| `POST /auth/register` com `senha` numérica | 400 (política de senha) | 400 "Senha deve ser texto." | Continua 400; só a mensagem muda |
+| `POST /auth/login` com `senha` numérica | **500** | 400 "email e senha devem ser texto." | Era erro não tratado |
+| `POST /auth/login` com `email` numérico | **500** | 400 (mesma mensagem) | Era erro não tratado |
+| `PATCH /auth/me/password` com `senhaAtual` numérica e sem MFA | 401 "Verificação adicional obrigatória ou expirada." | 400 "Informe a senha atual, a nova senha e a confirmação." | O Zod roda antes da checagem de MFA do controller. A senha não é trocada em nenhum dos casos |
+| `POST /demands` com `title: 123` | 201 | 201 | Sem mudança: número em campo de texto continua aceito |
+| `POST /demands` com `latitude: "abc"` | 400 | 400 | Sem mudança |
+| `PATCH /demands/:id/status` com `status_id: 5` | 400 "Status inválido." | 400 | Sem mudança |
+
 ### O que não foi implementado e por quê
 
 - **Validação de imagens:** não há upload. A foto da denúncia fica só no
@@ -257,6 +279,9 @@ desta branch:
   `/auth/2fa/request-critical`, `DELETE /auth/me`, `/auth/me/anonymization`,
   `/auth/me/export`): já checam tipo e valores permitidos e não gravam texto
   livre. Ficaram sem schema para não duplicar regras.
+- **`POST /auth/logout`:** sem `validate()`. O logout precisa funcionar sempre,
+  mesmo com um corpo inesperado. O `refreshToken` é opcional, e o controller só
+  revoga o token quando ele é enviado.
 - **Sanitização por transformação** (trim, remoção de HTML): o `validate()`
   não altera os dados, de propósito, para não mudar o comportamento atual. O
   risco de injeção de HTML não se aplica ao app nativo, que renderiza texto
@@ -297,7 +322,7 @@ manuais rota a rota, com a suíte de API como rede de segurança.
 | TODO | Responsável sugerido |
 |---|---|
 | Testar manualmente no app (Expo) os fluxos das rotas cobertas | Samuel Araújo |
-| Adicionar `maxLength` no app para o título (100) e a descrição (5000) da denúncia, para o usuário ver o limite antes de enviar | Mobile |
+| Adicionar `maxLength` (100) no título da denúncia no app, para o usuário ver o limite antes de enviar | Mobile |
 | Aplicar `validate()` nas rotas de admin e gestor | Backend |
 | Reduzir a duplicação entre o Zod e os controllers (ver Débito técnico) | Backend |
 | Definir a validação de imagens quando houver upload | Grupo |
@@ -341,6 +366,7 @@ auditorias futuras não a tratem como esquecida.
 | `ops/backup/restore.sh` | Restore com quatro proteções: confere o SHA-256, exige `RESTORE_CONFIRM` igual ao nome do banco de destino, só aceita banco vazio e roda em transação única |
 | `ops/backup/verify.sh` | Compara tabelas e contagem de linhas entre a origem e o restaurado. Modo `exact` (CI) ou `schema` (produção: mesmas tabelas e mesmas migrations) |
 | `ops/backup/docker-run.sh` | Roda os scripts na imagem oficial `postgres:<PG_VERSION>`, que traz `pg_dump`, `pg_restore`, `psql` e `gpg` na versão certa |
+| `ops/backup/common.sh` (`use_pg_url`) | A senha do banco nunca vai na linha de comando (visível em `ps`): os clientes recebem a URL sem senha, e a senha vai em `PGPASSWORD`, decodificada do percent-encoding da URL |
 | `.github/workflows/backup.yml` | Job **teste**: backup, conferência do AES-256, restore com passphrase errada (deve falhar), restore e verificação contra um Postgres temporário. Jobs **verificar-producao** e **producao**: backup diário às 06:47 UTC, teste de restore do arquivo do dia e artefato com retenção de 30 dias |
 | `docs/RNF-SEC/RUNBOOK-RESTAURACAO-BACKUP.md` | Procedimento de restauração, para incidentes e para o documento de Backup |
 | `.gitignore` | Impede versionar `backups/` e arquivos de dump |
@@ -358,8 +384,9 @@ falhar o workflow. Para ativar:
 
 **Versão do pg_dump.** O `pg_dump` precisa ter versão igual ou maior que a do
 servidor; com versão menor, ele recusa a conexão (`server version mismatch`).
-A versão é configurável pela variável `BACKUP_PG_VERSION`, que define tanto o
-cliente quanto o Postgres temporário do teste de restore. O padrão é 16.
+A versão é configurável pela variável `BACKUP_PG_VERSION`, que define o
+cliente e os Postgres temporários dos dois jobs (teste e produção). O padrão é
+16.
 
 **Destino provisório: artefato do GitHub Actions.** Escolhido porque não exige
 nenhuma conta nova e o job só roda depois que os secrets forem cadastrados.
@@ -404,7 +431,14 @@ pg_dump 16.15:
   - migration faltando (`schema`).
 
   Todos falharam com a mensagem esperada.
+- Senha via `PGPASSWORD`: ciclo completo com um usuário de teste cuja senha
+  tem caracteres especiais (`@`, `:`, `/`, `%`), escrita com percent-encoding
+  na URL, conectando com autenticação `scram-sha-256`. A senha errada falhou
+  com `password authentication failed` e não deixou arquivo parcial. (Conexões
+  por `localhost` dentro do container da imagem oficial usam `trust` e não
+  servem para esse teste.)
 - Lint: `actionlint` 1.7.7 e `shellcheck` 0.10.0 sem avisos.
+- No GitHub, o job **Teste de backup e restore** passou no push da branch.
 
 ### O que não foi implementado e por quê
 
@@ -521,17 +555,17 @@ e clima), que podem ser regenerados rodando o ETL novamente. Ver a pendência.
 ### O que foi implementado
 
 Todas as mudanças estão no backend. As respostas HTTP, as mensagens, os
-contadores e o bloqueio do login **não mudaram**.
+contadores e o bloqueio do login e do OTP **não mudaram**.
 
 | Arquivo | Mudança |
 |---|---|
 | `backend/src/utils/logger.ts` (novo) | Logger estruturado com **pino**: JSON em stdout, coletado pela plataforma de hospedagem. Mascara (`[REDACTED]`) os campos `senha`, `password`, `novaSenha`, `senhaAtual`, `token`, `accessToken`, `refreshToken`, `refresh_token`, `challengeToken`, `authorization`, `cookie`, `email`, `cpf`, `otp` e `codigo`, na raiz e um nível abaixo. Nível configurável por `LOG_LEVEL` |
 | `backend/src/utils/logger.ts` | `logSecurityEvent()`: eventos com `category: "security"`, identificados só pelo id interno do usuário (UUID) |
-| `backend/src/utils/logger.ts` | `safeErrorInfo()`: registra nome, mensagem e pilha do erro, sem propriedades extras (`meta`, `detail`) que podem trazer valores enviados pelo usuário |
-| `backend/src/services/authService.ts` (`login`) | Um `logSecurityEvent` antes de cada falha (tabela abaixo) |
+| `backend/src/utils/logger.ts` | `safeErrorInfo()`, usado no log de erros inesperados. Para erros do Prisma (`PrismaClient*`): só nome, código e modelo, sem a mensagem, porque a mensagem do Prisma pode reproduzir os argumentos da consulta. Para os demais erros: nome e mensagem. Nunca inclui propriedades extras (`meta`, `detail`). A pilha só é registrada fora de produção, e, nos erros do Prisma, sem a primeira linha, que repete a mensagem |
+| `backend/src/services/authService.ts` (`login` e `verifyOtp`) | Um `logSecurityEvent` antes de cada falha de login e de OTP (tabela abaixo) |
 | `backend/src/services/otpService.ts` | O log de desenvolvimento passa a ser `[MFA DEV] OTP (<finalidade>): <código>`, sem o e-mail. O código continua visível em desenvolvimento, sem precisar de nenhuma variável. Em produção (`NODE_ENV=production`) o código nunca é registrado: sem Gmail configurado, a função lança 503 antes do log. As falhas de SMTP registram só `code` e `responseCode` |
 | `backend/src/middlewares/errorMiddleware.ts` | Registra só método, rota, status e código Prisma ou modelo. Não registra mais `details`, `meta` nem o objeto de erro inteiro |
-| `backend/src/utils/logger.test.ts` (novo) | Teste unitário: e-mail, senha, CPF, tokens e OTP mascarados; `safeErrorInfo` descarta `meta` e `detail` |
+| `backend/src/utils/logger.test.ts` (novo) | Teste unitário: e-mail, senha, CPF, tokens e OTP mascarados; `safeErrorInfo` descarta `meta` e `detail`, não registra a mensagem de erros do Prisma e não registra a pilha em produção |
 
 Eventos de segurança registrados:
 
@@ -542,6 +576,10 @@ Eventos de segurança registrados:
 | `login_conta_bloqueada` | Tentativa de login durante o bloqueio | `userId` |
 | `login_usuario_inativo` | Login de usuário inativo | `userId` |
 | `login_usuario_inexistente` | E-mail não cadastrado | Nenhum (nem o e-mail) |
+| `otp_falha` | Código OTP errado (login em aparelho novo ou ação crítica) | `userId`, `tentativas`, `finalidade` |
+| `otp_esgotado` | A 5ª tentativa errada invalida o desafio OTP | `userId`, `tentativas`, `finalidade` |
+
+`finalidade` é `LOGIN_NEW_DEVICE` ou `CRITICAL_ACTION`.
 
 Exemplo real, do teste local:
 
@@ -602,8 +640,8 @@ rate limiting (RNF-SEC-12).
    ```
 
    Resultado no teste local: `login_falha` 6, `conta_bloqueada` 1,
-   `login_conta_bloqueada` 1, `login_usuario_inexistente` 21; nenhum e-mail e
-   nenhum token.
+   `login_conta_bloqueada` 1, `login_usuario_inexistente` 21, `otp_falha` 5,
+   `otp_esgotado` 1; nenhum e-mail e nenhum token.
 4. **Em produção:** filtrar os logs do serviço na Railway por
    `"category":"security"`.
 
@@ -613,64 +651,13 @@ rate limiting (RNF-SEC-12).
 |---|---|
 | Confirmar a retenção dos logs no plano atual da Railway e se ela atende ao período de auditoria desejado | Quem administra a conta da Railway |
 | Decidir se os eventos de segurança precisam ficar no banco. Se sim, criar uma migration com tabela própria ou FK `ON DELETE SET NULL`/`CASCADE`, preservando a RNF-SEC-08 | Grupo |
-| Definir alertas para picos de `conta_bloqueada` e `login_usuario_inexistente` (possível ataque de força bruta ou de enumeração) | Grupo |
+| Definir alertas para picos de `conta_bloqueada`, `otp_esgotado` e `login_usuario_inexistente` (possível ataque de força bruta ou de enumeração) | Grupo |
 | Migrar gradualmente os demais `console.*` para o `logger` | Backend |
 
 ---
 
-## Riscos aceitos na fase de testes
+## Fornecedores e terceiros
 
-### Seed com credenciais conhecidas executado a cada deploy
-
-O `startCommand` de `backend/railway.toml`
-(`npm run migrate:deploy && npm run seed && npm run start`) roda o seed a cada
-deploy. O seed (`backend/prisma/seed.ts`) cria contas de teste com senhas fixas
-quando elas ainda não existem:
-
-- admin `admin@fiscalize.gov.br` / `Admin@123456`, a menos que
-  `SEED_ADMIN_EMAIL` e `SEED_ADMIN_PASSWORD` estejam definidas;
-- gestores `gestor@fiscalize.gov.br`, `gestor.<órgão>@fiscalize.gov.br` e um
-  cidadão de teste.
-
-Como os repositórios são públicos, essas senhas também são.
-
-- **Decisão:** risco **aceito enquanto o ambiente de produção for de
-  testes**. Nada foi alterado no seed, no `railway.toml` nem no fluxo de login.
-- **Por que é aceitável agora:** não há usuários reais, e as contas existem
-  para demonstração e testes automatizados.
-- **Condição de saída (obrigatória antes de o app ter usuários reais):**
-  - tirar `npm run seed` do `startCommand`, ou restringir o seed a dados de
-    referência (categorias, órgãos, regras);
-  - remover ou trocar as senhas das contas de teste já criadas em produção;
-  - definir `SEED_ADMIN_PASSWORD` como secret, se o admin continuar vindo do
-    seed.
-- **Responsável sugerido:** quem administra o deploy na Railway, junto com os
-  responsáveis pela RNF-SEC-02.
-
----
-
-## Fornecedores e terceiros identificados no código
-
-Insumo para o documento de **Gestão de fornecedores**. A lista registra apenas
-o que aparece no código e na configuração. Plano, região, contrato e
-certificações de cada fornecedor **não** foram verificados (TODO do responsável
-pelo documento).
-
-| Fornecedor | Uso no Fiscalize | Onde aparece | Dados que recebe |
-|---|---|---|---|
-| **Railway** | Hospedagem e deploy do backend | `backend/railway.toml`, `backend/README.md` | Todo o tráfego da API; variáveis de ambiente (segredos) |
-| **Provedor do banco principal** (TODO: Railway ou Neon) | PostgreSQL de produção (`DATABASE_URL`) | `backend/src/config/prisma.ts` | Todos os dados pessoais e as denúncias |
-| **Neon** | Banco do ETL (`ETL_DATABASE_URL`), lido pelo dashboard | `backend/.env.example`, `backend/src/services/etlDashboardService.ts` | Dados agregados do ETL (população, clima) |
-| **Google (Gmail SMTP)** | Envio dos códigos OTP do 2FA | `backend/src/services/otpService.ts` (nodemailer), `GMAIL_USER` | E-mail do usuário e código OTP |
-| **Expo** | Notificações push (`exp.host`) e build do app (EAS) | `backend/src/services/notificationService.ts`, `mobile/eas.json` | Token de push do aparelho e texto da notificação |
-| **GitHub** | Código (repositórios públicos), CI, GitHub Pages dos relatórios e, provisoriamente, os backups cifrados | `.github/workflows/` | Código; backups cifrados; secrets do Actions |
-| **Redis** (TODO: provedor) | Cache de métricas e rate limiting | `backend/src/config/redis.ts`, `REDIS_URL` | Contadores por IP e cache de métricas |
-
-Outros terceiros encontrados durante o levantamento:
-
-| Fornecedor | Uso | Onde aparece |
-|---|---|---|
-| ViaCEP | Consulta de endereço por CEP no cadastro do app | `mobile/src/services/address-service.ts` |
-| Open-Meteo e IBGE | Fontes de dados públicos do ETL | `etl/src/` |
-| unpkg (CDN) | Carrega o Swagger UI da página `/docs` | `backend/src/config/swagger.ts` |
-| Docker Hub (imagem `postgres`) e registro npm | Dependências de build, CI e backup | Workflows e `package.json` |
+O levantamento dos fornecedores e terceiros identificados no código está em
+[FORNECEDORES-E-TERCEIROS.md](../FORNECEDORES-E-TERCEIROS.md), como insumo
+para as RNFs derivadas do documento de Gestão de fornecedores.

@@ -92,6 +92,10 @@ ops/backup/docker-run.sh restore.sh backups/fiscalize-<data>.dump.gpg
 Dica: para a passphrase não ficar no histórico, use
 `read -rs BACKUP_PASSPHRASE && export BACKUP_PASSPHRASE`.
 
+Os scripts nunca passam a senha do banco na linha de comando: eles a extraem
+da URL e a entregam aos clientes do PostgreSQL por `PGPASSWORD`. Também dá para
+omitir a senha da URL e exportar `PGPASSWORD` diretamente.
+
 O script, nesta ordem:
 
 1. confere o SHA-256 do arquivo;
@@ -148,6 +152,14 @@ migrations do código em produção (`backend/prisma/migrations`).
 - **Automático:** o job `producao` do workflow restaura todo dia o backup
   recém-gerado num Postgres temporário do CI e compara com a origem. Uma
   falha nesse job significa que o backup do dia não é confiável.
+- **Atenção: hoje o job `producao` está inativo.** Ele só roda depois que os
+  secrets `BACKUP_DATABASE_URL` e `BACKUP_PASSPHRASE` forem cadastrados no
+  repositório. Até lá, **não existe backup automático de produção**: o
+  workflow só registra o aviso "Backup de produção desativado". Antes de
+  cadastrar os secrets, é preciso **confirmar a versão do Postgres de
+  produção** e, se não for 16, criar a variável `BACKUP_PG_VERSION` com essa
+  versão. Com um `pg_dump` mais antigo que o servidor, o backup falha
+  (`server version mismatch`).
 - **Manual (recomendado mensalmente):** executar as seções 4 a 6 num banco
   descartável, cronometrar o tempo total e registrar o resultado e o RTO
   medido na tabela abaixo.
