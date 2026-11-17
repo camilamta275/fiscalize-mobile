@@ -320,6 +320,37 @@ e clima), que podem ser regenerados rodando o ETL novamente. Ver a pendência.
 
 ---
 
+## Riscos aceitos na fase de testes
+
+### Seed com credenciais conhecidas executado a cada deploy
+
+O `startCommand` de `backend/railway.toml`
+(`npm run migrate:deploy && npm run seed && npm run start`) roda o seed a cada
+deploy. O seed (`backend/prisma/seed.ts`) cria contas de teste com senhas fixas
+quando elas ainda não existem:
+
+- admin `admin@fiscalize.gov.br` / `Admin@123456`, a menos que
+  `SEED_ADMIN_EMAIL` e `SEED_ADMIN_PASSWORD` estejam definidas;
+- gestores `gestor@fiscalize.gov.br`, `gestor.<órgão>@fiscalize.gov.br` e um
+  cidadão de teste.
+
+Como os repositórios são públicos, essas senhas também são.
+
+- **Decisão:** risco **aceito enquanto o ambiente de produção for de
+  testes**. Nada foi alterado no seed, no `railway.toml` nem no fluxo de login.
+- **Por que é aceitável agora:** não há usuários reais, e as contas existem
+  para demonstração e testes automatizados.
+- **Condição de saída (obrigatória antes de o app ter usuários reais):**
+  - tirar `npm run seed` do `startCommand`, ou restringir o seed a dados de
+    referência (categorias, órgãos, regras);
+  - remover ou trocar as senhas das contas de teste já criadas em produção;
+  - definir `SEED_ADMIN_PASSWORD` como secret, se o admin continuar vindo do
+    seed.
+- **Responsável sugerido:** quem administra o deploy na Railway, junto com os
+  responsáveis pela RNF-SEC-02.
+
+---
+
 ## Fornecedores e terceiros identificados no código
 
 Insumo para o documento de **Gestão de fornecedores**. A lista registra apenas
