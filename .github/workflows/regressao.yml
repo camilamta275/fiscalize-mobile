@@ -5,8 +5,7 @@ on:
   push:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
-  # 06:23 UTC = 03:23 em Recife: fora do expediente e fora da hora cheia, que
-  # concentra a fila do agendamento best-effort do GitHub Actions.
+  # 06:23 UTC = 03:23 em Recife.
   schedule:
     - cron: "23 6 * * *"
   workflow_dispatch:
@@ -20,16 +19,12 @@ env:
   NODE_ENV: test
   PORT: 3000
   ALLOWED_ORIGINS: http://localhost:3001
-  # Created by AI.
   REPORTS_DIR: automation/reports
-  # Updated by AI.
   MAESTRO_E2E_DEVICE_ID: fiscalize-maestro-ci
 
 jobs:
-  # Updated by AI.
   unit:
     name: Testes unitários
-    # No agendamento e na execução manual, a suíte roda no job de regressão.
     if: github.event_name == 'push' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     defaults:
@@ -51,12 +46,10 @@ jobs:
       - name: Instalar dependências
         run: npm ci
 
-      # Created by AI.
       - name: Preparar diretório de relatórios
         working-directory: .
         run: mkdir -p "$REPORTS_DIR"
 
-      # Created by AI.
       - name: Executar testes unitários
         run: >-
           npm test --
@@ -64,7 +57,6 @@ jobs:
           --json
           --outputFile="$GITHUB_WORKSPACE/$REPORTS_DIR/unit-jest.json"
 
-      # Created by AI.
       - name: Gerar relatório JUnit dos testes unitários
         if: always()
         working-directory: .
@@ -73,7 +65,6 @@ jobs:
           "$REPORTS_DIR/unit-jest.json"
           "$REPORTS_DIR/unit-junit.xml"
 
-      # Created by AI.
       - name: Resumo dos testes unitários
         if: always()
         working-directory: .
@@ -82,7 +73,6 @@ jobs:
           --title "Testes unitários"
           "$REPORTS_DIR/unit-junit.xml"
 
-      # Created by AI.
       - name: Preparar artefatos dos testes unitários
         if: always()
         working-directory: .
@@ -92,7 +82,6 @@ jobs:
             cp -R "$REPORTS_DIR"/. "$RUNNER_TEMP/artifacts/fiscalize-mobile/reports"/
           fi
 
-      # Created by AI.
       - name: Publicar artefatos dos testes unitários
         if: always()
         uses: actions/upload-artifact@v4
@@ -102,12 +91,11 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-  # Updated by AI.
   api:
     name: Testes de API
-    # No agendamento e na execução manual, a suíte roda no job de regressão.
     if: github.event_name == 'push' || github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
+
     services:
       postgres:
         image: postgres:16
@@ -122,6 +110,7 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -173,14 +162,9 @@ jobs:
       - name: Instalar dependências de automação
         run: python -m pip install -r automation/requirements.txt
 
-      # Created by AI.
       - name: Preparar diretório de relatórios
         run: mkdir -p "$REPORTS_DIR"
 
-      # Updated by AI.
-      # Jornada do cidadão (login, abertura de chamado e consulta de perfil).
-      # Roda antes da suíte de API para falhar rápido e, por estar neste job,
-      # é bloqueado pelo check obrigatório "Testes de API" do Quality Gate.
       - name: Executar smoke test E2E antes do merge
         if: github.event_name == 'pull_request'
         working-directory: automation
@@ -193,7 +177,6 @@ jobs:
           --html="$GITHUB_WORKSPACE/$REPORTS_DIR/api-smoke-report.html"
           --self-contained-html
 
-      # Updated by AI.
       - name: Executar testes de API
         working-directory: automation
         run: >-
@@ -202,10 +185,7 @@ jobs:
           --html="$GITHUB_WORKSPACE/$REPORTS_DIR/api-report.html"
           --self-contained-html
 
-      # Created by AI.
-      # Updated by AI.
       - name: Validar credenciais dos fluxos Maestro
-        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         env:
           MAESTRO_TC02_EMAIL: ${{ secrets.MAESTRO_TC02_EMAIL }}
           MAESTRO_TC03_EMAIL: ${{ secrets.MAESTRO_TC03_EMAIL }}
@@ -214,25 +194,16 @@ jobs:
           MAESTRO_TC06_PASSWORD: ${{ secrets.MAESTRO_TC06_PASSWORD }}
         run: python automation/scripts/run_maestro_e2e.py --validate-only
 
-      # Created by AI.
-      # Updated by AI.
       - name: Configurar Java para Android
-        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
 
-      # Created by AI.
-      # Updated by AI.
       - name: Instalar dependências mobile
-        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         run: npm ci --prefix mobile
 
-      # Created by AI.
-      # Updated by AI.
       - name: Instalar Maestro
-        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         env:
           MAESTRO_VERSION: 2.10.0
         run: |
@@ -240,10 +211,15 @@ jobs:
           echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
           "$HOME/.maestro/bin/maestro" --version
 
-      # Created by AI.
-      # Updated by AI.
+      # Configuração explícita de KVM para o emulador Android.
+      - name: Habilitar KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          ls -l /dev/kvm
+
       - name: Build Android e executar fluxos Maestro
-        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         uses: reactivecircus/android-emulator-runner@v2
         env:
           MAESTRO_TC02_EMAIL: ${{ secrets.MAESTRO_TC02_EMAIL }}
@@ -259,20 +235,25 @@ jobs:
           cores: 2
           emulator-boot-timeout: 900
           disable-animations: true
-          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          disable-linux-hw-accel: false
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
           script: |
             tc02_email="$MAESTRO_TC02_EMAIL"
             tc03_email="$MAESTRO_TC03_EMAIL"
             tc03_password="$MAESTRO_TC03_PASSWORD"
             tc06_email="$MAESTRO_TC06_EMAIL"
             tc06_password="$MAESTRO_TC06_PASSWORD"
+
             unset MAESTRO_TC02_EMAIL MAESTRO_TC03_EMAIL MAESTRO_TC03_PASSWORD
             unset MAESTRO_TC06_EMAIL MAESTRO_TC06_PASSWORD
+
             yes | sdkmanager --licenses > /dev/null || {
               status=$?
               if [ "$status" -ne 141 ]; then exit "$status"; fi
             }
+
             sdkmanager --install "platforms;android-36" "build-tools;36.0.0"
+
             (
               cd mobile
               MAESTRO_E2E_BUILD=true \
@@ -283,17 +264,21 @@ jobs:
                 > "$RUNNER_TEMP/maestro-metro.log" 2>&1 &
               echo $! > "$RUNNER_TEMP/maestro-metro.pid"
             )
+
             for attempt in {1..30}; do
               if curl --fail --silent http://localhost:8081/status > /dev/null; then
                 break
               fi
               sleep 2
             done
+
             if ! curl --fail --silent http://localhost:8081/status > /dev/null; then
               cat "$RUNNER_TEMP/maestro-metro.log"
               exit 1
             fi
+
             adb reverse tcp:8081 tcp:8081
+
             (
               cd mobile
               MAESTRO_E2E_BUILD=true \
@@ -302,15 +287,16 @@ jobs:
               EXPO_PUBLIC_API_BASE_URL=http://10.0.2.2:3000 \
                 npx expo run:android --variant debug --no-bundler
             )
+
             export MAESTRO_TC06_EMAIL="$tc06_email"
             export MAESTRO_TC06_PASSWORD="$tc06_password"
             python automation/scripts/prepare_maestro_trusted_device.py
+
             export MAESTRO_TC02_EMAIL="$tc02_email"
             export MAESTRO_TC03_EMAIL="$tc03_email"
             export MAESTRO_TC03_PASSWORD="$tc03_password"
             python automation/scripts/run_maestro_e2e.py --reset-app-state
 
-      # Created by AI.
       - name: Resumo dos testes de API
         if: always()
         run: >-
@@ -319,22 +305,23 @@ jobs:
           "$REPORTS_DIR/api-junit.xml"
           "$REPORTS_DIR/api-smoke-junit.xml"
 
-      # Created by AI.
       - name: Preparar artefatos dos testes de API
         if: always()
         run: |
           mkdir -p "$RUNNER_TEMP/artifacts/fiscalize-mobile/reports"
+
           if [ -d "$REPORTS_DIR" ]; then
             cp -R "$REPORTS_DIR"/. "$RUNNER_TEMP/artifacts/fiscalize-mobile/reports"/
           fi
+
           if [ -f "$RUNNER_TEMP/fiscalize-api.log" ]; then
             cp "$RUNNER_TEMP/fiscalize-api.log" "$RUNNER_TEMP/artifacts/fiscalize-mobile/reports"/
           fi
+
           if [ -f "$RUNNER_TEMP/maestro-metro.log" ]; then
             cp "$RUNNER_TEMP/maestro-metro.log" "$RUNNER_TEMP/artifacts/fiscalize-mobile/reports"/
           fi
 
-      # Created by AI.
       - name: Publicar artefatos dos testes de API
         if: always()
         uses: actions/upload-artifact@v4
@@ -344,11 +331,11 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-  # Updated by AI.
   regression:
     name: Suíte completa de regressão
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
+
     services:
       postgres:
         image: postgres:16
@@ -363,13 +350,13 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: recursive
 
-      # Created by AI.
       - name: Preparar diretório de relatórios
         run: mkdir -p "$REPORTS_DIR"
 
@@ -384,7 +371,6 @@ jobs:
         working-directory: backend
         run: npm ci
 
-      # Updated by AI.
       - name: Executar testes unitários
         working-directory: backend
         run: >-
@@ -422,7 +408,6 @@ jobs:
       - name: Instalar dependências de automação
         run: python -m pip install -r automation/requirements.txt
 
-      # Created by AI.
       - name: Gerar relatório JUnit dos testes unitários
         if: always()
         run: >-
@@ -430,7 +415,6 @@ jobs:
           "$REPORTS_DIR/regression-unit-jest.json"
           "$REPORTS_DIR/regression-unit-junit.xml"
 
-      # Updated by AI.
       - name: Executar todos os testes automatizados
         working-directory: automation
         run: >-
@@ -439,7 +423,6 @@ jobs:
           --html="$GITHUB_WORKSPACE/$REPORTS_DIR/regression-report.html"
           --self-contained-html
 
-      # Created by AI.
       - name: Validar credenciais dos fluxos Maestro
         env:
           MAESTRO_TC02_EMAIL: ${{ secrets.MAESTRO_TC02_EMAIL }}
@@ -449,18 +432,15 @@ jobs:
           MAESTRO_TC06_PASSWORD: ${{ secrets.MAESTRO_TC06_PASSWORD }}
         run: python automation/scripts/run_maestro_e2e.py --validate-only
 
-      # Created by AI.
       - name: Configurar Java para Android
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
 
-      # Created by AI.
       - name: Instalar dependências mobile
         run: npm ci --prefix mobile
 
-      # Created by AI.
       - name: Instalar Maestro
         env:
           MAESTRO_VERSION: 2.10.0
@@ -469,8 +449,14 @@ jobs:
           echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
           "$HOME/.maestro/bin/maestro" --version
 
-      # Created by AI.
-      # Updated by AI.
+      # Configuração explícita de KVM para o emulador Android.
+      - name: Habilitar KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          ls -l /dev/kvm
+
       - name: Build Android e executar fluxos Maestro
         uses: reactivecircus/android-emulator-runner@v2
         env:
@@ -483,21 +469,29 @@ jobs:
           api-level: 34
           target: google_apis
           arch: x86_64
-          profile: Nexus 6
+          profile: pixel_2
+          cores: 2
+          emulator-boot-timeout: 900
           disable-animations: true
+          disable-linux-hw-accel: false
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
           script: |
             tc02_email="$MAESTRO_TC02_EMAIL"
             tc03_email="$MAESTRO_TC03_EMAIL"
             tc03_password="$MAESTRO_TC03_PASSWORD"
             tc06_email="$MAESTRO_TC06_EMAIL"
             tc06_password="$MAESTRO_TC06_PASSWORD"
+
             unset MAESTRO_TC02_EMAIL MAESTRO_TC03_EMAIL MAESTRO_TC03_PASSWORD
             unset MAESTRO_TC06_EMAIL MAESTRO_TC06_PASSWORD
+
             yes | sdkmanager --licenses > /dev/null || {
               status=$?
               if [ "$status" -ne 141 ]; then exit "$status"; fi
             }
+
             sdkmanager --install "platforms;android-36" "build-tools;36.0.0"
+
             (
               cd mobile
               MAESTRO_E2E_BUILD=true \
@@ -508,17 +502,21 @@ jobs:
                 > "$RUNNER_TEMP/maestro-metro.log" 2>&1 &
               echo $! > "$RUNNER_TEMP/maestro-metro.pid"
             )
+
             for attempt in {1..30}; do
               if curl --fail --silent http://localhost:8081/status > /dev/null; then
                 break
               fi
               sleep 2
             done
+
             if ! curl --fail --silent http://localhost:8081/status > /dev/null; then
               cat "$RUNNER_TEMP/maestro-metro.log"
               exit 1
             fi
+
             adb reverse tcp:8081 tcp:8081
+
             (
               cd mobile
               MAESTRO_E2E_BUILD=true \
@@ -527,15 +525,16 @@ jobs:
               EXPO_PUBLIC_API_BASE_URL=http://10.0.2.2:3000 \
                 npx expo run:android --variant debug --no-bundler
             )
+
             export MAESTRO_TC06_EMAIL="$tc06_email"
             export MAESTRO_TC06_PASSWORD="$tc06_password"
             python automation/scripts/prepare_maestro_trusted_device.py
+
             export MAESTRO_TC02_EMAIL="$tc02_email"
             export MAESTRO_TC03_EMAIL="$tc03_email"
             export MAESTRO_TC03_PASSWORD="$tc03_password"
             python automation/scripts/run_maestro_e2e.py --reset-app-state
 
-      # Created by AI.
       - name: Resumo da suíte de regressão
         if: always()
         run: >-
@@ -544,22 +543,23 @@ jobs:
           "$REPORTS_DIR/regression-unit-junit.xml"
           "$REPORTS_DIR/regression-junit.xml"
 
-      # Created by AI.
       - name: Preparar artefatos da regressão
         if: always()
         run: |
           mkdir -p "$RUNNER_TEMP/artifacts/fiscalize-mobile/reports"
+
           if [ -d "$REPORTS_DIR" ]; then
             cp -R "$REPORTS_DIR"/. "$RUNNER_TEMP/artifacts/fiscalize-mobile/reports"/
           fi
+
           if [ -f "$RUNNER_TEMP/fiscalize-api.log" ]; then
             cp "$RUNNER_TEMP/fiscalize-api.log" "$RUNNER_TEMP/artifacts/fiscalize-mobile/reports"/
           fi
+
           if [ -f "$RUNNER_TEMP/maestro-metro.log" ]; then
             cp "$RUNNER_TEMP/maestro-metro.log" "$RUNNER_TEMP/artifacts/fiscalize-mobile/reports"/
           fi
 
-      # Created by AI.
       - name: Publicar artefatos da regressão
         if: always()
         uses: actions/upload-artifact@v4
@@ -569,7 +569,6 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-  # Created by AI.
   notify-failure:
     name: Abrir issue de falha
     needs: [unit, api, regression]
@@ -582,9 +581,8 @@ jobs:
     permissions:
       contents: read
       issues: write
+
     steps:
-      # Created by AI.
-      # Updated by AI.
       - name: Criar ou atualizar issue
         uses: actions/github-script@v7
         env:
@@ -616,6 +614,7 @@ jobs:
               cancelled: '🚫 cancelled',
               skipped: '⚪ skipped',
             };
+
             const failed = jobs
               .filter(([, result]) => result === 'failure')
               .map(([name]) => name);
@@ -651,6 +650,7 @@ jobs:
             ].join('\n');
 
             const label = 'falha-ci';
+
             try {
               await github.rest.issues.getLabel({ owner, repo, name: label });
             } catch (error) {
@@ -671,6 +671,7 @@ jobs:
               labels: label,
               per_page: 100,
             });
+
             const existing = issues.find((issue) => issue.title === title);
 
             if (existing) {
@@ -680,6 +681,7 @@ jobs:
                 issue_number: existing.number,
                 body: `Nova falha detectada.\n\n${body}`,
               });
+
               if (existing.state === 'closed') {
                 await github.rest.issues.update({
                   owner,
@@ -688,6 +690,7 @@ jobs:
                   state: 'open',
                 });
               }
+
               core.info(`Issue #${existing.number} atualizada: ${title}`);
             } else {
               const { data: created } = await github.rest.issues.create({
@@ -697,10 +700,10 @@ jobs:
                 body,
                 labels: [label],
               });
+
               core.info(`Issue #${created.number} criada: ${title}`);
             }
 
-  # Created by AI.
   quality-report:
     name: Relatórios de qualidade
     needs: [unit, api, regression, notify-failure]
@@ -710,6 +713,7 @@ jobs:
       contents: write
       actions: read
       issues: read
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -724,7 +728,6 @@ jobs:
       - name: Instalar dependências de automação
         run: python -m pip install -r automation/requirements.txt
 
-      # Created by AI.
       - name: Baixar artefatos dos testes
         uses: actions/download-artifact@v4
         with:
@@ -732,7 +735,6 @@ jobs:
           path: ${{ runner.temp }}/downloads
           merge-multiple: true
 
-      # Created by AI.
       - name: Coletar histórico de execuções
         env:
           GH_TOKEN: ${{ github.token }}
@@ -741,7 +743,6 @@ jobs:
           gh api "repos/$GITHUB_REPOSITORY/actions/runs?per_page=30&branch=$DEFAULT_BRANCH" \
             > "$RUNNER_TEMP/runs.json" || echo '{"workflow_runs": []}' > "$RUNNER_TEMP/runs.json"
 
-      # Created by AI.
       - name: Coletar falhas abertas
         env:
           GH_TOKEN: ${{ github.token }}
@@ -749,11 +750,9 @@ jobs:
           gh api "repos/$GITHUB_REPOSITORY/issues?labels=falha-ci&state=open&per_page=100" \
             > "$RUNNER_TEMP/issues.json" || echo '[]' > "$RUNNER_TEMP/issues.json"
 
-      # Created by AI.
       - name: Definir pasta versionada da execução
         run: echo "RUN_DIR=$REPORTS_DIR/runs/run-$GITHUB_RUN_NUMBER" >> "$GITHUB_ENV"
 
-      # Created by AI.
       - name: Calcular métricas de qualidade
         env:
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
@@ -765,7 +764,6 @@ jobs:
           --output "$RUN_DIR/metrics.json"
           --summary
 
-      # Created by AI.
       - name: Gerar relatórios HTML
         run: |
           python automation/scripts/quality_report.py \
@@ -773,7 +771,6 @@ jobs:
             --output-dir "$RUN_DIR"
           cp "$RUN_DIR/business-report.html" "$REPORTS_DIR/index.html"
 
-      # Created by AI.
       - name: Publicar relatórios de qualidade
         if: always()
         uses: actions/upload-artifact@v4
@@ -783,7 +780,6 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-      # Created by AI.
       - name: Publicar no GitHub Pages
         if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
         uses: peaceiris/actions-gh-pages@v4
