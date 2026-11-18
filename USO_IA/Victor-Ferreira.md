@@ -37,3 +37,27 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Análise, implementação, documentação e validação técnica.
 - **Tipo de contribuição da IA:** Análise dos fluxos existentes, criação do fluxo Maestro, atualização da documentação e revisão de consistência.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0003
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Victor Ferreira
+- **Arquivo / Arquivos alterado(s):** mobile/app.config.ts, mobile/app.json (removido), mobile/eas.json, mobile/package.json, mobile/package-lock.json, mobile/README.md, mobile/src/app/_layout.tsx, mobile/src/contexts/demand-context.tsx, mobile/src/contexts/session-context.tsx, mobile/src/services/local-storage-service.ts, mobile/src/services/updates-service.ts, mobile/src/viewmodels/use-demand-form-view-model.ts, mobile/src/viewmodels/use-demands-list-view-model.ts, mobile/src/views/demands-list-view.tsx, mobile/src/views/notifications-view.tsx
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Configurado OTA com EAS, cache offline de sessão e demandas, estados de API e organização de serviços/contextos.
+- **Tratamento de dados pessoais:** Não houve. O código apenas preserva dados já fornecidos pelo usuário no armazenamento local do dispositivo.
+- **Alterado pela IA (nome da IA, versão da IA):** AI assistant using Copilot SDK in VS Code (versão disponibilizada na sessão)
+- **Finalidade do uso da IA:** Implementar os quatro requisitos de acompanhamento do aplicativo mobile.
+- **Etapa da atividade:** Análise, implementação, documentação e validação técnica.
+- **Tipo de contribuição da IA:** Análise arquitetural, implementação de OTA/cache/estados de API, atualização de dependências e execução de validações.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0004
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Victor Ferreira
+- **Arquivo / Arquivos alterado(s):** mobile/src/services/api-client.ts
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Adicionado timeout de 10 segundos para evitar carregamento infinito quando a API está indisponível.
+- **Tratamento de dados pessoais:** Não houve. A alteração trata somente timeout e erros de comunicação.
+- **Alterado pela IA (nome da IA, versão da IA):** AI assistant using Copilot SDK in VS Code (versão disponibilizada na sessão)
+- **Finalidade do uso da IA:** Diagnosticar o carregamento infinito no teste com Expo Go e tornar a falha da API visível.
+- **Etapa da atividade:** Diagnóstico, correção e validação técnica.
+- **Tipo de contribuição da IA:** Análise de conectividade, ajuste no cliente HTTP e execução de TypeScript/lint.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo

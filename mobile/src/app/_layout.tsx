@@ -2,12 +2,14 @@ import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as Notifications from 'expo-notifications';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
+import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import { DemandProvider } from '@/contexts/demand-context';
 import { SessionProvider, useSession } from '@/contexts/session-context';
 import { useTheme } from '@/hooks/use-theme';
+import { checkForRemoteUpdate } from '@/services/updates-service';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -26,6 +28,15 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
   const theme = useTheme();
   const base = colorScheme === 'dark' ? DarkTheme : DefaultTheme;
+
+  useEffect(() => {
+    void checkForRemoteUpdate().catch((caught: unknown) => {
+      console.warn(
+        '[OTA] Não foi possível verificar uma atualização remota.',
+        caught instanceof Error ? caught.message : caught
+      );
+    });
+  }, []);
 
   return (
     <ThemeProvider
