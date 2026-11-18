@@ -7,7 +7,6 @@ import {
   Modal,
   Pressable,
   RefreshControl,
-  ScrollView,
   StyleSheet,
   TextInput,
   View,
@@ -54,6 +53,10 @@ export function DemandsListView() {
   const {
     demands,
     isLoading,
+    isCacheHydrating,
+    cachedAt,
+    cacheError,
+    isOffline,
     isRefreshing,
     isLoadingMore,
     error,
@@ -65,9 +68,11 @@ export function DemandsListView() {
     categoryFilter,
     setCategoryFilter,
     categories,
+    categoriesError,
     sortBy,
     setSortBy,
     organizations,
+    organizationsError,
     refresh,
     loadMore,
   } = useDemandsListViewModel();
@@ -213,6 +218,23 @@ export function DemandsListView() {
                 </ThemedText>
               </View>
 
+              {isCacheHydrating ? (
+                <InlineMessage message="Restaurando a última consulta salva neste dispositivo." tone="info" />
+              ) : null}
+              {isOffline && demands.length > 0 ? (
+                <InlineMessage
+                  message="Sem conexão. Exibindo a última consulta disponível."
+                  tone="warning"
+                />
+              ) : null}
+              {cacheError ? <InlineMessage message={cacheError} /> : null}
+              {cachedAt && !error && !isOffline ? (
+                <ThemedText themeColor="mutedForeground" type="caption">
+                  Consulta local atualizada em {new Date(cachedAt).toLocaleString('pt-BR')}
+                </ThemedText>
+              ) : null}
+              {categoriesError ? <InlineMessage message={categoriesError} /> : null}
+              {organizationsError ? <InlineMessage message={organizationsError} /> : null}
               {error ? <InlineMessage message={error} /> : null}
             </View>
           </>
