@@ -95,6 +95,7 @@ jobs:
     name: Testes de API
     if: github.event_name == 'push' || github.event_name == 'pull_request'
     runs-on: ubuntu-22.04
+    timeout-minutes: 60
 
     services:
       postgres:
@@ -237,65 +238,9 @@ jobs:
           disable-animations: true
           disable-linux-hw-accel: false
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
-          script: |
-            tc02_email="$MAESTRO_TC02_EMAIL"
-            tc03_email="$MAESTRO_TC03_EMAIL"
-            tc03_password="$MAESTRO_TC03_PASSWORD"
-            tc06_email="$MAESTRO_TC06_EMAIL"
-            tc06_password="$MAESTRO_TC06_PASSWORD"
-
-            unset MAESTRO_TC02_EMAIL MAESTRO_TC03_EMAIL MAESTRO_TC03_PASSWORD
-            unset MAESTRO_TC06_EMAIL MAESTRO_TC06_PASSWORD
-
-            yes | sdkmanager --licenses > /dev/null || {
-              status=$?
-              if [ "$status" -ne 141 ]; then exit "$status"; fi
-            }
-
-            sdkmanager --install "platforms;android-36" "build-tools;36.0.0"
-
-            (
-              cd mobile
-              MAESTRO_E2E_BUILD=true \
-              EAS_BUILD_PROFILE=e2e \
-              NODE_ENV=development \
-              EXPO_PUBLIC_API_BASE_URL=http://10.0.2.2:3000 \
-                npx expo start --dev-client --host localhost --port 8081 \
-                > "$RUNNER_TEMP/maestro-metro.log" 2>&1 &
-              echo $! > "$RUNNER_TEMP/maestro-metro.pid"
-            )
-
-            for attempt in {1..30}; do
-              if curl --fail --silent http://localhost:8081/status > /dev/null; then
-                break
-              fi
-              sleep 2
-            done
-
-            if ! curl --fail --silent http://localhost:8081/status > /dev/null; then
-              cat "$RUNNER_TEMP/maestro-metro.log"
-              exit 1
-            fi
-
-            adb reverse tcp:8081 tcp:8081
-
-            (
-              cd mobile
-              MAESTRO_E2E_BUILD=true \
-              EAS_BUILD_PROFILE=e2e \
-              NODE_ENV=development \
-              EXPO_PUBLIC_API_BASE_URL=http://10.0.2.2:3000 \
-                npx expo run:android --variant debug --no-bundler
-            )
-
-            export MAESTRO_TC06_EMAIL="$tc06_email"
-            export MAESTRO_TC06_PASSWORD="$tc06_password"
-            python automation/scripts/prepare_maestro_trusted_device.py
-
-            export MAESTRO_TC02_EMAIL="$tc02_email"
-            export MAESTRO_TC03_EMAIL="$tc03_email"
-            export MAESTRO_TC03_PASSWORD="$tc03_password"
-            python automation/scripts/run_maestro_e2e.py --reset-app-state
+          # O runner executa cada linha de `script:` em um `sh -c` separado.
+          # Toda a lógica multilinha fica no script bash versionado no repositório.
+          script: bash ./.github/scripts/run-maestro-e2e.sh
 
       - name: Resumo dos testes de API
         if: always()
@@ -335,6 +280,7 @@ jobs:
     name: Suíte completa de regressão
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-22.04
+    timeout-minutes: 60
 
     services:
       postgres:
@@ -475,65 +421,9 @@ jobs:
           disable-animations: true
           disable-linux-hw-accel: false
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
-          script: |
-            tc02_email="$MAESTRO_TC02_EMAIL"
-            tc03_email="$MAESTRO_TC03_EMAIL"
-            tc03_password="$MAESTRO_TC03_PASSWORD"
-            tc06_email="$MAESTRO_TC06_EMAIL"
-            tc06_password="$MAESTRO_TC06_PASSWORD"
-
-            unset MAESTRO_TC02_EMAIL MAESTRO_TC03_EMAIL MAESTRO_TC03_PASSWORD
-            unset MAESTRO_TC06_EMAIL MAESTRO_TC06_PASSWORD
-
-            yes | sdkmanager --licenses > /dev/null || {
-              status=$?
-              if [ "$status" -ne 141 ]; then exit "$status"; fi
-            }
-
-            sdkmanager --install "platforms;android-36" "build-tools;36.0.0"
-
-            (
-              cd mobile
-              MAESTRO_E2E_BUILD=true \
-              EAS_BUILD_PROFILE=e2e \
-              NODE_ENV=development \
-              EXPO_PUBLIC_API_BASE_URL=http://10.0.2.2:3000 \
-                npx expo start --dev-client --host localhost --port 8081 \
-                > "$RUNNER_TEMP/maestro-metro.log" 2>&1 &
-              echo $! > "$RUNNER_TEMP/maestro-metro.pid"
-            )
-
-            for attempt in {1..30}; do
-              if curl --fail --silent http://localhost:8081/status > /dev/null; then
-                break
-              fi
-              sleep 2
-            done
-
-            if ! curl --fail --silent http://localhost:8081/status > /dev/null; then
-              cat "$RUNNER_TEMP/maestro-metro.log"
-              exit 1
-            fi
-
-            adb reverse tcp:8081 tcp:8081
-
-            (
-              cd mobile
-              MAESTRO_E2E_BUILD=true \
-              EAS_BUILD_PROFILE=e2e \
-              NODE_ENV=development \
-              EXPO_PUBLIC_API_BASE_URL=http://10.0.2.2:3000 \
-                npx expo run:android --variant debug --no-bundler
-            )
-
-            export MAESTRO_TC06_EMAIL="$tc06_email"
-            export MAESTRO_TC06_PASSWORD="$tc06_password"
-            python automation/scripts/prepare_maestro_trusted_device.py
-
-            export MAESTRO_TC02_EMAIL="$tc02_email"
-            export MAESTRO_TC03_EMAIL="$tc03_email"
-            export MAESTRO_TC03_PASSWORD="$tc03_password"
-            python automation/scripts/run_maestro_e2e.py --reset-app-state
+          # O runner executa cada linha de `script:` em um `sh -c` separado.
+          # Toda a lógica multilinha fica no script bash versionado no repositório.
+          script: bash ./.github/scripts/run-maestro-e2e.sh
 
       - name: Resumo da suíte de regressão
         if: always()
