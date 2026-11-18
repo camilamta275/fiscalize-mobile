@@ -372,6 +372,7 @@ jobs:
       issues: write
     steps:
       # Created by AI.
+      # Updated by AI.
       - name: Criar ou atualizar issue
         uses: actions/github-script@v7
         env:
@@ -382,6 +383,9 @@ jobs:
           script: |
             const { owner, repo } = context.repo;
             const runUrl = `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`;
+            const defaultBranch = context.payload.repository?.default_branch ?? 'main';
+            const policyUrl =
+              `${context.serverUrl}/${owner}/${repo}/blob/${defaultBranch}/docs/tas.md`;
             const branch =
               context.payload.pull_request?.head?.ref ??
               context.ref.replace(/^refs\/heads\//, '') ??
@@ -423,6 +427,13 @@ jobs:
               failed.length
                 ? `**Jobs com falha:** ${failed.join(', ')}`
                 : '**Nenhum job com falha direta** (verifique cancelamentos).',
+              '',
+              '### Triagem de manutenção',
+              '- **Categoria:** pendente de triagem (SUT, TAS, ambiente ou variação esperada).',
+              '- **Prioridade:** pendente de triagem; classificar conforme a política.',
+              '- **Responsável:** atribuir no GitHub em até 1 dia útil.',
+              '- **Prazo-alvo de correção:** definir após a classificação e registrar nesta issue.',
+              `- **Política e prazos:** ${policyUrl}`,
               '',
               'Os relatórios JUnit XML e HTML desta execução estão anexados como artefatos.',
             ].join('\n');

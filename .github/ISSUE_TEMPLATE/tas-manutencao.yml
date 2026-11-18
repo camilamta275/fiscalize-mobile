@@ -1,0 +1,82 @@
+# Created by AI.
+name: Manutenção da TAS
+description: Registrar falha, instabilidade ou melhoria da automação de testes.
+title: "[TAS] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use uma issue por demanda. Consulte `docs/tas.md` para a política de manutenção.
+        Não inclua credenciais, tokens ou dados pessoais.
+  - type: dropdown
+    id: categoria
+    attributes:
+      label: Categoria
+      description: Selecione a causa provável; use pendente se ainda não houver evidência suficiente.
+      options:
+        - SUT
+        - TAS
+        - Ambiente
+        - Variação esperada
+        - Pendente de triagem
+    validations:
+      required: true
+  - type: dropdown
+    id: prioridade
+    attributes:
+      label: Prioridade
+      description: Use os critérios e prazos da política. Se ainda não classificada, escolha pendente.
+      options:
+        - P1 - crítica
+        - P2 - alta
+        - P3 - normal
+        - P4 - baixa
+        - Pendente de triagem
+    validations:
+      required: true
+  - type: input
+    id: responsavel
+    attributes:
+      label: Responsável
+      description: Informe @login ou equipe. Se pendente, indique quem fará a triagem e até quando.
+      placeholder: "@usuario ou Equipe TAS - triagem até AAAA-MM-DD"
+    validations:
+      required: true
+  - type: input
+    id: prazo
+    attributes:
+      label: Prazo-alvo
+      description: Data acordada no formato AAAA-MM-DD; para triagem pendente, informe o prazo de triagem.
+      placeholder: "AAAA-MM-DD"
+    validations:
+      required: true
+  - type: input
+    id: teste_requisito
+    attributes:
+      label: Teste, requisito ou ID do backlog afetado
+      placeholder: "ex.: test_user_login.py::test_login_user / TC01"
+    validations:
+      required: true
+  - type: textarea
+    id: comportamento
+    attributes:
+      label: Comportamento esperado e observado
+      description: Descreva o impacto e a frequência, sem expor dados sensíveis.
+      placeholder: Esperado... / Observado...
+    validations:
+      required: true
+  - type: textarea
+    id: evidencias
+    attributes:
+      label: Evidências e reprodução
+      description: Inclua URL da execução, commit, logs sanitizados ou passos para reproduzir.
+      placeholder: "Execução/commit; passos; resultados de reexecuções comparáveis..."
+    validations:
+      required: true
+  - type: textarea
+    id: encaminhamento
+    attributes:
+      label: Diagnóstico, encaminhamento e risco
+      description: Indique a próxima ação, responsável por ela, alternativa de cobertura e risco de espera.
+    validations:
+      required: true
