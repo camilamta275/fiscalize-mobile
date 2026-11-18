@@ -7,7 +7,6 @@ import {
   Modal,
   Pressable,
   RefreshControl,
-  ScrollView,
   StyleSheet,
   TextInput,
   View,
@@ -54,6 +53,10 @@ export function DemandsListView() {
   const {
     demands,
     isLoading,
+    isCacheHydrating,
+    cachedAt,
+    cacheError,
+    isOffline,
     isRefreshing,
     isLoadingMore,
     error,
@@ -62,9 +65,14 @@ export function DemandsListView() {
     setStatusFilter,
     orgaoFilter,
     setOrgaoFilter,
+    categoryFilter,
+    setCategoryFilter,
+    categories,
+    categoriesError,
     sortBy,
     setSortBy,
     organizations,
+    organizationsError,
     refresh,
     loadMore,
   } = useDemandsListViewModel();
@@ -74,7 +82,7 @@ export function DemandsListView() {
   const insets = useSafeAreaInsets();
   const [searchDraft, setSearchDraft] = useState('');
   const [isFocused, setIsFocused] = useState(true);
-  const [openFilter, setOpenFilter] = useState<'status' | 'orgao' | 'sort' | null>(null);
+  const [openFilter, setOpenFilter] = useState<'status' | 'orgao' | 'categoria' | 'sort' | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -159,6 +167,15 @@ export function DemandsListView() {
                 label={statusFilter ?? 'Todos os status'}
                 onPress={() => setOpenFilter('status')}
               />
+              <FilterSelect
+                label={
+                  categoryFilter !== null
+                    ? categories.find((category) => category.id === categoryFilter)?.nome ??
+                      'Categoria selecionada'
+                    : 'Todas as categorias'
+                }
+                onPress={() => setOpenFilter('categoria')}
+              />
               <View style={styles.filterRow}>
                 <View style={styles.orgFilter}>
                   <FilterSelect
@@ -201,6 +218,23 @@ export function DemandsListView() {
                 </ThemedText>
               </View>
 
+              {isCacheHydrating ? (
+                <InlineMessage message="Restaurando a última consulta salva neste dispositivo." tone="info" />
+              ) : null}
+              {isOffline && demands.length > 0 ? (
+                <InlineMessage
+                  message="Sem conexão. Exibindo a última consulta disponível."
+                  tone="warning"
+                />
+              ) : null}
+              {cacheError ? <InlineMessage message={cacheError} /> : null}
+              {cachedAt && !error && !isOffline ? (
+                <ThemedText themeColor="mutedForeground" type="caption">
+                  Consulta local atualizada em {new Date(cachedAt).toLocaleString('pt-BR')}
+                </ThemedText>
+              ) : null}
+              {categoriesError ? <InlineMessage message={categoriesError} /> : null}
+              {organizationsError ? <InlineMessage message={organizationsError} /> : null}
               {error ? <InlineMessage message={error} /> : null}
             </View>
           </>
@@ -275,6 +309,20 @@ export function DemandsListView() {
         title="Filtrar por órgão"
         value={orgaoFilter}
         visible={openFilter === 'orgao'}
+      />
+      <FilterModal
+        options={[
+          { label: 'Todas as categorias', value: null },
+          ...categories.map((category) => ({ label: category.nome, value: String(category.id) })),
+        ]}
+        onClose={() => setOpenFilter(null)}
+        onSelect={(value) => {
+          setCategoryFilter(value === null ? null : Number(value));
+          setOpenFilter(null);
+        }}
+        title="Filtrar por categoria"
+        value={categoryFilter === null ? null : String(categoryFilter)}
+        visible={openFilter === 'categoria'}
       />
       <FilterModal
         options={SORT_OPTIONS}

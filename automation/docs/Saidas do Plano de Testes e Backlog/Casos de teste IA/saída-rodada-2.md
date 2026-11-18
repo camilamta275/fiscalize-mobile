@@ -82,7 +82,7 @@ Após as correções (etapas 5 e 6), as validações limpam-se e o avanço para 
 * **ID:** TC05
 * **Cenário de Teste:** TS06
 * **Título:** Geração automática e persistência de número de protocolo no formato
-SCH-AAAA-NNNN
+DEM-AAAAMMDD-XXXX
 * **Pré-condições:**
 1. Cidadão autenticado.
 2. Assistente de chamado totalmente preenchido e posicionado na Etapa 3 (Revisão).
@@ -94,7 +94,7 @@ SCH-AAAA-NNNN
 
 4. Navegar até a lista 'Meus Chamados' e validar o item cadastrado.
 * **Resultado Esperado:** É gerado instantaneamente um protocolo único correspondente ao
-padrão regex `^SCH-\d{4}-\d{4}$` (ex.: `SCH-2026-7842`). O chamado é gravado no estado
+padrão regex `^DEM-\d{8}-[A-Z0-9]{4}$` (ex.: `DEM-20261020-DFP1`). O chamado é gravado no estado
 local/banco de dados mantendo exatamente este código identificador.
 * **Resultado Atual:** Passou
 --### **TC06**
@@ -149,7 +149,7 @@ na visualização detalhada do chamado.
 de status.
 3. Clicar no alerta/notificação recebido.
 * **Resultado Esperado:** Uma notificação *in-app* (ou *toast* em tempo real) é exibida ao
-cidadão informando: *"Seu chamado SCH-XXXX-XXXX teve o status alterado para Em
+cidadão informando: *"Seu chamado DEM-AAAAMMDD-XXXX teve o status alterado para Em
 Andamento"*. Clicar na notificação direciona o usuário para os detalhes do chamado
 atualizado.
 * **Resultado Atual:** A testar
@@ -259,7 +259,7 @@ Concluído).
 1. Acessar o menu 'Fila de Chamados'.
 2. Aplicar o filtro por Status selecionando a opção 'Aberto'.
 3. Digitar um número de protocolo específico no campo de busca textual (ex.:
-`SCH-2026-7842`).
+`DEM-20261020-DFP1`).
 * **Resultado Esperado:** A tabela de chamados é atualizada dinamicamente exibindo apenas
 os chamados que atendem estritamente aos critérios combinados do filtro de status e do termo
 pesquisado.

@@ -4,7 +4,9 @@ import { useCallback, useEffect, useState } from 'react';
 import type { DemandStatus } from '@/models/demand';
 import { ApiError } from '@/models/api-error';
 import { useDemands } from '@/contexts/demand-context';
+import * as categoryService from '@/services/category-service';
 import * as demandService from '@/services/demand-service';
+import type { Category } from '@/models/category';
 import type { DemandOrganization } from '@/services/demand-service';
 
 /**
@@ -22,7 +24,7 @@ import type { DemandOrganization } from '@/services/demand-service';
  */
 // Updated by AI.
 export function useDemandsListViewModel() {
-  const { list, isListStale, storeListPage } = useDemands();
+  const { list, isListStale, storeListPage, isCacheHydrating, cachedAt, cacheError } = useDemands();
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -30,10 +32,15 @@ export function useDemandsListViewModel() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<DemandStatus | null>(null);
   const [orgaoFilter, setOrgaoFilter] = useState<string | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState<number | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [categoriesError, setCategoriesError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'recent' | 'oldest' | 'priority' | 'sla'>('recent');
   const [organizations, setOrganizations] = useState<DemandOrganization[]>([]);
+  const [organizationsError, setOrganizationsError] = useState<string | null>(null);
+  const [isOffline, setIsOffline] = useState(false);
 
-  const listKey = JSON.stringify([search, statusFilter, orgaoFilter, sortBy]);
+  const listKey = JSON.stringify([search, statusFilter, orgaoFilter, categoryFilter, sortBy]);
   // Only a list produced by the current filters may be shown; anything else
   // in the store belongs to a previous query.
   const cached = list?.key === listKey ? list : null;
@@ -54,20 +61,24 @@ export function useDemandsListViewModel() {
           regiao: search || undefined,
           status: statusFilter ?? undefined,
           orgao: orgaoFilter ?? undefined,
+          categoria: categoryFilter ?? undefined,
           ordenacao: sortBy,
         });
         storeListPage(listKey, result);
+        setIsOffline(false);
       } catch (caught) {
+        const apiError = caught instanceof ApiError ? caught : null;
         setError(
-          caught instanceof ApiError ? caught.message : 'Erro inesperado ao buscar ocorrências.'
+          apiError?.message ?? 'Erro inesperado ao buscar ocorrências.'
         );
+        setIsOffline(apiError?.isOffline ?? false);
       } finally {
         setIsLoading(false);
         setIsRefreshing(false);
         setIsLoadingMore(false);
       }
     },
-    [search, statusFilter, orgaoFilter, sortBy, listKey, storeListPage]
+    [search, statusFilter, orgaoFilter, categoryFilter, sortBy, listKey, storeListPage]
   );
 
   const refresh = useCallback(() => fetchPage(1, 'refresh'), [fetchPage]);
@@ -81,6 +92,8 @@ export function useDemandsListViewModel() {
   // restarts the list from page 1, same as `refresh`. With a cached list for
   // this exact query it revalidates silently instead of showing the spinner.
   useEffect(() => {
+    if (isCacheHydrating) return;
+
     if (cached) {
       void demandService
         .list({
@@ -88,17 +101,24 @@ export function useDemandsListViewModel() {
           regiao: search || undefined,
           status: statusFilter ?? undefined,
           orgao: orgaoFilter ?? undefined,
+          categoria: categoryFilter ?? undefined,
           ordenacao: sortBy,
         })
-        .then((result) => storeListPage(listKey, result))
-        .catch(() => {
-          // Keep showing the cached list; the next pull-to-refresh surfaces errors.
+        .then((result) => {
+          storeListPage(listKey, result);
+          setIsOffline(false);
+        })
+        .catch((caught: unknown) => {
+          const apiError = caught instanceof ApiError ? caught : null;
+          setError(apiError?.message ?? 'Não foi possível atualizar as ocorrências.');
+          setIsOffline(apiError?.isOffline ?? false);
         });
       return;
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void fetchPage(1, 'initial');
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [listKey]);
+  }, [isCacheHydrating, listKey]);
 
   // A demand created from the form can't be placed in the list locally (the
   // filters and sort order decide where it goes), so reload when it comes back.
@@ -110,16 +130,34 @@ export function useDemandsListViewModel() {
   );
 
   useEffect(() => {
+    void categoryService
+      .list()
+      .then(setCategories)
+      .catch((caught: unknown) => {
+        setCategories([]);
+        setCategoriesError(
+          caught instanceof ApiError ? caught.message : 'Não foi possível carregar categorias.'
+        );
+      });
     void demandService
       .listOrganizations()
       .then(setOrganizations)
-      .catch(() => setOrganizations([]));
+      .catch((caught: unknown) => {
+        setOrganizations([]);
+        setOrganizationsError(
+          caught instanceof ApiError ? caught.message : 'Não foi possível carregar órgãos.'
+        );
+      });
   }, []);
 
   return {
     demands,
     // A cached list for the current query is shown instead of the spinner.
     isLoading: isLoading && !cached,
+    isCacheHydrating,
+    cachedAt,
+    cacheError,
+    isOffline,
     isRefreshing,
     isLoadingMore,
     error,
@@ -129,9 +167,14 @@ export function useDemandsListViewModel() {
     setStatusFilter,
     orgaoFilter,
     setOrgaoFilter,
+    categoryFilter,
+    setCategoryFilter,
+    categories,
+    categoriesError,
     sortBy,
     setSortBy,
     organizations,
+    organizationsError,
     refresh,
     loadMore,
   };

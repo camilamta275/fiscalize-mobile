@@ -1273,3 +1273,27 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Diagnóstico, correção da configuração e versionamento dos assets.
 - **Tipo de contribuição da IA:** Identificação da causa, remoção da regra `*.png` e inclusão das imagens de ícone, splash e animação no commit.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0106
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `backend/prisma/schema.prisma`, `backend/prisma/migrations/20261110000000_add_chamado_soft_delete/migration.sql`, `backend/src/services/demandService.ts`, `backend/src/repositories/metricsRepository.ts`, `backend/src/controllers/gestorController.ts`, `backend/src/services/authService.ts`, `etl/src/transform.py`, `etl/src/load.py`, `etl/src/sync_chamados.py`, `etl/run_etl.py`, `etl/flow_etl.py`, `dashboard/app.py`, `etl/README-ETL.md`, `etl/ORQUESTRCAO_PREFECT.md`, `plano_de_implementacao.md`, `etl/fiscalize_etl.db`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Soft delete dos 67 chamados sem bairro, camadas silver/gold no ETL, nova gold chamados_clima_diario e gráficos de clima no dashboard Streamlit.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais reais; foram usados somente dados técnicos e sintéticos do pipeline.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode com o modelo DeepSeek V4.1 Flash Free (versão não informada)
+- **Finalidade do uso da IA:** Implementar o soft delete, a arquitetura medallion bronze/silver/gold e o uso efetivo dos dados climáticos no dashboard.
+- **Etapa da atividade:** Modelagem, implementação, migração, execução do ETL e validação do dashboard.
+- **Tipo de contribuição da IA:** Criação da coluna e migration de soft delete, filtros nas consultas e métricas, builders silver/gold, carga segura no Neon sem DROP/TRUNCATE, tabela e gráficos de clima no Streamlit e atualização da documentação.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0107
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Validação e preparação dos branches de soft delete e ETL medallion para publicação.
+- **Tratamento de dados pessoais:** Não houve processamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK em VS Code (versão não informada)
+- **Finalidade do uso da IA:** Validar o estado dos repositórios e preparar commits e publicação das alterações solicitadas.
+- **Etapa da atividade:** Validação e preparação para publicação.
+- **Tipo de contribuição da IA:** Inspeção de branches, revisão de diff, validação de sintaxe e preparação do commit do repositório pai.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
