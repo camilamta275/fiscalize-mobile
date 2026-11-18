@@ -255,8 +255,11 @@ jobs:
           api-level: 34
           target: google_apis
           arch: x86_64
-          profile: Nexus 6
+          profile: pixel_2
+          cores: 2
+          emulator-boot-timeout: 900
           disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
           script: |
             tc02_email="$MAESTRO_TC02_EMAIL"
             tc03_email="$MAESTRO_TC03_EMAIL"
