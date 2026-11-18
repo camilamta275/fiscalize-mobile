@@ -1,8 +1,10 @@
 # Cobertura complementar mobile do gestor.
 # Não equivale ao caso WEB completo de TC06/TS09 e não deve ser tratado como
 # prova integral de acesso administrativo do gestor.
-# Provide test-manager credentials via Maestro -e; never commit them to this flow.
-# Sign in with OTP once on this emulator, then sign out without clearing app data.
+# Updated by AI.
+# Provide test-manager credentials through the process environment; never commit them.
+# CI verifies OTP through the normal API flow before launching this app.
+# For local runs, sign in with OTP once and keep the device's trusted state.
 # The account must have at least one seeded occurrence visible in its list.
 appId: br.com.fiscalize.mobile
 

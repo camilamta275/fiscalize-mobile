@@ -22,6 +22,8 @@ env:
   ALLOWED_ORIGINS: http://localhost:3001
   # Created by AI.
   REPORTS_DIR: automation/reports
+  # Updated by AI.
+  MAESTRO_E2E_DEVICE_ID: fiscalize-maestro-ci
 
 jobs:
   # Updated by AI.
@@ -201,6 +203,111 @@ jobs:
           --self-contained-html
 
       # Created by AI.
+      # Updated by AI.
+      - name: Validar credenciais dos fluxos Maestro
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          MAESTRO_TC02_EMAIL: ${{ secrets.MAESTRO_TC02_EMAIL }}
+          MAESTRO_TC03_EMAIL: ${{ secrets.MAESTRO_TC03_EMAIL }}
+          MAESTRO_TC03_PASSWORD: ${{ secrets.MAESTRO_TC03_PASSWORD }}
+          MAESTRO_TC06_EMAIL: ${{ secrets.MAESTRO_TC06_EMAIL }}
+          MAESTRO_TC06_PASSWORD: ${{ secrets.MAESTRO_TC06_PASSWORD }}
+        run: python automation/scripts/run_maestro_e2e.py --validate-only
+
+      # Created by AI.
+      # Updated by AI.
+      - name: Configurar Java para Android
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      # Created by AI.
+      # Updated by AI.
+      - name: Instalar dependências mobile
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        run: npm ci --prefix mobile
+
+      # Created by AI.
+      # Updated by AI.
+      - name: Instalar Maestro
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          MAESTRO_VERSION: 2.10.0
+        run: |
+          curl -fsSL "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+          "$HOME/.maestro/bin/maestro" --version
+
+      # Created by AI.
+      # Updated by AI.
+      - name: Build Android e executar fluxos Maestro
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          MAESTRO_TC02_EMAIL: ${{ secrets.MAESTRO_TC02_EMAIL }}
+          MAESTRO_TC03_EMAIL: ${{ secrets.MAESTRO_TC03_EMAIL }}
+          MAESTRO_TC03_PASSWORD: ${{ secrets.MAESTRO_TC03_PASSWORD }}
+          MAESTRO_TC06_EMAIL: ${{ secrets.MAESTRO_TC06_EMAIL }}
+          MAESTRO_TC06_PASSWORD: ${{ secrets.MAESTRO_TC06_PASSWORD }}
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: Nexus 6
+          disable-animations: true
+          script: |
+            tc02_email="$MAESTRO_TC02_EMAIL"
+            tc03_email="$MAESTRO_TC03_EMAIL"
+            tc03_password="$MAESTRO_TC03_PASSWORD"
+            tc06_email="$MAESTRO_TC06_EMAIL"
+            tc06_password="$MAESTRO_TC06_PASSWORD"
+            unset MAESTRO_TC02_EMAIL MAESTRO_TC03_EMAIL MAESTRO_TC03_PASSWORD
+            unset MAESTRO_TC06_EMAIL MAESTRO_TC06_PASSWORD
+            yes | sdkmanager --licenses > /dev/null || {
+              status=$?
+              if [ "$status" -ne 141 ]; then exit "$status"; fi
+            }
+            sdkmanager --install "platforms;android-36" "build-tools;36.0.0"
+            (
+              cd mobile
+              MAESTRO_E2E_BUILD=true \
+              EAS_BUILD_PROFILE=e2e \
+              NODE_ENV=development \
+              EXPO_PUBLIC_API_BASE_URL=http://10.0.2.2:3000 \
+                npx expo start --dev-client --host localhost --port 8081 \
+                > "$RUNNER_TEMP/maestro-metro.log" 2>&1 &
+              echo $! > "$RUNNER_TEMP/maestro-metro.pid"
+            )
+            for attempt in {1..30}; do
+              if curl --fail --silent http://localhost:8081/status > /dev/null; then
+                break
+              fi
+              sleep 2
+            done
+            if ! curl --fail --silent http://localhost:8081/status > /dev/null; then
+              cat "$RUNNER_TEMP/maestro-metro.log"
+              exit 1
+            fi
+            adb reverse tcp:8081 tcp:8081
+            (
+              cd mobile
+              MAESTRO_E2E_BUILD=true \
+              EAS_BUILD_PROFILE=e2e \
+              NODE_ENV=development \
+              EXPO_PUBLIC_API_BASE_URL=http://10.0.2.2:3000 \
+                npx expo run:android --variant debug --no-bundler
+            )
+            export MAESTRO_TC06_EMAIL="$tc06_email"
+            export MAESTRO_TC06_PASSWORD="$tc06_password"
+            python automation/scripts/prepare_maestro_trusted_device.py
+            export MAESTRO_TC02_EMAIL="$tc02_email"
+            export MAESTRO_TC03_EMAIL="$tc03_email"
+            export MAESTRO_TC03_PASSWORD="$tc03_password"
+            python automation/scripts/run_maestro_e2e.py --reset-app-state
+
+      # Created by AI.
       - name: Resumo dos testes de API
         if: always()
         run: >-
@@ -219,6 +326,9 @@ jobs:
           fi
           if [ -f "$RUNNER_TEMP/fiscalize-api.log" ]; then
             cp "$RUNNER_TEMP/fiscalize-api.log" "$RUNNER_TEMP/artifacts/fiscalize-mobile/reports"/
+          fi
+          if [ -f "$RUNNER_TEMP/maestro-metro.log" ]; then
+            cp "$RUNNER_TEMP/maestro-metro.log" "$RUNNER_TEMP/artifacts/fiscalize-mobile/reports"/
           fi
 
       # Created by AI.
@@ -327,6 +437,102 @@ jobs:
           --self-contained-html
 
       # Created by AI.
+      - name: Validar credenciais dos fluxos Maestro
+        env:
+          MAESTRO_TC02_EMAIL: ${{ secrets.MAESTRO_TC02_EMAIL }}
+          MAESTRO_TC03_EMAIL: ${{ secrets.MAESTRO_TC03_EMAIL }}
+          MAESTRO_TC03_PASSWORD: ${{ secrets.MAESTRO_TC03_PASSWORD }}
+          MAESTRO_TC06_EMAIL: ${{ secrets.MAESTRO_TC06_EMAIL }}
+          MAESTRO_TC06_PASSWORD: ${{ secrets.MAESTRO_TC06_PASSWORD }}
+        run: python automation/scripts/run_maestro_e2e.py --validate-only
+
+      # Created by AI.
+      - name: Configurar Java para Android
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      # Created by AI.
+      - name: Instalar dependências mobile
+        run: npm ci --prefix mobile
+
+      # Created by AI.
+      - name: Instalar Maestro
+        env:
+          MAESTRO_VERSION: 2.10.0
+        run: |
+          curl -fsSL "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+          "$HOME/.maestro/bin/maestro" --version
+
+      # Created by AI.
+      # Updated by AI.
+      - name: Build Android e executar fluxos Maestro
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          MAESTRO_TC02_EMAIL: ${{ secrets.MAESTRO_TC02_EMAIL }}
+          MAESTRO_TC03_EMAIL: ${{ secrets.MAESTRO_TC03_EMAIL }}
+          MAESTRO_TC03_PASSWORD: ${{ secrets.MAESTRO_TC03_PASSWORD }}
+          MAESTRO_TC06_EMAIL: ${{ secrets.MAESTRO_TC06_EMAIL }}
+          MAESTRO_TC06_PASSWORD: ${{ secrets.MAESTRO_TC06_PASSWORD }}
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: Nexus 6
+          disable-animations: true
+          script: |
+            tc02_email="$MAESTRO_TC02_EMAIL"
+            tc03_email="$MAESTRO_TC03_EMAIL"
+            tc03_password="$MAESTRO_TC03_PASSWORD"
+            tc06_email="$MAESTRO_TC06_EMAIL"
+            tc06_password="$MAESTRO_TC06_PASSWORD"
+            unset MAESTRO_TC02_EMAIL MAESTRO_TC03_EMAIL MAESTRO_TC03_PASSWORD
+            unset MAESTRO_TC06_EMAIL MAESTRO_TC06_PASSWORD
+            yes | sdkmanager --licenses > /dev/null || {
+              status=$?
+              if [ "$status" -ne 141 ]; then exit "$status"; fi
+            }
+            sdkmanager --install "platforms;android-36" "build-tools;36.0.0"
+            (
+              cd mobile
+              MAESTRO_E2E_BUILD=true \
+              EAS_BUILD_PROFILE=e2e \
+              NODE_ENV=development \
+              EXPO_PUBLIC_API_BASE_URL=http://10.0.2.2:3000 \
+                npx expo start --dev-client --host localhost --port 8081 \
+                > "$RUNNER_TEMP/maestro-metro.log" 2>&1 &
+              echo $! > "$RUNNER_TEMP/maestro-metro.pid"
+            )
+            for attempt in {1..30}; do
+              if curl --fail --silent http://localhost:8081/status > /dev/null; then
+                break
+              fi
+              sleep 2
+            done
+            if ! curl --fail --silent http://localhost:8081/status > /dev/null; then
+              cat "$RUNNER_TEMP/maestro-metro.log"
+              exit 1
+            fi
+            adb reverse tcp:8081 tcp:8081
+            (
+              cd mobile
+              MAESTRO_E2E_BUILD=true \
+              EAS_BUILD_PROFILE=e2e \
+              NODE_ENV=development \
+              EXPO_PUBLIC_API_BASE_URL=http://10.0.2.2:3000 \
+                npx expo run:android --variant debug --no-bundler
+            )
+            export MAESTRO_TC06_EMAIL="$tc06_email"
+            export MAESTRO_TC06_PASSWORD="$tc06_password"
+            python automation/scripts/prepare_maestro_trusted_device.py
+            export MAESTRO_TC02_EMAIL="$tc02_email"
+            export MAESTRO_TC03_EMAIL="$tc03_email"
+            export MAESTRO_TC03_PASSWORD="$tc03_password"
+            python automation/scripts/run_maestro_e2e.py --reset-app-state
+
+      # Created by AI.
       - name: Resumo da suíte de regressão
         if: always()
         run: >-
@@ -345,6 +551,9 @@ jobs:
           fi
           if [ -f "$RUNNER_TEMP/fiscalize-api.log" ]; then
             cp "$RUNNER_TEMP/fiscalize-api.log" "$RUNNER_TEMP/artifacts/fiscalize-mobile/reports"/
+          fi
+          if [ -f "$RUNNER_TEMP/maestro-metro.log" ]; then
+            cp "$RUNNER_TEMP/maestro-metro.log" "$RUNNER_TEMP/artifacts/fiscalize-mobile/reports"/
           fi
 
       # Created by AI.
