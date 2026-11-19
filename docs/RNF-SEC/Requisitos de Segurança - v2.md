@@ -38,6 +38,19 @@
 * **RNF-SEC-15 (Política de Backup e Meta de Disponibilidade \- SLA):** O sistema deve garantir uma taxa de disponibilidade de no mínimo 99,5% ao mês (SLA). O banco de dados PostgreSQL deve possuir rotinas automatizadas de backups diários com retenção de 30 dias e armazenamento secundário geograficamente distinto (offsite), assegurando recuperação rápida (disaster recovery) sem perda de dados históricos.  
 * **RNF-SEC-16 (Monitoramento e Auditoria de Logs de Segurança):** O servidor deve registrar centralidamente os logs de auditoria para eventos críticos (ex: múltiplas tentativas mal-sucedidas de login, alterações de permissão e falhas de requisição). É estritamente proibido gravar dados pessoais (PII), senhas ou tokens completos em texto puro nesses arquivos de log.
 
+**5\. Backup e Continuidade de Operação**
+
+* **RNF-SEC-17 (Objetivos de Recuperação \- RTO e RPO):** O plano de continuidade deve definir e registrar um RPO máximo de 24 horas, atendido por backup diário, e um RTO máximo de 4 horas para restabelecer a API e o banco de dados após um incidente crítico. O RTO deve ser medido em exercício de restauração e registrado no runbook.  
+* **RNF-SEC-18 (Testes Periódicos de Restauração de Backup):** Os backups devem ser restaurados periodicamente em um ambiente isolado e descartável, validando a integridade dos dados, a descriptografia (AES-256) e o tempo real de recuperação. A restauração automatizada ocorre diariamente no CI. Um exercício manual, com registro de data, responsável e tempo total, deve ocorrer ao menos uma vez por trimestre.  
+* **RNF-SEC-19 (Resiliência e Fila Offline no Aplicativo Mobile):** O aplicativo deve guardar localmente, de forma criptografada, as denúncias registradas sem conexão e enviá-las automaticamente ao backend quando a rede voltar. O backend deve tratar reenvios duplicados sem criar denúncias repetidas.
+
+**6\. Gestão de Fornecedores**
+
+* **RNF-SEC-20 (Conformidade LGPD e Contratos de Processamento \- DPA):** Todo fornecedor que processa ou armazena dados do sistema (hospedagem, banco de dados, envio de e-mail para o 2FA, notificações push) deve estar identificado em registro versionado, com os dados que recebe, o link dos seus termos de tratamento de dados (DPA ou equivalente) e o status de verificação. Fornecedor sem termos verificados deve constar como risco aceito, com responsável.  
+* **RNF-SEC-21 (Segurança da Cadeia de Suprimentos e Dependências):** Backend e aplicativo Expo devem ter verificação automatizada de vulnerabilidades em dependências (Dependabot e `npm audit`) no CI. O pipeline deve falhar quando houver vulnerabilidade de severidade crítica, e o deploy só deve ocorrer com o pipeline aprovado.  
+* **RNF-SEC-22 (Gestão de Credenciais de APIs Externas e Menor Privilégio):** As credenciais de integração com fornecedores (banco, SMTP, push, Redis) devem ficar somente em variáveis de ambiente ou nos secrets da plataforma, nunca no código-fonte nem no bundle do aplicativo. Cada credencial deve usar o menor privilégio possível e ter processo de rotação documentado, com periodicidade definida.  
+* **RNF-SEC-23 (Portabilidade e Mitigação de Vendor Lock-in):** A arquitetura deve usar padrões abertos (PostgreSQL padrão sem extensões proprietárias e containers Docker) para permitir a migração entre provedores caso um fornecedor apresente falha grave de segurança, quebra de SLA ou descontinuidade. Cada fornecedor deve ter um plano de saída registrado.
+
 **Glossário de Termos de Segurança**
 
 * **AsyncStorage:** Armazenamento chave-valor simples do React Native. Não possui criptografia nativa, sendo totalmente inadequado para guardar tokens de sessão ou senhas.  
