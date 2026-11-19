@@ -9,9 +9,15 @@ name: E2E mobile
 #
 # Roda sob demanda, todo dia e em pushes na main. Não é executado em todo pull
 # request porque o build do app + emulador levam alguns minutos.
+# Updated by AI.
+# Push só de documentação não dispara o E2E; o agendamento diário continua rodando.
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
+      - "USO_IA/**"
   schedule:
     # 06:53 UTC = 03:53 em Recife (fora da hora cheia, que concentra a fila do GitHub Actions).
     - cron: "53 6 * * *"
