@@ -2,7 +2,14 @@ name: Regressão
 
 # Updated by AI.
 on:
+  # Push só de documentação não roda a suíte (unitários, API e E2E Maestro).
+  # Se algum arquivo fora destes padrões mudar, tudo roda normalmente.
+  # PRs não usam o filtro para não deixar checks obrigatórios pendentes.
   push:
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
+      - "USO_IA/**"
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
   # 06:23 UTC = 03:23 em Recife.

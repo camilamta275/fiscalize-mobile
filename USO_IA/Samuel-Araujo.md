@@ -103,3 +103,21 @@ Declaro que **não houve tratamento de dados pessoais** durante o uso da ferrame
 - **Etapa da atividade:** Documentação e preparação da entrega.
 - **Tipo de contribuição da IA:** Atualização de documentação, conferência de formato e de dados sensíveis, e redação de textos de pull request e relatório.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0006
+
+Declaro que utilizei a ferramenta de Inteligência Artificial **Claude Code 2.1.326 (modelo Claude Opus 5.5)** nesta atividade: **diagnóstico da falha do E2E Maestro no main após o merge do PR #69 e ajuste dos gatilhos de CI para pushes só de documentação**.
+
+A ferramenta foi utilizada com a finalidade de **investigar por que o job de E2E falhou após um merge que só alterava documentação e evitar que pushes de documentação disparem a suíte E2E**, durante a etapa **manutenção da integração contínua**, para realizar a seguinte contribuição: **análise do histórico do main e do log do Maestro, identificação do fluxo instável `ocorrencia-criacao-completa` e inclusão de `paths-ignore` no gatilho de push dos workflows `regressao.yml` e `e2e.yml`**.
+
+Declaro que **não houve tratamento de dados pessoais** durante o uso da ferramenta. O resultado foi submetido à **revisão crítica humana**, e a pessoa responsável pela atividade assume a responsabilidade pelo resultado final, incluindo sua correção, adequação e integração ao projeto.
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Samuel Araújo
+- **Arquivo / Arquivos alterado(s):** `.github/workflows/regressao.yml`, `.github/workflows/e2e.yml`, `USO_IA/Samuel-Araujo.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Diagnóstico da falha do E2E Maestro no main e inclusão de paths-ignore no push dos workflows para que pushes só de documentação não rodem a suíte E2E.
+- **Tratamento de dados pessoais:** Não houve
+- **Alterado pela IA (nome da IA, versão da IA):** Claude Code 2.1.326 (Claude Opus 5.5, `claude-opus-5-5`)
+- **Finalidade do uso da IA:** Diagnosticar a falha do CI e evitar execuções do E2E em pushes só de documentação.
+- **Etapa da atividade:** Manutenção da integração contínua.
+- **Tipo de contribuição da IA:** Análise de logs e histórico do Git, e alteração de configuração de workflows do GitHub Actions.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
