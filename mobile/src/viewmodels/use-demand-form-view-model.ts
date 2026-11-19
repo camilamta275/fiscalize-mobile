@@ -72,7 +72,13 @@ export function useDemandFormViewModel(demandId?: string) {
     categoryService
       .list()
       .then(setCategories)
-      .catch(() => setLoadError('Não foi possível carregar as categorias.'))
+      .catch((caught: unknown) =>
+        setLoadError(
+          caught instanceof ApiError
+            ? caught.message
+            : 'Não foi possível carregar as categorias.'
+        )
+      )
       .finally(() => setIsLoadingCategories(false));
   }, []);
 
@@ -104,7 +110,13 @@ export function useDemandFormViewModel(demandId?: string) {
 
         setCurrentStatus(demand.status);
       })
-      .catch(() => setLoadError('Não foi possível carregar esta ocorrência.'))
+      .catch((caught: unknown) =>
+        setLoadError(
+          caught instanceof ApiError
+            ? caught.message
+            : 'Não foi possível carregar esta ocorrência.'
+        )
+      )
       .finally(() => setIsLoadingDemand(false));
   }, [demandId, fetchDetail, setAddress, setCoordinates]);
 

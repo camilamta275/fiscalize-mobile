@@ -6,6 +6,8 @@ const defaultBaseUrl =
   Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
 
 export const baseUrl = process.env.EXPO_PUBLIC_API_BASE_URL ?? defaultBaseUrl;
+// Created by AI.
+const API_TIMEOUT_MS = 10000;
 
 let authToken: string | null = null;
 let refreshToken: string | null = null;
@@ -36,6 +38,7 @@ type RequestOptions = {
   skipRefresh?: boolean;
 };
 
+// Updated by AI.
 export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { method = 'GET', body, allowStatuses = [], skipRefresh = false } = options;
   const headers: Record<string, string> = { Accept: 'application/json' };
@@ -49,14 +52,25 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   }
 
   let response: Response;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
   try {
     response = await fetch(`${baseUrl}${path}`, {
       method,
       headers,
       body: body === undefined ? undefined : JSON.stringify(body),
+      signal: controller.signal,
     });
-  } catch {
-    throw new ApiError(0, `Não foi possível conectar a ${baseUrl}. O servidor está rodando?`);
+  } catch (caught) {
+    const isTimeout = caught instanceof Error && caught.name === 'AbortError';
+    throw new ApiError(
+      0,
+      isTimeout
+        ? `A API não respondeu em ${API_TIMEOUT_MS / 1000} segundos.`
+        : `Não foi possível conectar a ${baseUrl}. O servidor está rodando?`
+    );
+  } finally {
+    clearTimeout(timeoutId);
   }
 
   const payload = await parseBody(response);
