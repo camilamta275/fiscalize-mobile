@@ -78,7 +78,14 @@ export function SessionProvider({ children }: PropsWithChildren) {
   // shown to the user, so there's nothing to render until this resolves.
   useEffect(() => {
     if (!usuario) return;
-    void registerPushToken();
+    // Falha ao registrar o push (sem Firebase/permissão/rede) não pode virar
+    // promessa rejeitada sem tratamento; o app segue funcionando sem notificações.
+    void registerPushToken().catch((caught: unknown) => {
+      console.warn(
+        '[Push] Não foi possível registrar o token de notificações.',
+        caught instanceof Error ? caught.message : caught
+      );
+    });
   }, [usuario]);
 
   useEffect(() => {
