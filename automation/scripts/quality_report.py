@@ -38,11 +38,38 @@ BUSINESS_LABELS = {
 }
 
 # Created by AI.
+# Updated by AI.
 BUSINESS_HINTS = {
-    "M1": "Percentual de verificações automáticas que passaram nesta execução.",
-    "M2": "Quantas verificações automáticas rodaram. Zero significa que nada foi validado.",
-    "M5": "Frequência com que a pipeline falha nas últimas execuções da branch principal.",
-    "M6": "Quantas falhas detectadas continuam sem correção e há quanto tempo.",
+    "M1": "Das verificações desta rodada, quantas passaram.",
+    "M2": "Quantas verificações rodaram.",
+    "M5": "Rodadas recentes sem falha.",
+    "M6": "Falhas conhecidas ainda abertas.",
+}
+
+# Created by AI.
+# Textos do relatório de negócio: falam de funcionalidades e impacto, sem termos técnicos.
+BUSINESS_BACKLOG_NOTES = {
+    "TC02": "A regra de senha incorreta é validada; a mensagem exibida ao usuário ainda não é conferida.",
+    "TC03": "O registro funciona, mas o conteúdo salvo e a presença na lista do cidadão ainda não são conferidos por completo.",
+    "TC04": "A tela já barra descrições curtas demais, mas o sistema não impede o mesmo erro por outros caminhos.",
+    "TC05": "O número de protocolo entregue ao cidadão tem o formato conferido; ainda não é verificado a cada entrega.",
+    "TC06": "O acesso do gestor e o bloqueio de ações restritas ao cidadão são testados; ainda não a cada entrega.",
+    "TC08": "O aviso ao cidadão sobre mudança de status é testado; ainda não a cada entrega.",
+    "TC09": "A mudança de status aparece para o cidadão; o histórico completo do chamado ainda não é conferido.",
+    "TC12": "O cadastro e suas regras são validados; o aceite da política de privacidade é testado, mas ainda não a cada entrega.",
+    "TC14": "O filtro e a busca na fila do gestor ainda não têm nenhuma verificação.",
+    "TC19": "O bloqueio de cadastro de menores de 18 anos é testado; ainda não a cada entrega.",
+}
+
+# Created by AI.
+BUSINESS_GAPS = {
+    "D1": ("O sistema não impede descrições fora do limite quando a regra é contornada fora da tela do app.", "Decidir onde a regra deve valer e passar a verificá-la."),
+    "D3": ("O plano de testes se contradiz em dois pontos.", "Alinhar o documento para que todos validem a mesma regra."),
+    "D4": ("A numeração dos casos de teste não bate entre os documentos.", "Adotar uma única numeração e corrigir a rastreabilidade."),
+    "D5": ("Uma parte das verificações do sistema não executa nenhum teste.", "Criar essas verificações com a equipe do sistema."),
+    "D6": ("A verificação rápida feita em cada alteração só confere se o sistema está no ar.", "Trocá-la por uma jornada real do usuário."),
+    "D7": ("Os testes que usam o app de verdade existem, mas só rodam quando alguém pede.", "Fazê-los rodar automaticamente e acompanhar o resultado."),
+    "D8": ("O bloqueio de menores e o aceite da política de privacidade já existem no app, mas não são verificados a cada entrega.", "Incluir esses cenários na verificação automática."),
 }
 
 # Created by AI.
@@ -115,6 +142,15 @@ def _view(payload: dict) -> dict:
         "coverage": payload["coverage"],
         "backlog": payload["backlog"],
         "gaps": payload["gaps"],
+        "business_gaps": [
+            {"id": gap_id, "summary": summary, "decision": decision}
+            for gap_id, (summary, decision) in BUSINESS_GAPS.items()
+        ],
+        "business_backlog": [
+            {**case, "note": BUSINESS_BACKLOG_NOTES.get(case["id"], case["note"])}
+            for case in payload["backlog"]
+        ],
+        "interpretations": payload.get("interpretations", []),
         "history": payload["history"],
         "run": payload["run"],
         "generated_at": payload["generated_at"],
