@@ -9,7 +9,9 @@ appId: br.com.fiscalize.mobile
 - assertVisible: "Criar conta"
 - assertVisible: "Dados pessoais"
 - assertVisible: "Nome completo"
-- assertVisible: "Já tem conta? Entrar"
+# O link fica abaixo da dobra em telas menores; rola até ele em vez de assumir que já está visível.
+- scrollUntilVisible:
+    element: "Já tem conta? Entrar"
 
 - tapOn: "Política de Privacidade"
 

@@ -3,9 +3,11 @@
 
 from __future__ import annotations
 
+import json
 import os
 import sys
 import time
+from pathlib import Path
 from urllib.parse import urlsplit
 
 import psycopg
@@ -13,6 +15,8 @@ import requests
 
 from automation.scripts.otp_recovery import recover_otp_code, sanitize_database_url
 
+# Created by AI.
+CREDENTIALS_FILE = Path(__file__).resolve().parents[1] / "data" / "credentials.json"
 # Created by AI.
 OTP_COOLDOWN_RETRY_SECONDS = 60
 # Created by AI.
@@ -105,6 +109,44 @@ def prepare_trusted_device(
 
 
 # Created by AI.
+def seeded_citizen_account() -> tuple[str, str] | None:
+    """Return the seeded citizen used by the standalone flows (same account as the API suite)."""
+    try:
+        login = json.loads(CREDENTIALS_FILE.read_text(encoding="utf-8"))["login"]
+        email, password = login["email"], login["password"]
+    except (OSError, ValueError, KeyError, TypeError):
+        return None
+    if isinstance(email, str) and isinstance(password, str) and email and password:
+        return email, password
+    return None
+
+
+# Created by AI.
+def accounts_to_trust(env: dict[str, str]) -> list[tuple[str, str]]:
+    """List every account the flows log into, so none of them stops at the OTP screen.
+
+    O dispositivo E2E é único; cada conta precisa ser confiada nele, senão o app para
+    na tela de verificação de segurança (RNF-SEC-04) e o fluxo nunca chega à home.
+    """
+    accounts = [(env["MAESTRO_TC06_EMAIL"], env["MAESTRO_TC06_PASSWORD"])]
+
+    tc03_email = env.get("MAESTRO_TC03_EMAIL", "").strip()
+    tc03_password = env.get("MAESTRO_TC03_PASSWORD", "")
+    if tc03_email and tc03_password:
+        accounts.append((tc03_email, tc03_password))
+
+    citizen = seeded_citizen_account()
+    if citizen:
+        accounts.append(citizen)
+
+    unique: list[tuple[str, str]] = []
+    for account in accounts:
+        if account not in unique:
+            unique.append(account)
+    return unique
+
+
+# Created by AI.
 def main() -> int:
     if os.getenv("GITHUB_ACTIONS", "").lower() != "true":
         print("[erro] A preparação OTP só pode ser executada em GitHub Actions.", file=sys.stderr)
@@ -142,22 +184,29 @@ def main() -> int:
         ):
             raise ValueError("MAESTRO_API_BASE_URL deve apontar para a API HTTP local.")
 
-        prepare_trusted_device(
-            api_base_url,
-            os.environ["MAESTRO_TC06_EMAIL"],
-            os.environ["MAESTRO_TC06_PASSWORD"],
-            os.environ["MAESTRO_E2E_DEVICE_ID"].strip(),
-            database_url,
-        )
+        accounts = accounts_to_trust(dict(os.environ))
+        for email, password in accounts:
+            prepare_trusted_device(
+                api_base_url,
+                email,
+                password,
+                os.environ["MAESTRO_E2E_DEVICE_ID"].strip(),
+                database_url,
+            )
     except (OSError, ValueError, RuntimeError, psycopg.Error, requests.RequestException) as error:
         message = str(error)
-        for name in (
+        sensitive_values = [os.getenv(name) for name in (
             "MAESTRO_TC06_EMAIL",
             "MAESTRO_TC06_PASSWORD",
+            "MAESTRO_TC03_EMAIL",
+            "MAESTRO_TC03_PASSWORD",
             "DATABASE_URL",
             "JWT_SECRET",
-        ):
-            sensitive_value = os.getenv(name)
+        )]
+        citizen = seeded_citizen_account()
+        if citizen:
+            sensitive_values.extend(citizen)
+        for sensitive_value in sensitive_values:
             if sensitive_value:
                 message = message.replace(sensitive_value, "[REDACTED]")
         print(
@@ -167,7 +216,9 @@ def main() -> int:
         )
         return 1
 
-    print("[preflight] Dispositivo confiável preparado pelo fluxo normal de OTP.")
+    print(
+        f"[preflight] Dispositivo confiável preparado pelo fluxo normal de OTP ({len(accounts)} conta(s))."
+    )
     return 0
 
 

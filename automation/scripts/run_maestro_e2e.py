@@ -16,6 +16,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 TEST_ROOT = REPO_ROOT / "automation" / "tests" / "e2e"
 # Created by AI.
 REPORT_ROOT = REPO_ROOT / "automation" / "reports" / "maestro"
+MIN_REDACTED_LITERAL_LENGTH = 4
 # Created by AI.
 REQUIRED_ENV_BY_FILE = {
     "login-senha-incorreta-usuario-existente.yaml": ("MAESTRO_TC02_EMAIL",),
@@ -189,7 +190,9 @@ def sensitive_flow_values(flow: str) -> list[str]:
             if value and not value.startswith("${"):
                 values.append(value.strip("\"'"))
 
-    return [value for value in values if value]
+    # Literais curtos (ex.: o "a" do teste de descrição mínima) não são segredos e,
+    # se redigidos, apagam essa letra de todos os logs e tornam o diagnóstico ilegível.
+    return [value for value in values if len(value) >= MIN_REDACTED_LITERAL_LENGTH]
 
 
 # Created by AI.

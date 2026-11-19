@@ -19,6 +19,7 @@ from automation.scripts.otp_recovery import (
     recover_otp_code,
 )
 from automation.scripts.prepare_maestro_trusted_device import (
+    accounts_to_trust,
     main as prepare_trusted_device_main,
     prepare_trusted_device,
     validate_ci_database_url,
@@ -249,3 +250,45 @@ def test_runner_clears_the_package_declared_by_each_flow():
         "br.com.fiscalize.mobile",
     ]
     assert run.call_args.kwargs["env"] == env
+
+
+# Created by AI.
+def test_preflight_trusts_every_account_used_by_the_flows():
+    env = {
+        "MAESTRO_TC06_EMAIL": "gestor@example.test",
+        "MAESTRO_TC06_PASSWORD": "gestor-pass",
+        "MAESTRO_TC03_EMAIL": "tc03@example.test",
+        "MAESTRO_TC03_PASSWORD": "tc03-pass",
+    }
+
+    accounts = accounts_to_trust(env)
+
+    assert accounts[0] == ("gestor@example.test", "gestor-pass")
+    assert ("tc03@example.test", "tc03-pass") in accounts
+    # O cidadão semeado (mesmo das suítes de API) também precisa estar confiado.
+    assert any(email == "cidadao@fiscalize.gov.br" for email, _ in accounts)
+    assert len(accounts) == len(set(accounts))
+
+
+# Created by AI.
+def test_preflight_skips_optional_account_when_secrets_are_missing():
+    env = {"MAESTRO_TC06_EMAIL": "gestor@example.test", "MAESTRO_TC06_PASSWORD": "gestor-pass"}
+
+    emails = [email for email, _ in accounts_to_trust(env)]
+
+    assert "tc03@example.test" not in emails
+    assert emails[0] == "gestor@example.test"
+
+
+# Created by AI.
+def test_runner_does_not_redact_short_literals_from_logs(tmp_path, monkeypatch):
+    from automation.scripts import run_maestro_e2e as runner
+
+    flow = tmp_path / "flow.yaml"
+    flow.write_text('- inputText: "a"\n- inputText: "Senha-Longa-123"\n', encoding="utf-8")
+    monkeypatch.setattr(runner, "REPO_ROOT", tmp_path)
+
+    values = runner.sensitive_flow_values("flow.yaml")
+
+    assert "a" not in values
+    assert "Senha-Longa-123" in values

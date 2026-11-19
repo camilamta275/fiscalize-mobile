@@ -21,6 +21,7 @@ E2E_ENV=(
   EAS_BUILD_PROFILE=e2e
   NODE_ENV=development
   EXPO_PUBLIC_API_BASE_URL=http://10.0.2.2:3000
+  EXPO_PUBLIC_E2E=true
 )
 
 # Guarda as credenciais e remove do ambiente para que não
