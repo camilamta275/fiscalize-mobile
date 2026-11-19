@@ -104,4 +104,6 @@ MAESTRO_TC06_PASSWORD="$tc06_password" \
 MAESTRO_TC02_EMAIL="$tc02_email" \
 MAESTRO_TC03_EMAIL="$tc03_email" \
 MAESTRO_TC03_PASSWORD="$tc03_password" \
+MAESTRO_TC06_EMAIL="$tc06_email" \
+MAESTRO_TC06_PASSWORD="$tc06_password" \
   python automation/scripts/run_maestro_e2e.py --reset-app-state
