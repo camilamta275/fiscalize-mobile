@@ -1,0 +1,54 @@
+# Created by AI.
+# Fluxo E2E completo, parte 2/2: ACOMPANHAR a mudança de status e VERIFICAR a notificação.
+# Pré-condição: a parte 1 registrou a ocorrência e o Gestor mudou o status para
+# "Em Andamento" (feito pelo orquestrador via API entre as duas partes).
+#
+# Inclui também um cenário NEGATIVO pela interface: o cidadão não tem acesso à
+# ação "Atualizar status", exclusiva do Gestor (espelha o 403 da camada de API).
+#
+# Variáveis (passadas com -e pelo orquestrador):
+#   FLUXO_EMAIL, FLUXO_SENHA  credenciais do cidadão do seed
+#   FLUXO_TITULO              título da ocorrência criada na parte 1
+#   FLUXO_STATUS_ESPERADO     rótulo do novo status (ex.: Em Andamento)
+appId: br.com.fiscalize.mobile
+
+---
+- launchApp:
+    clearState: true
+
+- tapOn:
+    id: "login-email"
+- inputText: ${FLUXO_EMAIL}
+- tapOn:
+    id: "login-password"
+- inputText: ${FLUXO_SENHA}
+- hideKeyboard
+- tapOn:
+    id: "login-submit"
+- extendedWaitUntil:
+    visible: "Meus Chamados"
+    timeout: 15000
+
+# ACOMPANHAR: a lista mostra o chamado com o novo status
+- extendedWaitUntil:
+    visible: ${FLUXO_TITULO}
+    timeout: 15000
+- assertVisible: ${FLUXO_STATUS_ESPERADO}
+- assertNotVisible: "Aberto"
+
+# NEGATIVO: no detalhe, o cidadão não vê a ação exclusiva do Gestor
+- tapOn: ${FLUXO_TITULO}
+- extendedWaitUntil:
+    visible: ${FLUXO_STATUS_ESPERADO}
+    timeout: 10000
+- assertNotVisible: "Atualizar status"
+- back
+
+# NOTIFICAR: a notificação de mudança de status chegou ao cidadão
+- tapOn: "Abrir perfil"
+- assertVisible: "Meu perfil"
+- tapOn: "Notificações"
+- extendedWaitUntil:
+    visible: "Status da ocorrência atualizado"
+    timeout: 15000
+- assertVisible: "está ${FLUXO_STATUS_ESPERADO}"

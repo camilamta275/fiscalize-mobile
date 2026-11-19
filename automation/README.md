@@ -219,6 +219,26 @@ validação prévia de variáveis falha explicitamente e os fluxos não são exe
 O Maestro CLI lê automaticamente variáveis do processo com prefixo `MAESTRO_`;
 o runner não coloca valores secretos nos argumentos da linha de comando.
 
+## 7.1 Suíte E2E: registrar, acompanhar e notificar
+
+<!-- Created by AI. -->
+A suíte E2E roda o app Android real (emulador) integrado ao backend real, sem mocks. O fluxo principal fica em `automation/tests/e2e/fluxo/` e é orquestrado por `automation/tests/e2e/test_fluxo_registrar_acompanhar_notificar.py`:
+
+1. `fluxo-1-registrar-chamado.yaml`: o cidadão registra a ocorrência pelo app.
+2. O Gestor muda o status do chamado para "Em Andamento" pela API (no mundo real, o gestor atua em outra interface).
+3. `fluxo-2-acompanhar-notificar.yaml`: o cidadão vê o novo status na lista, recebe a notificação "Status da ocorrência atualizado" e **não** vê a ação "Atualizar status", exclusiva do Gestor (cenário negativo pela interface, equivalente ao 403 da API).
+
+Os demais fluxos Maestro (`login/`, `cadastro/`, `ocorrencia/`, `perfil/`, `register/`) cobrem cenários isolados, incluindo os negativos de login (senha incorreta, e-mail e senha inválidos).
+
+Execução local, com emulador ligado, app instalado e backend com seed:
+
+```bash
+cd automation
+python -m pytest tests/e2e -o addopts="" -v
+```
+
+Sem Maestro, `adb` ou dispositivo, o teste é ignorado. Na pipeline, o workflow `.github/workflows/e2e.yml` sobe PostgreSQL com seed, a API, gera o APK, inicia o emulador e executa a suíte com `E2E_OBRIGATORIO=1` (sem ambiente, falha em vez de ser ignorado). Ele roda sob demanda, todo dia e em pushes na `main`; o resultado fica no artefato `relatorios-e2e`.
+
 ## 8. Relatórios de execução
 
 O `pytest.ini` já escreve dois relatórios em `automation/reports/` (criado
@@ -298,7 +318,7 @@ mesma pasta.
 
 ### Preenchendo M5 e M6
 
-M5 (taxa de falha) e M6 (issues `falha-ci` abertas) vêm da API do GitHub. Use
+M5 (estabilidade das execuções, onde 100% é o ideal) e M6 (issues `falha-ci` abertas) vêm da API do GitHub. Use
 `--fetch` para coletar as duas sem exportar arquivos:
 
 ```bash

@@ -1,0 +1,98 @@
+# Created by AI.
+# Fluxo E2E completo, parte 1/2: REGISTRAR a ocorrência pelo app.
+# Parte 2 (acompanhar status e verificar notificação): fluxo-2-acompanhar-notificar.yaml.
+# Orquestrado por automation/tests/e2e/test_fluxo_registrar_acompanhar_notificar.py,
+# que entre as duas partes muda o status do chamado como Gestor (via API).
+#
+# Variáveis (passadas com -e pelo orquestrador):
+#   FLUXO_EMAIL, FLUXO_SENHA  credenciais do cidadão do seed
+#   FLUXO_TITULO              título único da ocorrência (usado para localizá-la depois)
+appId: br.com.fiscalize.mobile
+
+---
+- launchApp:
+    clearState: true
+
+# Login do cidadão
+- tapOn:
+    id: "login-email"
+- inputText: ${FLUXO_EMAIL}
+- tapOn:
+    id: "login-password"
+- inputText: ${FLUXO_SENHA}
+- hideKeyboard
+- tapOn:
+    id: "login-submit"
+- extendedWaitUntil:
+    visible: "Meus Chamados"
+    timeout: 15000
+
+# Abre o formulário e preenche título, descrição e categoria
+- tapOn: "Registrar nova ocorrência"
+- assertVisible: "Registre um problema urbano"
+- tapOn:
+    id: "demand-title"
+- inputText: ${FLUXO_TITULO}
+- tapOn:
+    id: "demand-description"
+- inputText: "Buraco na rua oferece risco para pedestres e veículos."
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      text: "Infraestrutura"
+- tapOn: "Infraestrutura"
+
+# Endereço (mesmo preenchimento validado no TC03)
+- scrollUntilVisible:
+    element:
+      text: "Rua ou avenida"
+- tapOn:
+    text: "Rua ou avenida"
+- inputText: "Rua das Flores"
+- scrollUntilVisible:
+    element:
+      text: "Ex: Boa Viagem"
+- tapOn:
+    text: "Ex: Boa Viagem"
+- inputText: "Boa Vista"
+- scrollUntilVisible:
+    element:
+      text: "Recife"
+- tapOn:
+    text: "Recife"
+- inputText: "Recife"
+- scrollUntilVisible:
+    element:
+      text: "PE"
+- tapOn:
+    text: "PE"
+- inputText: "PE"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      text: "00000-000"
+    direction: UP
+- tapOn:
+    text: "00000-000"
+- inputText: "50050000"
+- hideKeyboard
+- extendedWaitUntil:
+    visible: "Preenchida automaticamente"
+    timeout: 30000
+
+# Envio e confirmação
+- scrollUntilVisible:
+    element:
+      id: "demand-submit"
+- tapOn:
+    id: "demand-submit"
+- extendedWaitUntil:
+    visible: "Ocorrência registrada!"
+    timeout: 15000
+
+# A ocorrência aparece na lista, com status inicial "Aberto"
+- tapOn: "Voltar para a lista"
+- extendedWaitUntil:
+    visible: ${FLUXO_TITULO}
+    timeout: 15000
+- assertVisible: "Aberto"
