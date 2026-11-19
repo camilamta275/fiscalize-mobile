@@ -75,12 +75,15 @@ appId: br.com.fiscalize.mobile
     text: "00000-000"
 - inputText: "50050000"
 - hideKeyboard
+# "Buscando endereço…" e "Calculando…" são estados transitórios: com a consulta rápida o
+# Maestro perde a janela e a asserção falha. Espera-se o resultado (rua preenchida pelo
+# CEP) e o fim do cálculo das coordenadas.
 - extendedWaitUntil:
-    visible: "Buscando endereço…"
-    timeout: 15000
+    visible: "Rua da Aurora"
+    timeout: 20000
 - extendedWaitUntil:
-    visible: "Calculando…"
-    timeout: 15000
+    notVisible: "Calculando…"
+    timeout: 20000
 - extendedWaitUntil:
     visible: "Preenchida automaticamente"
     timeout: 15000

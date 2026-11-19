@@ -32,5 +32,7 @@ appId: br.com.fiscalize.mobile
 - tapOn:
     text: "Abrir ocorrência .*"
 
-- assertVisible: "Atualizar status"
+# O botão é o último item da tela de detalhe (ScrollView); fica abaixo da dobra.
+- scrollUntilVisible:
+    element: "Atualizar status"
 - assertNotVisible: "Editar ocorrência"
