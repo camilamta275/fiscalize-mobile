@@ -29,8 +29,17 @@ REQUIRED_ENV_BY_FILE = {
 
 # Created by AI.
 def discover_test_files() -> list[str]:
-    """Return all Maestro flows under the supported E2E directory."""
-    return sorted(path.relative_to(REPO_ROOT).as_posix() for path in TEST_ROOT.rglob("*.yaml"))
+    """Return the standalone Maestro flows under the supported E2E directory.
+
+    Os fluxos de ``fluxo/`` recebem variáveis de execução do pytest
+    (``test_fluxo_registrar_acompanhar_notificar.py``, workflow ``e2e.yml``) e não
+    rodam sozinhos; continuam aceitos quando informados explicitamente.
+    """
+    return sorted(
+        path.relative_to(REPO_ROOT).as_posix()
+        for path in TEST_ROOT.rglob("*.yaml")
+        if path.relative_to(TEST_ROOT).parts[0] != "fluxo"
+    )
 
 
 # Created by AI.
