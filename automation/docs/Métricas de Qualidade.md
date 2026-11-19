@@ -16,7 +16,7 @@ entre elas define o semáforo do produto.
 | :--- | :--- | :--- | :--- | :--- |
 | **M1** | Taxa de sucesso da suíte | `passed / (total − skipped)` nas suítes primárias | JUnit XML | ≥ 98% |
 | **M2** | Testes executados | `total` de casos das suítes primárias | JUnit XML | > 0 (zero é falha) |
-| **M5** | Taxa de falha de execução | execuções com falha / execuções da janela (30 da branch padrão) | API de execuções | 0% na branch padrão; ≤ 10% na janela |
+| **M5** | Estabilidade das execuções | `1 − execuções com falha / execuções da janela` (30 da branch padrão); quanto maior, melhor, e 100% é o ideal | API de execuções | ≥ 90% na janela (nível alto) |
 | **M6** | Falhas abertas (`falha-ci`) | issues abertas com o rótulo `falha-ci` e idade da mais antiga | Issues do repositório | nenhuma com mais de 5 dias |
 
 **Suítes primárias:** `unit-junit.xml`, `api-junit.xml` e `regression-junit.xml`.
@@ -29,8 +29,8 @@ regressão já inclui os unitários).
 - **M1 sem M2 é vaidade.** O job unitário roda com `--passWithNoTests` e fica
   verde com zero testes; M2 transforma "nada executado" em falha.
 - **M5 separa os dois tipos de falha.** Falha na branch padrão é defeito que
-  escapou do gate; falha em pull request é o gate funcionando. A meta é zero na
-  padrão.
+  escapou do gate; falha em pull request é o gate funcionando. Na branch padrão não
+  pode haver falha (estabilidade de 100% nela).
 - **M6 fecha o ciclo.** A abertura automática de issues detecta a falha; M6 mede
   se alguém agiu sobre ela.
 - **Quatro é o limite de leitura.** Tendência e cobertura aparecem nos relatórios
@@ -40,9 +40,9 @@ regressão já inclui os unitários).
 
 | Status | M1 | M2 | M5 | M6 |
 | :--- | :--- | :--- | :--- | :--- |
-| 🟢 Verde | ≥ 98% | > 0 | 0% de falha na padrão e ≤ 10% na janela | nenhuma issue aberta |
-| 🟡 Amarelo | 90%–98% | — | ≤ 10% na janela, sem falha na padrão | 1 a 3 issues, nenhuma com mais de 5 dias |
-| 🔴 Vermelho | < 90% | = 0 | qualquer falha na padrão ou > 10% na janela | 4 ou mais issues, ou qualquer uma com mais de 5 dias |
+| 🟢 Verde | ≥ 98% | > 0 | estabilidade ≥ 90% (nível alto) e sem falha na padrão | nenhuma issue aberta |
+| 🟡 Amarelo | 90%–98% | — | estabilidade de 70% a 89% (nível médio), ou qualquer falha na padrão | 1 a 3 issues, nenhuma com mais de 5 dias |
+| 🔴 Vermelho | < 90% | = 0 | estabilidade < 70% (nível baixo) | 4 ou mais issues, ou qualquer uma com mais de 5 dias |
 
 O status geral é o pior entre M1, M2, M5 e M6. Quando falta dado (arquivo de
 execuções ou de issues ausente), a métrica fica `desconhecida` e o geral é
