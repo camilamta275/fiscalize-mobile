@@ -95,6 +95,7 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
 }
 
 // Created by AI.
+// Updated by AI.
 async function rotateTokens(): Promise<boolean> {
   if (refreshInFlight) return refreshInFlight;
 
@@ -108,7 +109,17 @@ async function rotateTokens(): Promise<boolean> {
       setAuthTokens(response.token, response.refreshToken);
       onTokensRotated?.(response.token, response.refreshToken);
       return true;
-    } catch {
+    } catch (caught) {
+      if (
+        !(caught instanceof ApiError) ||
+        caught.isOffline ||
+        caught.statusCode === 408 ||
+        caught.statusCode === 429 ||
+        caught.statusCode >= 500
+      ) {
+        throw caught;
+      }
+
       setAuthTokens(null, null);
       onTokensRotated?.('', '');
       return false;

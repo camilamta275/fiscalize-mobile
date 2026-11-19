@@ -1,3 +1,5 @@
+import hashlib
+import json
 import sqlite3
 from datetime import datetime, timezone
 
@@ -72,6 +74,7 @@ class Load:
             f"no SQLite: {table_name}"
         )
 
+    # Updated by AI.
     def load_mongo(
         self,
         data: dict | list[dict],
@@ -83,6 +86,9 @@ class Load:
         Parâmetros:
             data: dado bruto a ser armazenado.
             collection_name: nome da coleção no MongoDB.
+
+        Snapshots idênticos reutilizam os mesmos documentos e metadados;
+        alterações no conteúdo geram um novo lote histórico.
         """
         db = self.client[self.database_name]
         collection = db[collection_name]
@@ -100,15 +106,65 @@ class Load:
                 f"{collection_name}."
             )
 
-        for record in records:
-            record["data_extracao"] = data_extracao
+        records.sort(
+            key=lambda record: json.dumps(
+                record,
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=False,
+                default=str,
+            )
+        )
+        batch_hash = hashlib.sha256(
+            json.dumps(
+                records,
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=False,
+                default=str,
+            ).encode("utf-8")
+        ).hexdigest()
+        batch_id = f"{collection_name}:{batch_hash}"
 
-        collection.insert_many(records)
+        manifests = db["_etl_raw_loads"]
+        manifests.update_one(
+            {"_id": batch_id},
+            {
+                "$setOnInsert": {
+                    "collection_name": collection_name,
+                    "data_extracao": data_extracao,
+                }
+            },
+            upsert=True,
+        )
+        manifest = manifests.find_one({"_id": batch_id})
+        if manifest is None or "data_extracao" not in manifest:
+            raise RuntimeError(
+                f"Não foi possível recuperar os metadados da carga "
+                f"{batch_id}."
+            )
+
+        data_extracao = manifest["data_extracao"]
+        operations = []
+        for index, record in enumerate(records):
+            document = dict(record)
+            document["_id"] = f"{batch_hash}:{index}"
+            document["data_extracao"] = data_extracao
+            operations.append(
+                UpdateOne(
+                    {"_id": document["_id"]},
+                    {"$setOnInsert": document},
+                    upsert=True,
+                )
+            )
+
+        collection.bulk_write(operations, ordered=False)
 
         print(
             f"Dados brutos carregados com sucesso "
             f"no MongoDB: {collection_name} "
-            f"({len(records)} registros; carga {data_extracao})"
+            f"({len(records)} registros; carga {data_extracao}; "
+            f"lote {batch_hash})"
         )
 
     def upsert_mongo(

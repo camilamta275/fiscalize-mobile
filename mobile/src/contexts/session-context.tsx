@@ -76,9 +76,15 @@ export function SessionProvider({ children }: PropsWithChildren) {
 
   // A restored token still needs its usuario — the token alone was never
   // shown to the user, so there's nothing to render until this resolves.
+  // Updated by AI.
   useEffect(() => {
     if (!usuario) return;
-    void registerPushToken();
+    void registerPushToken().catch((caught: unknown) => {
+      console.warn(
+        '[Notifications] Não foi possível registrar o token push.',
+        caught instanceof Error ? caught.message : caught
+      );
+    });
   }, [usuario]);
 
   useEffect(() => {
@@ -108,8 +114,24 @@ export function SessionProvider({ children }: PropsWithChildren) {
       .then(persistUsuario)
       .catch((caught: unknown) => {
         const cachedUsuario = parseStoredUsuario(storedUsuario);
-        if (caught instanceof ApiError && caught.isOffline && cachedUsuario) {
-          persistUsuario(cachedUsuario);
+        const isTransientFailure =
+          !(caught instanceof ApiError) ||
+          caught.isOffline ||
+          caught.statusCode === 408 ||
+          caught.statusCode === 429 ||
+          caught.statusCode >= 500;
+        if (isTransientFailure) {
+          console.warn(
+            '[Session] Não foi possível validar a sessão; preservando as credenciais.',
+            caught instanceof Error ? caught.message : caught
+          );
+          if (cachedUsuario) {
+            persistUsuario(cachedUsuario);
+          } else {
+            setError(
+              'Não foi possível validar a sessão agora. Tente novamente quando o servidor estiver disponível.'
+            );
+          }
           return;
         }
         // Expired or revoked — the refresh flow will have cleared both tokens.

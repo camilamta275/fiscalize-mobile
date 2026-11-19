@@ -1,7 +1,9 @@
 // Created by AI.
+// Updated by AI.
 export default () => {
   const projectId = process.env.EXPO_PUBLIC_EAS_PROJECT_ID;
   const updatesUrl = projectId ? `https://u.expo.dev/${projectId}` : undefined;
+  const googleServicesFile = process.env.GOOGLE_SERVICES_FILE;
 
   return {
     name: 'mobile',
@@ -16,6 +18,8 @@ export default () => {
     },
     android: {
       package: 'br.com.fiscalize.mobile',
+      // Updated by AI.
+      ...(googleServicesFile ? { googleServicesFile } : {}),
       adaptiveIcon: {
         backgroundColor: '#E6F4FE',
         foregroundImage: './assets/images/android-icon-foreground.png',

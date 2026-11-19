@@ -1,6 +1,7 @@
-import { ActivityIndicator, Pressable, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
+import { ActivityIndicator, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
+import { Button as GlueButton } from '@/components/gluestack/button';
 import { Icon } from '@/components/ui/icon';
 import type { IconName } from '@/constants/icons';
 import { Radius, Spacing } from '@/constants/theme';
@@ -48,16 +49,26 @@ export function Button({
   }[variant];
 
   return (
-    <Pressable
+    <GlueButton
+      className="rounded-fiscalize"
+      variant={
+        variant === 'primary'
+          ? 'default'
+          : variant === 'secondary'
+            ? 'outline'
+            : variant === 'danger'
+              ? 'destructive'
+              : 'ghost'
+      }
+      size="default"
       accessibilityRole="button"
       accessibilityState={{ disabled: !!isDisabled }}
-      disabled={isDisabled}
+      isDisabled={!!isDisabled}
       onPress={onPress}
       testID={testID}
-      style={({ pressed }) => [
+      style={[
         styles.base,
         { backgroundColor: palette.background, borderColor: palette.border },
-        pressed && !isDisabled && styles.pressed,
         isDisabled && styles.disabled,
         style,
       ]}>
@@ -71,11 +82,12 @@ export function Button({
           </ThemedText>
         </>
       )}
-    </Pressable>
+    </GlueButton>
   );
 }
 
 // Created by AI.
+// Updated by AI.
 const styles = StyleSheet.create({
   base: {
     alignItems: 'center',
@@ -87,9 +99,6 @@ const styles = StyleSheet.create({
     minHeight: 46,
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
-  },
-  pressed: {
-    opacity: 0.85,
   },
   disabled: {
     opacity: 0.45,

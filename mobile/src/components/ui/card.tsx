@@ -1,12 +1,14 @@
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, View, type StyleProp, type ViewProps, type ViewStyle } from 'react-native';
+import { Pressable, StyleSheet, type StyleProp, type ViewProps, type ViewStyle } from 'react-native';
 
+import { Card as GlueCard } from '@/components/gluestack/card';
 import { Radius, Shadows, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 // Created by AI.
 export type CardTone = 'default' | 'muted' | 'primary' | 'accent' | 'danger' | 'gold';
 
+// Updated by AI.
 type CardProps = ViewProps & {
   children: ReactNode;
   onPress?: () => void;
@@ -21,6 +23,7 @@ type CardProps = ViewProps & {
  * dropped and the shadow is slightly stronger to keep the same depth.
  */
 // Created by AI.
+// Updated by AI.
 export function Card({ children, onPress, padded = true, style, tone = 'default', ...rest }: CardProps) {
   const theme = useTheme();
 
@@ -43,7 +46,8 @@ export function Card({ children, onPress, padded = true, style, tone = 'default'
   }[tone];
 
   const content = (
-    <View
+    <GlueCard
+      className="gap-0"
       style={[
         styles.base,
         Shadows.card,
@@ -58,7 +62,7 @@ export function Card({ children, onPress, padded = true, style, tone = 'default'
       ]}
       {...rest}>
       {children}
-    </View>
+    </GlueCard>
   );
 
   if (!onPress) return content;
@@ -78,6 +82,8 @@ const styles = StyleSheet.create({
   base: {
     borderRadius: Radius.lg,
     borderWidth: 1,
+    gap: 0,
+    padding: 0,
   },
   padded: {
     padding: Spacing.three,

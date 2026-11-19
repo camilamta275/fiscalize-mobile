@@ -56,6 +56,9 @@ export function RightsPortalView() {
     else router.replace('/');
   };
 
+  // Created by AI.
+  const openNotificationSettings = () => router.push('/profile/notification-settings');
+
   return (
     <View style={[styles.root, { backgroundColor: theme.background }]}>
       <ScreenHeader onBack={goBack} title="Meu perfil" />
@@ -112,9 +115,9 @@ export function RightsPortalView() {
           />
           <View style={[styles.divider, { backgroundColor: theme.border }]} />
           <MenuRow
-            description="Notificações do seu perfil e atualizações de status"
+            description="Gerencie o recebimento e teste das notificações"
             icon={Icons.bell}
-            onPress={() => router.push('/notifications')}
+            onPress={openNotificationSettings}
             title="Notificações"
           />
           <View style={[styles.divider, { backgroundColor: theme.border }]} />
@@ -169,6 +172,7 @@ function formatBirthDate(value?: string | null): string {
 }
 
 // Created by AI.
+// Updated by AI.
 function MenuRow({
   description,
   icon,
@@ -186,7 +190,7 @@ function MenuRow({
     <Pressable
       accessibilityRole="button"
       onPress={onPress}
-      style={({ pressed }) => [styles.menuRow, pressed && styles.pressed]}>
+      style={styles.menuRow}>
       <View style={[styles.menuIcon, { backgroundColor: theme.primarySoft }]}>
         <Icon color={theme.primary} name={icon} size={18} />
       </View>
@@ -283,8 +287,5 @@ const styles = StyleSheet.create({
   },
   centered: {
     textAlign: 'center',
-  },
-  pressed: {
-    opacity: 0.7,
   },
 });

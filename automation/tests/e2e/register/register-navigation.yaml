@@ -1,16 +1,27 @@
 appId: br.com.fiscalize.mobile
 
 # Created by AI.
+# Updated by AI.
 ---
-- launchApp
+- launchApp:
+    clearState: true
 
 - tapOn: "Não tem conta? Criar conta"
 
 - assertVisible: "Criar conta"
 - assertVisible: "Dados pessoais"
 - assertVisible: "Nome completo"
+
+- scrollUntilVisible:
+    element:
+      id: "register-login-link"
+    direction: DOWN
 - assertVisible: "Já tem conta? Entrar"
 
+- scrollUntilVisible:
+    element:
+      id: "register-privacy-checkbox-box"
+    direction: DOWN
 - tapOn: "Política de Privacidade"
 
 - assertVisible: "Política de Privacidade"

@@ -42,6 +42,7 @@ fiscalize-mobile/
     │   └── transform.py             # Camadas silver e gold (normalização e agregação)
     ├── run_etl.py                   # Ponto de entrada do pipeline
     ├── flow_etl.py                  # Orquestração do pipeline com Prefect
+    ├── serve_etl.py                 # Deployment Prefect com execução diária
     ├── requirements.txt             # Dependências do ETL e dashboard
     ├── .env.example                 # Modelo de configuração sem credenciais reais
     ├── .env                         # Configurações reais, não versionadas
@@ -112,6 +113,26 @@ O arquivo `config.py` é o ponto central de configuração, evitando que cada m�
 ## Como executar o pipeline
 
 O ponto de entrada do pipeline é `etl/run_etl.py`. A execução realiza as etapas de sincronização dos chamados, extração, transformação e carga dos dados de clima e população.
+
+Para agendar a execução diária com Prefect, inicie o servidor local em um
+terminal e mantenha-o ativo:
+
+```bash
+cd etl
+python -m prefect server start
+```
+
+Em outro terminal, com as dependências instaladas e `etl/.env` configurado,
+inicie o deployment:
+
+```bash
+cd etl
+python serve_etl.py
+```
+
+O fluxo será executado diariamente às 03:00 no fuso `America/Recife`. Mantenha
+o processo `serve_etl.py` em execução para que o worker local execute os
+agendamentos. Para uma execução imediata/manual, use `python flow_etl.py`.
 
 > **Importante:** o sync e o pipeline gravam em destinos diferentes. O comando `sync_chamados` atualiza apenas o MongoDB (`chamados_raw`). O Dashboard ETL do app lê a tabela final `chamados_populacao` no Neon, que só é atualizada quando o pipeline é executado. **Rodar somente o sync não altera o total exibido no app.**
 
@@ -199,11 +220,23 @@ A coleção `chamados_raw` é a entrada operacional do ETL. Ela é preenchida pe
 
 As cargas brutas armazenadas no MongoDB recebem o campo `data_extracao`, que identifica o momento em que os dados foram coletados.
 
-O processo de carga mantém os documentos antigos na coleção, em vez de apagá-los a cada nova extração. Na etapa de extração para transformação, são selecionados os documentos pertencentes à carga mais recente identificada por `data_extracao`.
+As cargas de API são idempotentes por conteúdo: `load_mongo` gera um identificador
+determinístico para cada snapshot e registra sua data em `_etl_raw_loads`. Repetir
+o mesmo conteúdo não cria documentos duplicados, mesmo em uma chamada manual;
+um conteúdo diferente gera um novo snapshot, preservando o histórico. Se uma
+gravação falhar parcialmente, a repetição reutiliza a data do manifesto e conclui
+o mesmo lote. As verificações do pipeline continuam evitando chamadas de API
+desnecessárias, mas não são a única proteção contra duplicação.
+
+Na etapa de extração para transformação, são selecionados os documentos
+pertencentes à carga mais recente identificada por `data_extracao`.
 
 Esse procedimento permite preservar o histórico das cargas brutas e utilizar a versão mais recente na transformação.
 
-A seleção da última carga deve ser distinguida da atualização das tabelas finais: a preservação do histórico bruto não significa, por si só, que as tabelas finais sejam incrementais.
+A seleção da última carga deve ser distinguida da atualização das tabelas finais:
+a preservação do histórico bruto não significa, por si só, que as tabelas finais
+sejam incrementais. Chamados seguem uma estratégia própria: o sync faz upsert
+por ID do chamado.
 
 ### Camadas silver e gold
 
