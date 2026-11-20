@@ -58,12 +58,13 @@ A aplicação permitirá que cidadãos registrem demandas urbanas e acompanhem s
 
 - **Framework Mobile:** Expo (React Native) com Expo Router
 - **Linguagem:** TypeScript
-- **Interface:** componentes nativos do React Native, com um pequeno design system próprio (`ThemedText`/`ThemedView`, cores em `src/constants/theme.ts`) — sem biblioteca de UI de terceiros
+- **Interface:** GlueStack UI (primitivos `Button` e `Card`) com NativeWind/Tailwind CSS para React Native, combinada com wrappers próprios reutilizáveis (`ThemedText`/`ThemedView`, `Button`, `Card`, `TextField` e cores em `src/constants/theme.ts`)
 - **Navegação:** Expo Router (roteamento por arquivos, com `Stack.Protected` guardando as rotas autenticadas)
 - **Gerenciamento de Estado:** Context API (`SessionProvider`, para a sessão do usuário) + estado local por tela, seguindo um padrão MVVM (`models/`, `services/`, `viewmodels/`, `views/`)
 - **Formulários e Validação:** validação própria nos `viewmodels`, espelhando as mesmas regras do front-end web (`frontend/src/lib/validations.ts`)
+- **Estilização responsiva:** NativeWind 4 + Tailwind CSS 3 e GlueStack UI para botões e cartões, mantendo os wrappers do app e os tokens visuais em `src/constants/theme.ts`
 - **Recursos nativos:** `expo-secure-store` (token de sessão), `expo-location` (GPS sob demanda) e `expo-camera` (foto da ocorrência)
-- **Testes:** ainda não há suíte automatizada configurada no mobile
+- **Testes:** não há suíte unitária configurada em `mobile/package.json`; os fluxos E2E mobile ficam em `automation/tests/e2e/` e usam Maestro
 
 ### Back-end
 
@@ -79,6 +80,7 @@ O back-end e as regras de negócio da versão web serão mantidos e reaproveitad
 ```text
 fiscalize-mobile/
 ├── backend/                # Submódulo Git → fiscalize-backend (API REST)
+├── automation/             # Testes de API e fluxos E2E mobile (Pytest + Maestro)
 └── mobile/                 # App Expo (React Native)
     ├── app.json
     ├── .env.example         # EXPO_PUBLIC_API_BASE_URL — veja "Como Executar"
@@ -200,7 +202,7 @@ A estratégia de testes deverá considerar tanto o reaproveitamento das validaç
 - Testes de permissões, câmera, localização e notificações, quando implementados.
 - Testes em diferentes tamanhos de tela, dispositivos e sistemas operacionais.
 
-> Ainda não há suíte de testes automatizados configurada em `mobile/` (nenhum script `test` no `package.json`) — esta seção será preenchida quando isso for adicionado. O que existe hoje é `npm run lint` (`mobile/package.json`), que roda o ESLint.
+> Em `mobile/`, não há atualmente script `test` ou suíte unitária configurada no `package.json`; a validação disponível é `npm run lint`, que executa o ESLint. Os testes E2E mobile são mantidos separadamente em [`automation/tests/e2e/`](./automation/tests/e2e/) e são executados com Maestro/Pytest. Consulte o [guia de automação](./automation/README.md#7-executando-os-testes-e2e-mobile) para preparação do emulador e execução.
 
 ## 🗺️ Status do Projeto
 

@@ -1,6 +1,10 @@
-﻿from pyspark.sql import SparkSession
+﻿import os
+import sys
+
+from pyspark.sql import SparkSession
 
 
+# Updated by AI.
 def criar_sessao_spark(
     app_name: str = "FiscalizeETL",
 ) -> SparkSession:
@@ -8,6 +12,10 @@ def criar_sessao_spark(
     Cria ou recupera uma sessão local do Apache Spark
     para processamento dos dados do Fiscalize.
     """
+
+    # Updated by AI. Os workers precisam usar o mesmo interpretador da venv.
+    os.environ.setdefault("PYSPARK_PYTHON", sys.executable)
+    os.environ.setdefault("PYSPARK_DRIVER_PYTHON", sys.executable)
 
     spark = (
         SparkSession.builder

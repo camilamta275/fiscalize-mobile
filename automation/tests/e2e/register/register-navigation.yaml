@@ -1,8 +1,10 @@
 appId: br.com.fiscalize.mobile
 
 # Created by AI.
+# Updated by AI.
 ---
-- launchApp
+- launchApp:
+    clearState: true
 
 - tapOn: "Não tem conta? Criar conta"
 
@@ -11,8 +13,15 @@ appId: br.com.fiscalize.mobile
 - assertVisible: "Nome completo"
 # O link fica abaixo da dobra em telas menores; rola até ele em vez de assumir que já está visível.
 - scrollUntilVisible:
-    element: "Já tem conta? Entrar"
+    element:
+      id: "register-login-link"
+    direction: DOWN
+- assertVisible: "Já tem conta? Entrar"
 
+- scrollUntilVisible:
+    element:
+      id: "register-privacy-checkbox-box"
+    direction: DOWN
 - tapOn: "Política de Privacidade"
 
 - assertVisible: "Política de Privacidade"

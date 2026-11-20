@@ -17,13 +17,12 @@ export function ProfileButton({ onGradient = false }: { onGradient?: boolean }) 
       accessibilityLabel="Abrir perfil"
       accessibilityRole="button"
       onPress={() => router.push('/profile')}
-      style={({ pressed }) => [
+      style={[
         styles.button,
         {
           backgroundColor: onGradient ? 'rgba(255,255,255,0.18)' : theme.card,
           borderColor: onGradient ? 'rgba(255,255,255,0.35)' : theme.border,
         },
-        pressed && styles.pressed,
       ]}>
       <ThemedText
         style={{ color: onGradient ? theme.primaryForeground : theme.primary }}
@@ -35,16 +34,14 @@ export function ProfileButton({ onGradient = false }: { onGradient?: boolean }) 
 }
 
 // Created by AI.
+// Updated by AI.
 const styles = StyleSheet.create({
   button: {
     alignItems: 'center',
-    borderRadius: 19,
+    borderRadius: 999,
     borderWidth: 1,
     height: 38,
     justifyContent: 'center',
     width: 38,
-  },
-  pressed: {
-    opacity: 0.7,
   },
 });

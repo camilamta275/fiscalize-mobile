@@ -6,10 +6,12 @@ import { useEffect } from 'react';
 import { LogBox, useColorScheme } from 'react-native';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
+import { GluestackUIProvider } from '@/components/gluestack/gluestack-ui-provider';
 import { DemandProvider } from '@/contexts/demand-context';
 import { SessionProvider, useSession } from '@/contexts/session-context';
 import { useTheme } from '@/hooks/use-theme';
 import { checkForRemoteUpdate } from '@/services/updates-service';
+import '../../global.css';
 
 // Só no build de E2E (Metro iniciado com EXPO_PUBLIC_E2E=true): os avisos do dev client
 // ("Open debugger to view warnings") cobrem botões e fazem o Maestro tocar no aviso.
@@ -34,6 +36,8 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
   const theme = useTheme();
   const base = colorScheme === 'dark' ? DarkTheme : DefaultTheme;
+  const gluestackMode =
+    colorScheme === 'light' || colorScheme === 'dark' ? colorScheme : 'system';
 
   useEffect(() => {
     void checkForRemoteUpdate().catch((caught: unknown) => {
@@ -45,27 +49,29 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <ThemeProvider
-      value={{
-        ...base,
-        colors: {
-          ...base.colors,
-          primary: theme.primary,
-          background: theme.background,
-          card: theme.card,
-          text: theme.text,
-          border: theme.border,
-          notification: theme.destructive,
-        },
-      }}>
-      <SessionProvider>
-        <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-        <AnimatedSplashOverlay />
-        <DemandProvider>
-          <RootNavigator />
-        </DemandProvider>
-      </SessionProvider>
-    </ThemeProvider>
+    <GluestackUIProvider mode={gluestackMode}>
+      <ThemeProvider
+        value={{
+          ...base,
+          colors: {
+            ...base.colors,
+            primary: theme.primary,
+            background: theme.background,
+            card: theme.card,
+            text: theme.text,
+            border: theme.border,
+            notification: theme.destructive,
+          },
+        }}>
+        <SessionProvider>
+          <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+          <AnimatedSplashOverlay />
+          <DemandProvider>
+            <RootNavigator />
+          </DemandProvider>
+        </SessionProvider>
+      </ThemeProvider>
+    </GluestackUIProvider>
   );
 }
 

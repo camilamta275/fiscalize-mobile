@@ -93,6 +93,9 @@ export function DemandsListView() {
 
   const firstName = usuario?.nome.trim().split(' ')[0] ?? '';
 
+  // Created by AI.
+  const openNotifications = () => router.push('/notifications');
+
   return (
     <View style={[styles.root, { backgroundColor: theme.background }]}>
       <StatusBar style={isFocused ? 'light' : 'dark'} />
@@ -130,7 +133,17 @@ export function DemandsListView() {
                     Meus Chamados
                   </ThemedText>
                 </View>
-                <ProfileButton onGradient />
+                <View style={styles.heroActions}>
+                  <Pressable
+                    accessibilityLabel="Abrir notificações"
+                    accessibilityRole="button"
+                    hitSlop={Spacing.one}
+                    onPress={openNotifications}
+                    style={styles.notificationButton}>
+                    <Icon color="#FFFFFF" name={Icons.bell} size={19} />
+                  </Pressable>
+                  <ProfileButton onGradient />
+                </View>
               </View>
 
               <View style={[styles.search, { backgroundColor: theme.card }]}>
@@ -340,6 +353,7 @@ export function DemandsListView() {
 }
 
 // Created by AI.
+// Updated by AI.
 function FilterSelect({ label, onPress, showSortIcon = false }: { label: string; onPress: () => void; showSortIcon?: boolean }) {
   const theme = useTheme();
 
@@ -347,7 +361,14 @@ function FilterSelect({ label, onPress, showSortIcon = false }: { label: string;
     <Pressable
       accessibilityRole="button"
       onPress={onPress}
-      style={({ pressed }) => [styles.filterSelect, { borderColor: theme.border }, pressed && styles.pressed]}>
+      style={[
+        styles.filterSelect,
+        {
+          backgroundColor: theme.card,
+          borderColor: theme.borderStrong,
+          borderWidth: 1,
+        },
+      ]}>
       <ThemedText style={styles.filterLabel} type="default">{label}</ThemedText>
       <Icon color={theme.mutedForeground} name={showSortIcon ? Icons.refresh : Icons.chevronDown} size={18} />
     </Pressable>
@@ -422,6 +443,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  heroActions: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: Spacing.two,
+  },
+  notificationButton: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    borderColor: 'rgba(255,255,255,0.35)',
+    borderRadius: Radius.pill,
+    borderWidth: 1,
+    height: 38,
+    justifyContent: 'center',
+    width: 38,
   },
   greeting: {
     gap: 2,
