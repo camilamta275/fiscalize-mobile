@@ -11,7 +11,7 @@ appId: br.com.fiscalize.mobile
 - assertVisible: "Criar conta"
 - assertVisible: "Dados pessoais"
 - assertVisible: "Nome completo"
-
+# O link fica abaixo da dobra em telas menores; rola até ele em vez de assumir que já está visível.
 - scrollUntilVisible:
     element:
       id: "register-login-link"
@@ -26,6 +26,10 @@ appId: br.com.fiscalize.mobile
 
 - assertVisible: "Política de Privacidade"
 - assertVisible: "Leia o documento antes de decidir sobre o consentimento."
+# O botão "Fechar" fica no fim do texto da política (ScrollView longo).
+- scrollUntilVisible:
+    element: "Fechar"
+    timeout: 30000
 - tapOn: "Fechar"
 
 - assertVisible: "Criar conta"

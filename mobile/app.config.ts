@@ -4,6 +4,12 @@ export default () => {
   const projectId = process.env.EXPO_PUBLIC_EAS_PROJECT_ID;
   const updatesUrl = projectId ? `https://u.expo.dev/${projectId}` : undefined;
   const googleServicesFile = process.env.GOOGLE_SERVICES_FILE;
+  const maestroDeviceId =
+    process.env.MAESTRO_E2E_BUILD === 'true' &&
+    process.env.NODE_ENV !== 'production' &&
+    process.env.EAS_BUILD_PROFILE !== 'production'
+      ? process.env.MAESTRO_E2E_DEVICE_ID?.trim()
+      : undefined;
 
   return {
     name: 'mobile',
@@ -36,10 +42,12 @@ export default () => {
       fallbackToCacheTimeout: 0,
       ...(updatesUrl ? { url: updatesUrl } : {}),
     },
+    // Updated by AI.
     extra: {
       eas: {
         ...(projectId ? { projectId } : {}),
       },
+      ...(maestroDeviceId ? { maestroE2eDeviceId: maestroDeviceId } : {}),
     },
     plugins: [
       'expo-router',

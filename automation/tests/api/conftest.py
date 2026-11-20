@@ -4,14 +4,19 @@ import json
 import os
 import secrets
 import uuid
-from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 import psycopg
 import pytest
 import requests
 from pathlib import Path
-from psycopg.rows import dict_row
 
+from automation.scripts.otp_recovery import (
+    OtpChallengeNotFoundError,
+    OtpCodeNotFoundError,
+    challenge_row as _challenge_row,
+    recover_otp_code as _recover_otp_code,
+    sanitize_database_url as _sanitize_database_url,
+)
 from automation.tests.api.config.settings import Endpoints as endpoints
 
 # Created by AI.
@@ -132,17 +137,6 @@ def profile_fields():
     }
 
 # Created by AI.
-def _sanitize_database_url(url):
-    """Remove parâmetros exclusivos do Prisma (ex.: schema) antes de conectar."""
-    parts = urlsplit(url)
-    query = [
-        (key, value)
-        for key, value in parse_qsl(parts.query, keep_blank_values=True)
-        if key != "schema"
-    ]
-    return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(query), parts.fragment))
-
-# Created by AI.
 # Updated by AI.
 def _database_url():
     """Resolve a URL do PostgreSQL a partir do ambiente ou de backend/.env."""
@@ -178,43 +172,21 @@ def database():
         yield connection
 
 # Created by AI.
+# Updated by AI.
 def challenge_row(connection, challenge_token):
-    """Lê o estado persistido do desafio correspondente ao token."""
-    with connection.cursor(row_factory=dict_row) as cursor:
-        cursor.execute(
-            """
-            SELECT code_hash, attempts, expires_at, verified_at, consumed_at
-            FROM otp_challenges
-            WHERE challenge_hash = %s
-            """,
-            (hashlib.sha256(challenge_token.encode("utf-8")).hexdigest(),),
-        )
-        return cursor.fetchone()
+    """Read the persisted state for a challenge through the shared OTP helper."""
+    return _challenge_row(connection, challenge_token)
 
 # Created by AI.
+# Updated by AI.
 def recover_otp_code(connection, challenge_token):
-    """Recupera o código de seis dígitos a partir do hash guardado pelo backend.
-
-    O teste não lê a caixa de e-mail, mas o backend persiste apenas o SHA-256 de
-    um código numérico de seis dígitos. O espaço de busca (900 mil) é pequeno o
-    bastante para recuperar exatamente o código que seria enviado, sem alterar
-    nenhum estado do desafio.
-    """
-    row = challenge_row(connection, challenge_token)
-    if row is None:
-        pytest.skip(
-            "Desafio MFA não encontrado no banco. Aplique a migração "
-            "`20261019193000_add_mfa_otp` antes dos testes de API."
-        )
-
-    code_hash = row["code_hash"]
-    sha256 = hashlib.sha256
-    for candidate in range(100000, 1000000):
-        code = str(candidate)
-        if sha256(code.encode("utf-8")).hexdigest() == code_hash:
-            return code
-
-    pytest.fail("Nenhum código de seis dígitos corresponde ao hash armazenado.")
+    """Translate neutral OTP recovery errors into the API suite's pytest outcomes."""
+    try:
+        return _recover_otp_code(connection, challenge_token)
+    except OtpChallengeNotFoundError as error:
+        pytest.skip(str(error))
+    except OtpCodeNotFoundError as error:
+        pytest.fail(str(error))
 
 # Created by AI.
 def expire_challenge(connection, challenge_token):

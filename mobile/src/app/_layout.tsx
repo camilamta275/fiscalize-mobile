@@ -3,7 +3,7 @@ import * as Notifications from 'expo-notifications';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import { useColorScheme } from 'react-native';
+import { LogBox, useColorScheme } from 'react-native';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import { GluestackUIProvider } from '@/components/gluestack/gluestack-ui-provider';
@@ -12,6 +12,12 @@ import { SessionProvider, useSession } from '@/contexts/session-context';
 import { useTheme } from '@/hooks/use-theme';
 import { checkForRemoteUpdate } from '@/services/updates-service';
 import '../../global.css';
+
+// Só no build de E2E (Metro iniciado com EXPO_PUBLIC_E2E=true): os avisos do dev client
+// ("Open debugger to view warnings") cobrem botões e fazem o Maestro tocar no aviso.
+if (__DEV__ && process.env.EXPO_PUBLIC_E2E === 'true') {
+  LogBox.ignoreAllLogs();
+}
 
 SplashScreen.preventAutoHideAsync();
 
