@@ -1669,3 +1669,51 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Investigação, implementação e validação.
 - **Tipo de contribuição da IA:** Configuração dinâmica do google-services.json, exclusão do arquivo no Git, atualização das instruções e validação de tipos e lint.
 - **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0137
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `etl/README-ETL.md`, `etl/ORQUESTRCAO_PREFECT.md`, ambiente virtual `etl/.venv`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Documentação alinhada ao pipeline real (`flow_etl.py` com Spark) e `pyspark` instalado na venv do ETL.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode — DeepSeek V4.1 Flash Free
+- **Finalidade do uso da IA:** Alinhar o entrypoint documentado à implementação e viabilizar a execução do Spark.
+- **Etapa da atividade:** Documentação e configuração de ambiente.
+- **Tipo de contribuição da IA:** Atualização do README-ETL e do guia de orquestração, e instalação da dependência `pyspark` na venv.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0138
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `etl/src/spark_session.py`, `etl/README-ETL.md`, ambiente virtual `etl/.venv`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** `pyspark` instalado na venv, interpretador dos workers fixado e pré-requisito de Java 21 documentado; os 8 testes Spark passaram.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode — DeepSeek V4.1 Flash Free
+- **Finalidade do uso da IA:** Permitir a execução real da transformação Spark do ETL.
+- **Etapa da atividade:** Configuração de ambiente, ajuste de código e validação.
+- **Tipo de contribuição da IA:** Instalação de dependência, fixação de `PYSPARK_PYTHON`/`PYSPARK_DRIVER_PYTHON` e documentação de requisitos e erros comuns.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0139
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `etl/README-ETL.md`, `etl/ORQUESTRCAO_PREFECT.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Documentação corrigida: o sync faz upsert sem remover ausentes e não filtra `excluidoem`, com sintoma e solução temporária descritos.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode — DeepSeek V4.1 Flash Free
+- **Finalidade do uso da IA:** Alinhar a documentação ao comportamento real do sync de chamados.
+- **Etapa da atividade:** Documentação.
+- **Tipo de contribuição da IA:** Correção das afirmações sobre remoção de chamados e filtro de soft delete, e nova entrada de troubleshooting.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0140
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `docs/RNF-SEC/AUDITORIA-REQUISITOS-SEGURANCA.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Auditoria atualizada para o novo ponteiro do submódulo (`f95bf90`), que também não contém `src/validators`.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode — DeepSeek V4.1 Flash Free
+- **Finalidade do uso da IA:** Manter a auditoria coerente com o ponteiro do submódulo após o merge.
+- **Etapa da atividade:** Documentação.
+- **Tipo de contribuição da IA:** Atualização das referências de commit e inclusão do marcador de uso de IA.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.

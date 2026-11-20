@@ -129,7 +129,9 @@ Execute o fluxo:
 python flow_etl.py
 ```
 
-O Prefect iniciará a execução do fluxo `ETL Fiscalize`, registrando o estado de cada tarefa e exibindo os logs no terminal.
+O Prefect iniciará a execução do fluxo `ETL Fiscalize`, registrando o estado de cada tarefa e exibindo os logs no terminal. Esse é o entrypoint do pipeline completo e aplica Apache Spark nas camadas silver e gold.
+
+O arquivo `run_etl.py` continua disponível como execução alternativa em Pandas, sem Prefect e sem Spark. Ele não é usado pelo deployment `etl-fiscalize-diaria`.
 
 Ao final, uma execução concluída com sucesso deverá apresentar uma mensagem semelhante a:
 
@@ -159,7 +161,7 @@ O fluxo foi organizado para processar os dados dos chamados e combiná-los com i
 
 ### 10.1. Sincronização e leitura dos chamados
 
-A tarefa `Sincronizar chamados do backend` executa `SyncChamados.run()`: lê os chamados do PostgreSQL operacional do backend (via `BACKEND_DATABASE_URL`) e atualiza a coleção `chamados_raw` no MongoDB de forma idempotente. O sync nunca escreve no banco do backend.
+A tarefa `Sincronizar chamados do backend` executa `SyncChamados.run()`: lê os chamados do PostgreSQL operacional do backend (via `BACKEND_DATABASE_URL`) e atualiza a coleção `chamados_raw` no MongoDB de forma idempotente. O sync nunca escreve no banco do backend. O upsert não remove documentos ausentes da origem e a query atual não filtra `excluidoem`; por isso, chamados excluídos permanecem no bronze até uma remoção manual.
 
 Em seguida, a tarefa `ler_chamados` lê `chamados_raw` e calcula o intervalo de datas que o clima precisa cobrir. O arquivo `data/chamados.json` é apenas um fixture legado e não participa da execução.
 
@@ -184,7 +186,7 @@ A tarefa `extrair_mongo` consulta as coleções do MongoDB utilizadas pela pipel
 
 ### 10.3. Camada silver
 
-A tarefa `construir_silver` monta as tabelas normalizadas:
+A tarefa `construir_silver` monta as tabelas normalizadas com Apache Spark (`etl/src/spark_transform.py`):
 
 - `silver_chamado`: um registro por chamado, com bairro normalizado e data local de Recife;
 - `silver_clima_diario`: uma linha por dia, com temperatura e precipitação;
@@ -192,7 +194,7 @@ A tarefa `construir_silver` monta as tabelas normalizadas:
 
 ### 10.4. Camada gold
 
-A tarefa `construir_gold` gera as tabelas do dashboard exclusivamente a partir da silver:
+A tarefa `construir_gold` gera as tabelas do dashboard exclusivamente a partir da silver, também com Apache Spark:
 
 - `chamados_clima`: chamados enriquecidos com clima;
 - `chamados_populacao`: chamados agregados por bairro com população e chamados por 1.000 habitantes;
