@@ -37,3 +37,27 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** investigação, planejamento, implementação e validação.
 - **Tipo de contribuição da IA:** análise do código existente, integração de serviços, geração de endpoints, ajustes no app mobile e documentação técnica.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0003
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Camila Teixeira
+- **Arquivo / Arquivos alterado(s):** `backend/.env.example`, `backend/README.md`, `backend/package.json`, `backend/package-lock.json`, `backend/src/config/env.ts`, `backend/src/server.ts`, `backend/src/services/otpService.ts`, `backend/src/services/otpService.test.ts`, `USO_IA/Camila-Teixeira.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Substituído o Gmail SMTP pelo Resend API, removido Nodemailer, documentada configuração e adicionados testes mockados de sucesso, erro, timeout e ausência de chave.
+- **Tratamento de dados pessoais:** Não houve; nenhuma chave real, código OTP ou informação pessoal foi processado ou registrado.
+- **Alterado pela IA (nome da IA, versão da IA):** GitHub Copilot via Copilot SDK no VS Code; versão não disponibilizada nesta sessão.
+- **Finalidade do uso da IA:** substituir o transporte de e-mail mantendo integralmente o fluxo MFA existente e preparar configuração para o Render.
+- **Etapa da atividade:** análise, implementação, documentação e validação automatizada.
+- **Tipo de contribuição da IA:** edição do transporte OTP, configuração de ambiente, dependências, documentação e testes mockados.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0004
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Camila Teixeira
+- **Arquivo / Arquivos alterado(s):** `backend/src/config/env.ts`, `backend/src/config/env.test.ts`, `backend/src/services/authService.test.ts`, `USO_IA/Camila-Teixeira.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Melhorada validação de remetente Resend e adicionados testes de formatos, configuração de produção e remoção de desafio OTP após falha.
+- **Tratamento de dados pessoais:** Não houve; foram utilizados apenas valores sintéticos e mocks.
+- **Alterado pela IA (nome da IA, versão da IA):** GitHub Copilot via Copilot SDK no VS Code; versão não disponibilizada nesta sessão.
+- **Finalidade do uso da IA:** atender os ajustes finais identificados pela auditoria da integração Resend.
+- **Etapa da atividade:** implementação e validação automatizada.
+- **Tipo de contribuição da IA:** correção de validação de configuração e criação de testes isolados.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
