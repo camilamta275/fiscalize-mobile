@@ -14,11 +14,16 @@ import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import {
   getNotificationPreferences,
+  isPushUnavailableInExpoGo,
   registerPushToken,
   triggerNotificationTest,
   updateNotificationPreferences,
   type NotificationTestType,
 } from '@/services/notification-service';
+
+// Created by AI.
+const EXPO_GO_NOTICE =
+  'Este app está rodando no Expo Go, que não recebe push remoto no Android. A preferência é salva normalmente; para receber e testar push, use um development build (npx expo run:android).';
 
 // Created by AI.
 // Updated by AI.
@@ -29,13 +34,15 @@ export function NotificationSettingsView() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeTest, setActiveTest] = useState<NotificationTestType | null>(null);
-  const [feedback, setFeedback] = useState<string | null>(null);
-  const [feedbackTone, setFeedbackTone] = useState<'danger' | 'success' | 'warning'>('danger');
+  const [feedbackTone, setFeedbackTone] = useState<'danger' | 'success' | 'warning' | 'info'>(
+    isPushUnavailableInExpoGo ? 'info' : 'danger'
+  );
+  const [feedback, setFeedback] = useState<string | null>(isPushUnavailableInExpoGo ? EXPO_GO_NOTICE : null);
 
   // Created by AI.
   const loadPreferences = useCallback(async () => {
     setLoading(true);
-    setFeedback(null);
+    setFeedback(isPushUnavailableInExpoGo ? EXPO_GO_NOTICE : null);
     try {
       const preferences = await getNotificationPreferences();
       setEnabled(preferences.enabled);
@@ -60,6 +67,11 @@ export function NotificationSettingsView() {
     try {
       const preferences = await updateNotificationPreferences(nextEnabled);
       setEnabled(preferences.enabled);
+      if (preferences.enabled && isPushUnavailableInExpoGo) {
+        setFeedback(EXPO_GO_NOTICE);
+        setFeedbackTone('info');
+        return;
+      }
       if (preferences.enabled) {
         const registered = await registerPushToken(true);
         if (!registered) {
@@ -169,13 +181,17 @@ export function NotificationSettingsView() {
           <ThemedText themeColor="mutedForeground" type="small">
             Envie push de teste para este aparelho. Os testes não criam nem alteram ocorrências.
           </ThemedText>
-          {enabled === false ? (
+          {isPushUnavailableInExpoGo ? (
+            <ThemedText themeColor="mutedForeground" type="caption">
+              Os testes ficam desativados no Expo Go. Use um development build.
+            </ThemedText>
+          ) : enabled === false ? (
             <ThemedText themeColor="mutedForeground" type="caption">
               Ative as notificações para habilitar os testes.
             </ThemedText>
           ) : null}
           <Button
-            disabled={enabled !== true || loading || saving || activeTest !== null}
+            disabled={isPushUnavailableInExpoGo || enabled !== true || loading || saving || activeTest !== null}
             icon={Icons.send}
             loading={activeTest === 'demand_created'}
             onPress={runDemandCreatedTest}
@@ -183,7 +199,7 @@ export function NotificationSettingsView() {
             variant="secondary"
           />
           <Button
-            disabled={enabled !== true || loading || saving || activeTest !== null}
+            disabled={isPushUnavailableInExpoGo || enabled !== true || loading || saving || activeTest !== null}
             icon={Icons.refresh}
             loading={activeTest === 'status_updated'}
             onPress={runStatusUpdatedTest}
