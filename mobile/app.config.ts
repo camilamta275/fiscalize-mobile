@@ -1,7 +1,8 @@
 // Created by AI.
 // Updated by AI.
 export default () => {
-  const projectId = process.env.EXPO_PUBLIC_EAS_PROJECT_ID;
+  const projectId =
+    process.env.EXPO_PUBLIC_EAS_PROJECT_ID ?? '43b479a4-6ca8-4278-8cb4-760e16ef8ded';
   const updatesUrl = projectId ? `https://u.expo.dev/${projectId}` : undefined;
   const googleServicesFile = process.env.GOOGLE_SERVICES_FILE;
   const maestroDeviceId =
