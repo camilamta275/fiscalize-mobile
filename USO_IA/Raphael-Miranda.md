@@ -1717,3 +1717,87 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Documentação.
 - **Tipo de contribuição da IA:** Atualização das referências de commit e inclusão do marcador de uso de IA.
 - **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0141
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `mobile/src/services/api-client.ts`, `mobile/.env.example`, `mobile/README.md`, `README.md`, submódulo `backend` (ponteiro `f95bf90` → `ac2d072`), `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** App passou a usar por padrão a API publicada em `https://fiscalize-backend.onrender.com`, com documentação ajustada; submódulo atualizado via `git submodule update --remote`.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode — DeepSeek V4.1 Flash Free
+- **Finalidade do uso da IA:** Apontar o app mobile para o backend publicado e atualizar o submódulo do back-end.
+- **Etapa da atividade:** Configuração, documentação e validação.
+- **Tipo de contribuição da IA:** Troca da URL padrão no cliente HTTP, atualização do `.env.example` e dos READMEs e execução do `git submodule update --remote`, com verificação de tipos e lint.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0142
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `mobile/src/services/api-client.ts`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Timeout do cliente elevado para 60s por causa do cold start do Render e erro de conexão passou a expor a causa real da falha.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode — DeepSeek V4.1 Flash Free
+- **Finalidade do uso da IA:** Diagnosticar e reduzir falhas de conexão do app com o backend publicado.
+- **Etapa da atividade:** Investigação, implementação e validação.
+- **Tipo de contribuição da IA:** Aumento do timeout, detecção robusta de abort e inclusão do nome/mensagem do erro de transporte na mensagem exibida; verificação de tipos e lint.
+- **Confirmação de revisão crítica e responsabilidade humana:** Raphael Miranda revisão humana.
+
+## Registro da atividade 0143
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `mobile/app.config.ts`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** ID do projeto EAS passou a ser o valor padrão do app.config, pois o `eas build` não grava em configuração dinâmica.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Claude Code — Claude Sonnet 5.5
+- **Finalidade do uso da IA:** Permitir gerar o APK pela nuvem (EAS Build) sem editar a configuração dinâmica.
+- **Etapa da atividade:** Configuração e validação.
+- **Tipo de contribuição da IA:** Fallback do `projectId` (identificador público) e conferência com `expo config`; verificação de tipos.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0144
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `mobile/src/components/ui/card.tsx`, `collapsible.tsx`, `demand-options-menu.tsx`, `mobile/src/views/demand-form-view.tsx`, `manager-metrics-view.tsx`, `profile-security-view.tsx`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Estilos de Pressable em função e o gap dos cartões eram descartados (NativeWind); convertidos para arrays/View e descrição da categoria exibida no formulário.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Claude Code — Claude Sonnet 5.5
+- **Finalidade do uso da IA:** Corrigir categorias, área de foto e espaçamentos que apareciam sem estilo.
+- **Etapa da atividade:** Diagnóstico, implementação e validação.
+- **Tipo de contribuição da IA:** Diagnóstico por captura de tela e `uiautomator`, troca do Card gluestack por View e conversão dos estilos; verificação de tipos e lint.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0145
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `mobile/src/views/demands-list-view.tsx`, `mobile/src/components/ui/stat-tile.tsx`, `mobile/src/constants/icons.ts`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Botão de nova ocorrência voltou a aparecer; busca e filtros compactos em duas linhas, ícone de ordenação e contadores com selo de status.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Claude Code — Claude Sonnet 5.5
+- **Finalidade do uso da IA:** Restaurar o botão `+` e aproximar a lista do layout de referência.
+- **Etapa da atividade:** Diagnóstico, implementação e validação.
+- **Tipo de contribuição da IA:** Conversão do estilo do botão para array, ajuste de medidas dos filtros, novo ícone `sort` e novo StatTile; verificação de tipos e lint.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0146
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `mobile/src/views/etl-dashboard-view.tsx`, `mobile/src/viewmodels/use-etl-dashboard-view-model.ts`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Dashboard ETL redesenhado: indicadores, ranking por bairro, destaques automáticos, gráfico de clima e tabela; sem alterar backend nem ETL.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Claude Code — Claude Sonnet 5.5
+- **Finalidade do uso da IA:** Melhorar os dados e a visualização do Dashboard ETL no aplicativo.
+- **Etapa da atividade:** Implementação e validação.
+- **Tipo de contribuição da IA:** Novo view model com cálculos (incidência ponderada, destaques, correlação) e nova tela; verificação de tipos e lint.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0147
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `mobile/src/services/notification-service.ts`, `mobile/src/views/notification-settings-view.tsx`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Registro de push passou a checar o Expo Go antes de chamar módulos nativos; tela mostra aviso informativo e desativa os testes nesse ambiente.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Claude Code — Claude Sonnet 5.5
+- **Finalidade do uso da IA:** Remover o erro enganoso de módulo desatualizado ao rodar no Expo Go (Android).
+- **Etapa da atividade:** Diagnóstico, implementação e validação.
+- **Tipo de contribuição da IA:** Checagem antecipada de `appOwnership`, mensagens informativas e botões de teste desativados; verificação de tipos e lint.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
