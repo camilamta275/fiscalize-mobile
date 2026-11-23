@@ -24,6 +24,8 @@ env:
 
 - tapOn: "Registrar nova ocorrência"
 - assertVisible: "Registre um problema urbano"
+- assertVisible:
+    id: "demand-title"
 
 - scrollUntilVisible:
     element:
@@ -31,6 +33,10 @@ env:
 - tapOn:
     id: "demand-submit"
 
+- scrollUntilVisible:
+    element:
+      id: "demand-title"
+    direction: UP
 - extendedWaitUntil:
     visible: "Título deve ter no mínimo 5 caracteres"
     timeout: 10000

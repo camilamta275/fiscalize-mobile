@@ -9,7 +9,8 @@
 appId: br.com.fiscalize.mobile
 
 ---
-- launchApp
+- launchApp:
+    clearState: true
 - assertVisible:
     id: "login-email"
 

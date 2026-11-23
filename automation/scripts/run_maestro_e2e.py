@@ -86,6 +86,7 @@ def required_env_for_selection(selected: list[str]) -> list[str]:
 
 
 # Created by AI.
+# Updated by AI.
 def build_maestro_env(selected: list[str]) -> dict[str, str]:
     """Validate flow inputs and return the inherited environment for Maestro."""
     env = os.environ.copy()
@@ -96,6 +97,21 @@ def build_maestro_env(selected: list[str]) -> dict[str, str]:
             + ", ".join(missing)
             + "."
         )
+
+    tc02_email = env.get("MAESTRO_TC02_EMAIL", "").strip()
+    if tc02_email:
+        credentials_file = REPO_ROOT / "automation" / "data" / "credentials.json"
+        try:
+            import json
+
+            seeded_email = json.loads(credentials_file.read_text(encoding="utf-8"))["login"]["email"]
+        except (OSError, ValueError, KeyError, TypeError):
+            seeded_email = None
+        if isinstance(seeded_email, str) and tc02_email.lower() != seeded_email.lower():
+            raise RuntimeError(
+                "MAESTRO_TC02_EMAIL deve corresponder ao cidadão semeado "
+                "cidadao@fiscalize.gov.br."
+            )
 
     secret_markers = ("PASSWORD", "TOKEN", "SECRET")
     for name in list(env):

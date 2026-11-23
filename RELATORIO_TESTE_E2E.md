@@ -37,7 +37,7 @@ O segundo é exclusivamente API e não constitui fluxo negativo executado no app
   - Resultado: 1 teste selecionado, aprovado.
 - Suíte unitária do runner Maestro:
   - Comando: `python -m pytest automation/tests/test_maestro_ci.py -o addopts="" -v`
-  - Resultado: 14 testes aprovados.
+  - Resultado: 15 testes aprovados após as correções.
 - Coleta dos testes E2E existentes:
   - Comando: `python -m pytest automation/tests/e2e -o addopts="" -v`
   - Resultado: 2 testes coletados e ignorados por ausência de Maestro/ADB/dispositivo.
@@ -81,3 +81,36 @@ O segundo é exclusivamente API e não constitui fluxo negativo executado no app
 O ambiente local não possui Android SDK/ADB, Maestro ou dispositivo/emulador
 conectado. A pipeline versionada pode executar o cenário em emulador porque
 configura PostgreSQL, backend, APK, Maestro e Android API 34.
+
+## Correções técnicas realizadas
+
+- O novo fluxo negativo verifica explicitamente o campo `demand-title` e usa
+  scroll antes de validar o título obrigatório.
+- O fluxo de descrição mínima agora preenche título, categoria e endereço antes
+  de comparar os limites de 19 e 20 caracteres. O resultado válido exige a tela
+  de ocorrência registrada.
+- Os fluxos de CEP agora aguardam o fim de “Buscando endereço…”, o fim de
+  “Calculando…” e o estado “Preenchida automaticamente”.
+- Fluxos de login sem sessão inicial foram padronizados com `clearState: true`.
+- Foi adicionada validação de que `MAESTRO_TC02_EMAIL` corresponde ao cidadão
+  semeado.
+- O workflow dedicado passou a reutilizar o script compartilhado que prepara
+  o app, o backend, o dispositivo confiável e os 16 fluxos Maestro.
+- Foi adicionada uma verificação unitária que compara os `testIDs` dos YAML com
+  os componentes React Native.
+- As permissões Android são concedidas no script após a instalação do app.
+
+## Dependências externas
+
+- ViaCEP e geocodificação são dependências externas dos cenários de ocorrência.
+- A execução completa exige PostgreSQL, backend, seed, APK Android, Maestro,
+  emulador API 34, segredos TC02, TC03 e TC06 e rede para os serviços externos.
+- A conta TC02 deve ser o cidadão semeado; o segredo não foi criado nem alterado.
+
+## Histórico do redesign
+
+A revisão do Git confirmou o redesign da listagem em `74de5be` e ajustes de
+estilos do formulário em `3da62a1`. Nenhum `testID` usado pelos YAML foi removido
+pelas alterações verificadas; os identificadores atuais são válidos no código.
+As correções anteriores já haviam estabilizado scroll e esperas em alguns fluxos.
+A regressão da main continua dependente de execução real no emulador.

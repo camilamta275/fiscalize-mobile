@@ -22,6 +22,7 @@ E2E_ENV=(
   NODE_ENV=development
   EXPO_PUBLIC_API_BASE_URL=http://10.0.2.2:3000
   EXPO_PUBLIC_E2E=true
+  MAESTRO_E2E_DEVICE_ID=fiscalize-maestro-ci
 )
 
 # Guarda as credenciais e remove do ambiente para que não
@@ -95,6 +96,11 @@ adb reverse "tcp:${METRO_PORT}" "tcp:${METRO_PORT}"
   env "${E2E_ENV[@]}" \
     npx expo run:android --variant debug --no-bundler
 )
+
+adb shell pm grant br.com.fiscalize.mobile android.permission.POST_NOTIFICATIONS
+adb shell pm grant br.com.fiscalize.mobile android.permission.ACCESS_FINE_LOCATION
+adb shell pm grant br.com.fiscalize.mobile android.permission.ACCESS_COARSE_LOCATION
+adb shell pm grant br.com.fiscalize.mobile android.permission.CAMERA
 
 # Prepara o dispositivo confiável (TC06).
 MAESTRO_TC06_EMAIL="$tc06_email" \

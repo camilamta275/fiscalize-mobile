@@ -234,6 +234,13 @@ O fluxo `ocorrencia/ocorrencia-campo-obrigatorio.yaml` cobre um cenário negativ
 direto no app: ao tentar criar uma ocorrência sem informar o título, o Maestro
 verifica as mensagens de validação e confirma que o fluxo de registro não é concluído.
 
+Os YAML standalone são executados pelo runner
+`automation/scripts/run_maestro_e2e.py`. O workflow `.github/workflows/e2e.yml`
+reutiliza `.github/scripts/run-maestro-e2e.sh`, que prepara PostgreSQL, backend,
+app Android, dispositivo MFA confiável e chama o runner com `--reset-app-state`.
+Após os 16 fluxos, o mesmo emulador executa os dois testes Pytest existentes
+de fluxo integrado e bloqueio de API.
+
 Execução local, com emulador ligado, app instalado e backend com seed:
 
 ```bash

@@ -65,6 +65,12 @@ env:
 - extendedWaitUntil:
     notVisible: "Buscando endereço…"
     timeout: 20000
+- extendedWaitUntil:
+    notVisible: "Calculando…"
+    timeout: 20000
+- extendedWaitUntil:
+    visible: "Preenchida automaticamente"
+    timeout: 15000
 
 # Envia o formulário
 - scrollUntilVisible:

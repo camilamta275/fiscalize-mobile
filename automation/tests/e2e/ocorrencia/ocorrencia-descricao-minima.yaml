@@ -39,16 +39,44 @@ env:
 - inputText: "Buraco na via"
 - hideKeyboard
 
-# Valor limite inválido: 19 caracteres
+# Preenche os demais campos obrigatórios para que o limite da descrição seja
+# o único resultado variável entre os dois envios.
 - tapOn:
     id: "demand-description"
 - inputText: "Buraco grande na ru"
 - hideKeyboard
 - scrollUntilVisible:
     element:
+      text: "Infraestrutura"
+- tapOn: "Infraestrutura"
+- scrollUntilVisible:
+    element:
+      text: "00000-000"
+    direction: UP
+- tapOn:
+    text: "00000-000"
+- inputText: "50050000"
+- hideKeyboard
+- extendedWaitUntil:
+    visible: "Rua da Aurora"
+    timeout: 20000
+- extendedWaitUntil:
+    notVisible: "Calculando…"
+    timeout: 20000
+- extendedWaitUntil:
+    visible: "Preenchida automaticamente"
+    timeout: 15000
+
+# Valor limite inválido: 19 caracteres
+- scrollUntilVisible:
+    element:
       id: "demand-submit"
 - tapOn:
     id: "demand-submit"
+- extendedWaitUntil:
+    visible: "Descrição deve ter no mínimo 20 caracteres"
+    timeout: 10000
+- assertNotVisible: "Ocorrência registrada!"
 - scrollUntilVisible:
     element:
       id: "demand-description"
@@ -65,8 +93,6 @@ env:
       id: "demand-submit"
 - tapOn:
     id: "demand-submit"
-- scrollUntilVisible:
-    element:
-      id: "demand-description"
-    direction: UP
-- assertNotVisible: "Descrição deve ter no mínimo 20 caracteres"
+- extendedWaitUntil:
+    visible: "Ocorrência registrada!"
+    timeout: 15000

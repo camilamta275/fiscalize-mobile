@@ -1,6 +1,7 @@
 # Created by AI.
 
 import os
+import re
 import secrets
 import sys
 from pathlib import Path
@@ -46,6 +47,28 @@ def test_runner_discovers_all_flows_and_accepts_individual_selection():
     assert resolve_test_files(["automation/tests/e2e/login/login-gestor.yaml"]) == [
         "automation/tests/e2e/login/login-gestor.yaml"
     ]
+
+
+# Created by AI.
+def test_yaml_testids_match_app_components():
+    app_root = REPO_ROOT / "mobile" / "src"
+    test_root = REPO_ROOT / "automation" / "tests" / "e2e"
+
+    app_testids = set()
+    for path in app_root.rglob("*"):
+        if path.suffix not in {".tsx", ".ts"}:
+            continue
+        app_testids.update(
+            re.findall(r'testID="([^"]+)"', path.read_text(encoding="utf-8"))
+        )
+
+    yaml_testids = set()
+    for path in test_root.rglob("*.yaml"):
+        text = path.read_text(encoding="utf-8")
+        yaml_testids.update(re.findall(r'id:\s*["]([^"]+)["]', text))
+
+    outdated = sorted(yaml_testids - app_testids)
+    assert not outdated, f"testIDs usados pelos YAML que não existem no app: {outdated}"
 
 
 # Created by AI.
@@ -294,3 +317,19 @@ def test_runner_does_not_redact_short_literals_from_logs(tmp_path, monkeypatch):
 
     assert "a" not in values
     assert "Senha-Longa-123" in values
+
+
+# Created by AI.
+def test_runner_rejects_tc02_account_outside_the_seeded_citizen():
+    selected = [
+        "automation/tests/e2e/login/login-senha-incorreta-usuario-existente.yaml"
+    ]
+    environment = {
+        "MAESTRO_TC02_EMAIL": "outra-conta@example.test",
+        "MAESTRO_TC06_EMAIL": "gestor@example.test",
+        "MAESTRO_TC06_PASSWORD": "gestor-pass",
+    }
+
+    with patch.dict(os.environ, environment, clear=True):
+        with pytest.raises(RuntimeError, match="cidadão semeado"):
+            build_maestro_env(selected)
