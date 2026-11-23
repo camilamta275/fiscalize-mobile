@@ -36,11 +36,13 @@ from automation.tests.api import conftest as api_conftest
 
 
 # Created by AI.
+# Updated by AI.
 def test_runner_discovers_all_flows_and_accepts_individual_selection():
     flows = discover_test_files()
 
-    assert len(flows) == 15
+    assert len(flows) == 16
     assert "automation/tests/e2e/login/login-gestor.yaml" in flows
+    assert "automation/tests/e2e/ocorrencia/ocorrencia-campo-obrigatorio.yaml" in flows
     assert resolve_test_files(["automation/tests/e2e/login/login-gestor.yaml"]) == [
         "automation/tests/e2e/login/login-gestor.yaml"
     ]

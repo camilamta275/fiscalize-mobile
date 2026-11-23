@@ -85,3 +85,15 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** resolução de conflito e validação da árvore integrada.
 - **Tipo de contribuição da IA:** seleção do gitlink do submódulo da branch principal e atualização do registro obrigatório de uso de IA.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0007
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Camila Teixeira
+- **Arquivo / Arquivos alterado(s):** `automation/tests/e2e/ocorrencia/ocorrencia-campo-obrigatorio.yaml`, `automation/tests/test_maestro_ci.py`, `automation/README.md`, `RELATORIO_TESTE_E2E.md`, `USO_IA/Camila-Teixeira.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Ampliei a suíte E2E com fluxo negativo para campo obrigatório, validei descoberta e documentei a execução bloqueada por ambiente.
+- **Tratamento de dados pessoais:** Não houve; foram usados apenas credenciais sintéticas do seed do projeto.
+- **Alterado pela IA (nome da IA, versão da IA):** GitHub Copilot usando Copilot SDK no VS Code; versão não disponibilizada nesta sessão.
+- **Finalidade do uso da IA:** implementar e documentar a pendência E3 com cenário negativo Maestro sem substituir a execução por API.
+- **Etapa da atividade:** análise, implementação, validação da descoberta e documentação.
+- **Tipo de contribuição da IA:** criação do fluxo de campo obrigatório, ajuste da descoberta da suíte, validação automatizada e relatório de evidências.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo

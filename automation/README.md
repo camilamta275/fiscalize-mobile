@@ -149,7 +149,7 @@ sem a migration de MFA, os cenários afetados são *skipped* com mensagem acion�
 
 ## 7. Execução dos fluxos E2E Maestro
 
-Os 15 fluxos mobile ficam em [`tests/e2e/`](tests/e2e/). O runner executa todos
+Os 16 fluxos mobile ficam em [`tests/e2e/`](tests/e2e/). O runner executa todos
 em sequência por padrão, aceita caminhos individuais e grava relatório JUnit,
 logs e evidências por fluxo em `automation/reports/maestro/`.
 
@@ -195,7 +195,7 @@ GitHub Actions.
 Os jobs de API (push/pull request) e regressão (agendamento/execução manual)
 reutilizam o backend e o PostgreSQL efêmero já provisionados pelo workflow. Eles
 instalam SDK Android 36, iniciam um emulador API 34, compilam/instalam o app em
-modo debug, iniciam o Metro e executam sequencialmente os 15 fluxos Maestro.
+modo debug, iniciam o Metro e executam sequencialmente os 16 fluxos Maestro.
 Para o emulador, a API fica disponível em `http://10.0.2.2:3000`.
 Antes de cada fluxo, a CI limpa os dados locais do app para isolar sessões; o
 identificador E2E estável mantém a confiança do dispositivo no backend.
@@ -229,6 +229,10 @@ A suíte E2E roda o app Android real (emulador) integrado ao backend real, sem m
 3. `fluxo-2-acompanhar-notificar.yaml`: o cidadão vê o novo status na lista, recebe a notificação "Status da ocorrência atualizado" e **não** vê a ação "Atualizar status", exclusiva do Gestor (cenário negativo pela interface, equivalente ao 403 da API).
 
 Os demais fluxos Maestro (`login/`, `cadastro/`, `ocorrencia/`, `perfil/`, `register/`) cobrem cenários isolados, incluindo os negativos de login (senha incorreta, e-mail e senha inválidos).
+
+O fluxo `ocorrencia/ocorrencia-campo-obrigatorio.yaml` cobre um cenário negativo
+direto no app: ao tentar criar uma ocorrência sem informar o título, o Maestro
+verifica as mensagens de validação e confirma que o fluxo de registro não é concluído.
 
 Execução local, com emulador ligado, app instalado e backend com seed:
 
