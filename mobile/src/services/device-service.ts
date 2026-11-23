@@ -1,6 +1,7 @@
 import * as SecureStore from 'expo-secure-store';
 import * as Device from 'expo-device';
 import * as Crypto from 'expo-crypto';
+import Constants from 'expo-constants';
 
 // Created by AI.
 const DEVICE_ID_KEY = 'fiscalize.device-id';
@@ -14,6 +15,15 @@ const DEVICE_ID_KEY = 'fiscalize.device-id';
 // Created by AI.
 // Updated by AI.
 export async function getDeviceIdentity(): Promise<{ deviceId: string; deviceName: string }> {
+  const configuredE2eDeviceId = Constants.expoConfig?.extra?.maestroE2eDeviceId;
+  if (__DEV__ && typeof configuredE2eDeviceId === 'string' && configuredE2eDeviceId.trim()) {
+    return {
+      deviceId: configuredE2eDeviceId.trim(),
+      deviceName:
+        [Device.manufacturer, Device.modelName].filter(Boolean).join(' ') || 'Dispositivo móvel',
+    };
+  }
+
   let deviceId = await SecureStore.getItemAsync(DEVICE_ID_KEY);
   if (!deviceId) {
     deviceId = Crypto.randomUUID();
@@ -22,6 +32,7 @@ export async function getDeviceIdentity(): Promise<{ deviceId: string; deviceNam
 
   return {
     deviceId,
-    deviceName: [Device.manufacturer, Device.modelName].filter(Boolean).join(' ') || 'Dispositivo móvel',
+    deviceName:
+      [Device.manufacturer, Device.modelName].filter(Boolean).join(' ') || 'Dispositivo móvel',
   };
 }

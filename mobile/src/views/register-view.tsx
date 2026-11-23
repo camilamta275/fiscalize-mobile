@@ -332,7 +332,7 @@ export function RegisterView() {
             title="Criar conta"
           />
 
-          <Link href="/login" style={styles.link}>
+          <Link href="/login" style={styles.link} testID="register-login-link">
             <ThemedText type="linkPrimary">Já tem conta? Entrar</ThemedText>
           </Link>
         </ScrollView>

@@ -30,7 +30,7 @@ export function LoginView() {
   const theme = useTheme();
 
   return (
-    <View style={[styles.root, { backgroundColor: theme.background }]}>
+    <View className="flex-1" style={[styles.root, { backgroundColor: theme.background }]}>
       <GradientView colors={Gradients.gov} style={styles.wash} />
 
       <SafeAreaView style={styles.safeArea}>
@@ -50,7 +50,7 @@ export function LoginView() {
               </ThemedText>
             </View>
 
-            <Card style={styles.card}>
+            <Card className="self-center w-full max-w-[420px]" style={styles.card}>
               <TextField
                 testID="login-email"
                 autoCapitalize="none"

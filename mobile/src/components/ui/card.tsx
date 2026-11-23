@@ -7,6 +7,7 @@ import { useTheme } from '@/hooks/use-theme';
 // Created by AI.
 export type CardTone = 'default' | 'muted' | 'primary' | 'accent' | 'danger' | 'gold';
 
+// Updated by AI.
 type CardProps = ViewProps & {
   children: ReactNode;
   onPress?: () => void;
@@ -21,6 +22,7 @@ type CardProps = ViewProps & {
  * dropped and the shadow is slightly stronger to keep the same depth.
  */
 // Created by AI.
+// Updated by AI.
 export function Card({ children, onPress, padded = true, style, tone = 'default', ...rest }: CardProps) {
   const theme = useTheme();
 
@@ -42,6 +44,10 @@ export function Card({ children, onPress, padded = true, style, tone = 'default'
     gold: theme.gold,
   }[tone];
 
+  // Updated by AI. A plain View on purpose. This used to be the gluestack Card
+  // with `className="gap-0"`: the NativeWind className won over the caller's
+  // `style.gap`, so every Card lost the spacing between its children (avatar
+  // glued to the name, labels glued to section titles, tiles with no gap).
   const content = (
     <View
       style={[
@@ -78,6 +84,8 @@ const styles = StyleSheet.create({
   base: {
     borderRadius: Radius.lg,
     borderWidth: 1,
+    gap: 0,
+    padding: 0,
   },
   padded: {
     padding: Spacing.three,

@@ -129,7 +129,9 @@ Execute o fluxo:
 python flow_etl.py
 ```
 
-O Prefect iniciará a execução do fluxo `ETL Fiscalize`, registrando o estado de cada tarefa e exibindo os logs no terminal.
+O Prefect iniciará a execução do fluxo `ETL Fiscalize`, registrando o estado de cada tarefa e exibindo os logs no terminal. Esse é o entrypoint do pipeline completo e aplica Apache Spark nas camadas silver e gold.
+
+O arquivo `run_etl.py` continua disponível como execução alternativa em Pandas, sem Prefect e sem Spark. Ele não é usado pelo deployment `etl-fiscalize-diaria`.
 
 Ao final, uma execução concluída com sucesso deverá apresentar uma mensagem semelhante a:
 
@@ -139,44 +141,66 @@ Flow run 'nome-da-execucao' - Finished in state Completed()
 
 O nome da execução pode variar a cada tentativa.
 
-## 9. Como a pipeline funciona
+## 9. Agendar a execução diária
+
+Para criar e manter o deployment Prefect com agendamento diário, deixe o servidor
+Prefect ativo no primeiro terminal e execute em outro terminal, na pasta `etl`,
+com o ambiente virtual ativado:
+
+```powershell
+python serve_etl.py
+```
+
+O deployment `etl-fiscalize-diaria` executa o fluxo todos os dias às 03:00 no
+fuso `America/Recife`. O processo `serve_etl.py` deve permanecer ativo para
+atender as execuções agendadas. A configuração está em `etl/serve_etl.py`.
+
+## 10. Como a pipeline funciona
 
 O fluxo foi organizado para processar os dados dos chamados e combiná-los com informações climáticas e populacionais.
 
-### 9.1. Sincronização e leitura dos chamados
+### 10.1. Sincronização e leitura dos chamados
 
-A tarefa `Sincronizar chamados do backend` executa `SyncChamados.run()`: lê os chamados do PostgreSQL operacional do backend (via `BACKEND_DATABASE_URL`) e atualiza a coleção `chamados_raw` no MongoDB de forma idempotente. O sync nunca escreve no banco do backend.
+A tarefa `Sincronizar chamados do backend` executa `SyncChamados.run()`: lê os chamados do PostgreSQL operacional do backend (via `BACKEND_DATABASE_URL`) e atualiza a coleção `chamados_raw` no MongoDB de forma idempotente. O sync nunca escreve no banco do backend. O upsert não remove documentos ausentes da origem e a query atual não filtra `excluidoem`; por isso, chamados excluídos permanecem no bronze até uma remoção manual.
 
 Em seguida, a tarefa `ler_chamados` lê `chamados_raw` e calcula o intervalo de datas que o clima precisa cobrir. O arquivo `data/chamados.json` é apenas um fixture legado e não participa da execução.
 
-### 9.2. Extração dos dados
+### 10.2. Extração dos dados
 
 A tarefa `garantir_clima` verifica se a série climática já carregada cobre o intervalo dos chamados. Se não cobrir (ou se a coleção estiver vazia), consulta a Open-Meteo e grava a carga bruta em `clima_raw`. Caso contrário, reaproveita os dados existentes sem chamar a API.
 
 A tarefa `garantir_populacao` baixa a população do IBGE apenas quando `populacao_ibge_raw` estiver vazia.
+
+As cargas brutas de API também são idempotentes quando disparadas manualmente:
+`load_mongo` identifica o snapshot pelo conteúdo e faz upsert usando chaves
+determinísticas. Uma repetição do mesmo conteúdo não duplica documentos; dados
+alterados formam um novo lote e preservam as versões anteriores. A coleção
+`_etl_raw_loads` guarda os metadados dos lotes para que uma repetição após falha
+parcial use a mesma `data_extracao`. As verificações de cobertura e coleção vazia
+evitam consultas desnecessárias, mas não são a garantia de idempotência.
 
 A tarefa `extrair_mongo` consulta as coleções do MongoDB utilizadas pela pipeline:
 
 - `clima_raw`: dados climáticos;
 - `populacao_ibge_raw`: dados populacionais.
 
-### 9.3. Camada silver
+### 10.3. Camada silver
 
-A tarefa `construir_silver` monta as tabelas normalizadas:
+A tarefa `construir_silver` monta as tabelas normalizadas com Apache Spark (`etl/src/spark_transform.py`):
 
 - `silver_chamado`: um registro por chamado, com bairro normalizado e data local de Recife;
 - `silver_clima_diario`: uma linha por dia, com temperatura e precipitação;
 - `silver_bairro_populacao`: um registro por bairro do Recife.
 
-### 9.4. Camada gold
+### 10.4. Camada gold
 
-A tarefa `construir_gold` gera as tabelas do dashboard exclusivamente a partir da silver:
+A tarefa `construir_gold` gera as tabelas do dashboard exclusivamente a partir da silver, também com Apache Spark:
 
 - `chamados_clima`: chamados enriquecidos com clima;
 - `chamados_populacao`: chamados agregados por bairro com população e chamados por 1.000 habitantes;
 - `chamados_clima_diario`: chamados agregados por dia, junto com temperatura e precipitação.
 
-### 9.5. Carregamento dos resultados
+### 10.5. Carregamento dos resultados
 
 As tabelas silver e gold são carregadas em dois destinos:
 
@@ -185,7 +209,7 @@ As tabelas silver e gold são carregadas em dois destinos:
 
 O carregamento no Neon apaga as linhas e insere a nova carga na mesma transação, sem `DROP TABLE`/`TRUNCATE`. O carregamento só acontece depois que os dados correspondentes foram preparados.
 
-## 10. Acompanhamento da execução no Prefect
+## 11. Acompanhamento da execução no Prefect
 
 Após iniciar o fluxo, acesse:
 
@@ -199,7 +223,7 @@ Durante o desenvolvimento, ocorreu uma falha no carregamento da tabela `chamados
 
 Esse caso demonstra a importância do monitoramento: além de coordenar as tarefas, o Prefect ajuda a localizar a etapa que falhou e fornece informações para investigar a causa.
 
-## 11. Resultado esperado
+## 12. Resultado esperado
 
 Ao concluir a execução, espera-se que:
 

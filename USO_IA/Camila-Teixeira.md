@@ -73,3 +73,15 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** análise, correção do lockfile e validação.
 - **Tipo de contribuição da IA:** atualização de dependências de desenvolvimento e documentação da atividade.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0006
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Camila Teixeira
+- **Arquivo / Arquivos alterado(s):** `backend` (gitlink do submódulo), `USO_IA/Camila-Teixeira.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Resolvido o conflito de submódulo preservando o commit atual da branch principal e registrado o uso da IA.
+- **Tratamento de dados pessoais:** Não houve; nenhum dado pessoal foi processado.
+- **Alterado pela IA (nome da IA, versão da IA):** GitHub Copilot Advanced Agent Merge; versão não disponibilizada nesta sessão.
+- **Finalidade do uso da IA:** integrar a branch principal no checkout do pull request e declarar a atividade no histórico do repositório.
+- **Etapa da atividade:** resolução de conflito e validação da árvore integrada.
+- **Tipo de contribuição da IA:** seleção do gitlink do submódulo da branch principal e atualização do registro obrigatório de uso de IA.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo

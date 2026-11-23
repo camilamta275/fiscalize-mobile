@@ -1297,3 +1297,507 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Validação e preparação para publicação.
 - **Tipo de contribuição da IA:** Inspeção de branches, revisão de diff, validação de sintaxe e preparação do commit do repositório pai.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0108
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Confirmada a ausência do executável no cache extraído do React Native DevTools; o arquivo de código não foi alterado.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Verificar o erro de instalação do React Native DevTools informado no log.
+- **Etapa da atividade:** Diagnóstico e validação.
+- **Tipo de contribuição da IA:** Inspeção das versões instaladas, do pacote `debugger-shell` e do cache `dotslash`; confirmação do hash do arquivo e da presença do executável no arquivo compactado.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0109
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `README.md`, `mobile/README.md`, `mobile/package.json`, `mobile/package-lock.json`, `mobile/global.css`, `mobile/tailwind.config.ts`, `mobile/babel.config.js`, `mobile/metro.config.js`, `mobile/nativewind-env.d.ts`, `mobile/src/app/_layout.tsx`, `mobile/src/components/ui/button.tsx`, `mobile/src/components/ui/card.tsx`, `mobile/src/views/login-view.tsx`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** NativeWind 4 e Tailwind CSS configurados no Expo; componentes e READMEs atualizados para documentar a integração.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Implementar a camada NativeWind exigida pelo refinamento de UX/UI e atualizar a documentação.
+- **Etapa da atividade:** Implementação, configuração, documentação e validação.
+- **Tipo de contribuição da IA:** Instalação das dependências, criação das configurações NativeWind/Tailwind, adaptação de componentes e READMEs, validação TypeScript e configuração Expo.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0110
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `mobile/src/services/notification-service.ts`, `mobile/src/contexts/session-context.tsx`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Registro de push ignorado no Android Expo Go e falhas inesperadas passaram a ser registradas sem rejeição não tratada.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Evitar a falha ao solicitar token remoto de push no Expo Go Android.
+- **Etapa da atividade:** Correção e validação.
+- **Tipo de contribuição da IA:** Inspeção da origem do erro, aplicação da guarda por ambiente e tratamento explícito de falhas assíncronas.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0111
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/README.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Documentado o comando correto `python -m pip install -r requirements.txt` e esclarecido por que omitir `-r` causa erro.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Esclarecer no guia de automação a instalação das dependências Python após erro com pip.
+- **Etapa da atividade:** Atualização de documentação.
+- **Tipo de contribuição da IA:** Atualização do comando recomendado e inclusão de uma nota de troubleshooting no README.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0112
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/README.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Documentados os passos para compilar e instalar o app no emulador antes de rodar os fluxos Maestro.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Diagnosticar a falha de inicialização do fluxo Maestro por ausência do pacote Android instalado.
+- **Etapa da atividade:** Atualização de documentação e troubleshooting.
+- **Tipo de contribuição da IA:** Inclusão dos passos de verificação do emulador, instalação via Expo e explicação da mensagem de pacote ausente.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0113
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/README.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Adicionado comando de uma linha para executar a suíte E2E Pytest em modo obrigatório e documentado seu escopo.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Facilitar a execução local da suíte E2E e evitar sucesso aparente quando o Maestro não executa.
+- **Etapa da atividade:** Atualização de documentação.
+- **Tipo de contribuição da IA:** Documentação do comando unificado, do modo obrigatório e dos cenários incluídos e excluídos.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0114
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/README.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Documentada a configuração de ANDROID_HOME e ANDROID_SDK_ROOT para compilar e instalar o app no emulador macOS.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Resolver o erro Gradle `SDK location not found` durante a preparação do E2E mobile.
+- **Etapa da atividade:** Diagnóstico, atualização de documentação e validação do build.
+- **Tipo de contribuição da IA:** Verificação do SDK instalado, configuração das variáveis de ambiente no comando de build e documentação do troubleshooting.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0115
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/README.md`, `mobile/package.json` (scripts atualizados automaticamente pelo Expo prebuild), `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Documentados JDK 21 e variáveis Android após build falhar com SDK sem caminho e OpenJDK 26.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Resolver o bloqueio de build Android após configurar o caminho do SDK.
+- **Etapa da atividade:** Diagnóstico, troubleshooting, atualização da documentação e tentativa de build.
+- **Tipo de contribuição da IA:** Inspeção do SDK/JDK locais, nova tentativa de compilação com as variáveis do SDK e documentação da configuração compatível do JDK.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0116
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `mobile/android/app/build/outputs/apk/debug/app-debug.apk`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** JDK 21 instalado; APK Android compilado e instalado no emulador. O fluxo Maestro foi tentado, mas encontrou tela sem conteúdo.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Concluir a instalação e execução do build Android após o erro de compatibilidade do JDK.
+- **Etapa da atividade:** Configuração de ambiente, build, instalação e validação no emulador.
+- **Tipo de contribuição da IA:** Instalação do JDK 21 via Homebrew, seleção do Android SDK/JDK no processo, compilação do APK, instalação no emulador e tentativa do fluxo Maestro.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0114
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `mobile/src/services/updates-service.ts`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Verificação OTA ignorada no Expo Go; mantida nos builds em que expo-updates é suportado.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Remover o aviso de checkForUpdateAsync não suportado ao executar no Expo Go.
+- **Etapa da atividade:** Correção e validação.
+- **Tipo de contribuição da IA:** Consulta à documentação do SDK 57 e ajuste da guarda de ambiente no serviço OTA.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0115
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Revalidados NativeWind, GlueStack, API/E2E, artefatos de build e documentação com inspeção local e CI.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Atualizar a verificação de status dos itens de implementação e entrega do projeto.
+- **Etapa da atividade:** Auditoria e validação de evidências.
+- **Tipo de contribuição da IA:** Inspeção do código e dependências, relatórios JUnit, artefatos locais e resultados recentes do GitHub Actions.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0116
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `README.md`, `automation/README.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** READMEs alinhados: mobile não tem testes unitários configurados, mas há E2E externo em automation.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Harmonizar a documentação principal com a suíte E2E mobile existente.
+- **Etapa da atividade:** Atualização documental.
+- **Tipo de contribuição da IA:** Correção dos trechos sobre testes e inclusão da pasta de automação na arquitetura.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0117
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/README.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Guia de automação reduzido aos pré-requisitos e comandos essenciais para API, Maestro/E2E, CI e relatórios.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Tornar o guia de automação mais enxuto e fácil de consultar.
+- **Etapa da atividade:** Revisão e reescrita documental.
+- **Tipo de contribuição da IA:** Remoção de redundâncias e preservação de instruções essenciais de execução e configuração.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0118
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `automation/README.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Exemplo adicionado para executar diretamente todos os fluxos YAML Maestro da pasta tests/e2e.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Completar a documentação local de execução dos testes Maestro.
+- **Etapa da atividade:** Atualização documental.
+- **Tipo de contribuição da IA:** Inclusão do comando direto para executar toda a pasta de fluxos E2E.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0119
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda
+- **Arquivo / Arquivos alterado(s):** `etl/serve_etl.py`, `etl/requirements.txt`, `etl/README-ETL.md`, `etl/ORQUESTRCAO_PREFECT.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Criado deployment Prefect diário às 03:00 em Recife, requisito mínimo do Prefect atualizado e inicialização documentada.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Implementar o agendamento recorrente da pipeline ETL com Prefect.
+- **Etapa da atividade:** Implementação, documentação e validação estática.
+- **Tipo de contribuição da IA:** Criação do launcher `Flow.serve` com agenda cron e timezone, requisito mínimo do Prefect, atualização dos guias e verificação sintática.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0121
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `README.md`, `mobile/.npmrc`, `mobile/README.md`, `mobile/package.json`, `mobile/package-lock.json`, `mobile/src/app/_layout.tsx`, `mobile/src/components/gluestack/LICENSE`, `mobile/src/components/gluestack/button/index.tsx`, `mobile/src/components/gluestack/card/index.tsx`, `mobile/src/components/gluestack/card/styles.tsx`, `mobile/src/components/gluestack/gluestack-ui-provider/config.ts`, `mobile/src/components/gluestack/gluestack-ui-provider/index.tsx`, `mobile/src/components/ui/button.tsx`, `mobile/src/components/ui/card.tsx`, `mobile/tailwind.config.ts`, `mobile/metro.config.js`, `mobile/gluestack-ui.config.json` (removido), `mobile/globals.css` (removido), `mobile/postcss.config.js` (removido), `mobile/tailwind.config.js` (removido), `mobile/src/components/gluestack/card/index.web.tsx` (removido), `mobile/src/components/gluestack/gluestack-ui-provider/index.web.tsx` (removido), `mobile/src/components/gluestack/gluestack-ui-provider/script.ts` (removido), `mobile/src/components/gluestack/gluestack-ui-provider/useGluestackColors.ts` (removido), `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** GlueStack UI integrado aos wrappers existentes de botão e cartão, com tema NativeWind e bundles Android/iOS validados.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Adicionar GlueStack UI ao app mobile sem quebrar as APIs e o tema existentes.
+- **Etapa da atividade:** Integração, documentação e validação.
+- **Tipo de contribuição da IA:** Configuração do provider e tokens, integração dos wrappers, inclusão de dependências runtime, atualização da documentação, remoção de scaffolding duplicado e validação TypeScript, lint e bundles Android/iOS.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0123
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `etl/requirements.txt`, `automation/requirements.txt`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Dependências conferidas com imports, testes e CI; ETL recebeu Altair e Pytest, e automação teve sua lista validada.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Sincronizar os manifests Python com o código usado no ETL, dashboard, testes e automação.
+- **Etapa da atividade:** Auditoria e atualização de dependências.
+- **Tipo de contribuição da IA:** Comparação dos imports e workflows com os dois manifests, inclusão das dependências ausentes do ETL e validação da cobertura de dependências existente na automação.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0124
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão deste diff pendente
+- **Arquivo / Arquivos alterado(s):** `etl/src/load.py`, `etl/test_load_mongo.py`, `etl/README-ETL.md`, `etl/ORQUESTRCAO_PREFECT.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Cargas brutas de API passaram a usar upsert determinístico por snapshot, com manifesto para repetição segura e preservação do histórico.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Eliminar duplicação em reexecuções de cargas brutas da API sem perder versões históricas distintas.
+- **Etapa da atividade:** Implementação, testes e atualização da documentação.
+- **Tipo de contribuição da IA:** Alteração do carregamento MongoDB, criação de teste de idempotência, ajuste da documentação e validação automatizada.
+- **Confirmação de revisão crítica e responsabilidade humana:** Pendente de revisão e confirmação pelo responsável antes da integração.
+
+## Registro da atividade 0125
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `docs/RNF-SEC/AUDITORIA-REQUISITOS-SEGURANCA.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Revalidados RNF-SEC-05/13/14/15/16 após o PR #63, distinguindo documentação de evidências no código e no CI.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Atualizar a auditoria de segurança com evidências do PR #63, do workflow de backup e do backend fixado no repositório.
+- **Etapa da atividade:** Revalidação documental e conferência de evidências.
+- **Tipo de contribuição da IA:** Comparação do PR e seus checks com os requisitos, inspeção do código e atualização dos status, lacunas e prioridades da auditoria.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0126
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `backend/prisma/schema.prisma`, `backend/prisma/migrations/20261119000000_add_notification_preference/migration.sql`, `backend/src/services/notificationService.ts`, `backend/src/controllers/notificationController.ts`, `backend/src/routes/notificationRoutes.ts`, `mobile/src/app/(app)/_layout.tsx`, `mobile/src/app/(app)/profile/notification-settings.tsx`, `mobile/src/services/notification-service.ts`, `mobile/src/views/demands-list-view.tsx`, `mobile/src/views/notification-settings-view.tsx`, `mobile/src/views/rights-portal-view.tsx`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Adicionado sino no cabeçalho, controle global de notificações e painel QA com dois disparos push de teste.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Implementar controle de recebimento de notificações e testes de push para QA.
+- **Etapa da atividade:** Implementação e validação.
+- **Tipo de contribuição da IA:** Alterações no mobile e backend, migração Prisma e validação de build, tipos e lint.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0127
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `automation/tests/e2e/register/register-navigation.yaml`, `mobile/src/views/register-view.tsx`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Fluxo de cadastro ganhou scroll pelos elementos inferiores e testID estável para o link de login.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Corrigir o teste E2E de navegação do cadastro para validar elementos fora da área inicial visível.
+- **Etapa da atividade:** Ajuste do teste mobile, estabilização do seletor e tentativa de validação no emulador.
+- **Tipo de contribuição da IA:** Identificação da causa no diagnóstico Maestro, inclusão de scroll/testID e atualização do histórico de uso de IA.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0128
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `docs/RNF-SEC/ARQUITETURA-AUTENTICACAO-AUTORIZACAO.md`, `docs/RNF-SEC/PLANO-CONFORMIDADE-LGPD.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Criados o documento de arquitetura de autenticação/autorização com matriz RBAC e o plano de conformidade LGPD com tabela de retenção e direitos do titular.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais; os documentos apenas descrevem o tratamento já implementado no sistema.
+- **Alterado pela IA (nome da IA, versão da IA):** opencode (agente de código), modelo DeepSeek V4.1 Flash Free
+- **Finalidade do uso da IA:** Preencher duas lacunas apontadas na verificação do checklist: documento único de arquitetura/RBAC e plano formal de conformidade LGPD.
+- **Etapa da atividade:** Documentação e verificação do código-fonte do backend e do app mobile.
+- **Tipo de contribuição da IA:** Levantamento de rotas, middlewares, tabelas e serviços no repositório e redação dos dois documentos em Markdown.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0129
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `mobile/src/components/ui/button.tsx`, `mobile/src/components/profile-button.tsx`, `mobile/src/views/demands-list-view.tsx`, `mobile/src/contexts/session-context.tsx`, `mobile/src/services/api-client.ts`, `backend/src/middlewares/authMiddleware.ts`, `backend/src/middlewares/authMiddleware.test.ts`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Corrigidos variants de botões, contornos dos filtros e avatar; falhas transitórias do backend deixam de apagar a sessão do usuário.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Corrigir regressões visuais após Gluestack/NativeWind e evitar perda de sessão em falhas temporárias do backend.
+- **Etapa da atividade:** Investigação, implementação e validação.
+- **Tipo de contribuição da IA:** Ajustes de estilos, mapeamento de variantes, preservação de sessão, encaminhamento correto de falhas de infraestrutura e teste de regressão.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0129
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `mobile/README.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** README do app ganhou seção de geração de builds (EAS, local e CI) e resumo das novas features, com link para o relatório completo.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** opencode (agente de código), modelo DeepSeek V4.1 Flash Free
+- **Finalidade do uso da IA:** Dar prioridade às instruções de build no README do mobile e resumir o relatório de novas features.
+- **Etapa da atividade:** Documentação.
+- **Tipo de contribuição da IA:** Leitura do relatório, do `eas.json`, do workflow de E2E e das configurações do Expo; redação das seções no README.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0130
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `automation/tests/e2e/register/register-navigation.yaml`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Teste E2E ganhou reset de estado e busca estável dos elementos inferiores da tela de cadastro.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Completar a correção da navegação de cadastro e continuar a validação no emulador.
+- **Etapa da atividade:** Ajuste de isolamento do fluxo, execução E2E e diagnóstico de ambiente.
+- **Tipo de contribuição da IA:** Inclusão de `clearState`, configuração de encaminhamento do backend e diagnóstico de sessão, bundle e ANR do emulador.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0131
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `mobile/src/views/rights-portal-view.tsx`, `mobile/src/components/ui/screen-header.tsx`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Restaurado o layout em linha dos itens do perfil e o fundo circular do botão voltar removendo callbacks de estilo do Pressable.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Corrigir a disposição dos menus e o cabeçalho da tela de perfil no Android.
+- **Etapa da atividade:** Investigação, implementação e validação.
+- **Tipo de contribuição da IA:** Ajuste dos estilos do Pressable para aplicar estilos estáticos e validação de tipos e lint.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0132
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `mobile/src/services/notification-service.ts`, `mobile/src/views/notification-settings-view.tsx`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Solicitação nativa de permissão passou a ocorrer em testes explícitos, com canal Android criado antes do prompt.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Exibir o pedido de permissão do Android ao executar os testes de push.
+- **Etapa da atividade:** Implementação e validação.
+- **Tipo de contribuição da IA:** Solicitação de permissão e configuração de canal Android, com mensagem compatível para Expo Go e validação de tipos e lint.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0133
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `mobile/src/services/notification-service.ts`, `mobile/src/views/notification-settings-view.tsx`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Testes identificam permissão/canal Android bloqueados e oferecem atalho para as configurações do aplicativo.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Permitir recuperar notificações Android bloqueadas ao executar os testes de QA.
+- **Etapa da atividade:** Implementação e validação.
+- **Tipo de contribuição da IA:** Detecção de permissão/canal bloqueados, alerta com link para configurações e validação de tipos e lint.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0134
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `mobile/src/services/notification-service.ts`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Erro de provider nativo ausente agora orienta recompilar e instalar o app Android atualizado.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Diagnosticar a falha ao criar o canal Android de notificações.
+- **Etapa da atividade:** Investigação, ajuste de mensagem e validação.
+- **Tipo de contribuição da IA:** Identificação de binário Android desatualizado, mensagem específica de recuperação e validação de tipos e lint.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0135
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `mobile/android/app/build/outputs/apk/debug/app-debug.apk`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** APK Android recompilado com JDK 21, instalado e iniciado no emulador conectado.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Atualizar o app Android para incluir o provider nativo exigido pelas notificações.
+- **Etapa da atividade:** Instalação, compilação e validação.
+- **Tipo de contribuição da IA:** Preparação do ambiente com JDK compatível, compilação Gradle, instalação no emulador e verificação do processo em execução.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0136
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `mobile/app.config.ts`, `mobile/.gitignore`, `mobile/README.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Configuração e documentação preparadas para incluir credenciais Firebase Android locais sem versioná-las.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Copilot SDK no VS Code (versão não informada)
+- **Finalidade do uso da IA:** Preparar a inicialização do Firebase Messaging para notificações push Android.
+- **Etapa da atividade:** Investigação, implementação e validação.
+- **Tipo de contribuição da IA:** Configuração dinâmica do google-services.json, exclusão do arquivo no Git, atualização das instruções e validação de tipos e lint.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0137
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `etl/README-ETL.md`, `etl/ORQUESTRCAO_PREFECT.md`, ambiente virtual `etl/.venv`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Documentação alinhada ao pipeline real (`flow_etl.py` com Spark) e `pyspark` instalado na venv do ETL.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode — DeepSeek V4.1 Flash Free
+- **Finalidade do uso da IA:** Alinhar o entrypoint documentado à implementação e viabilizar a execução do Spark.
+- **Etapa da atividade:** Documentação e configuração de ambiente.
+- **Tipo de contribuição da IA:** Atualização do README-ETL e do guia de orquestração, e instalação da dependência `pyspark` na venv.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0138
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `etl/src/spark_session.py`, `etl/README-ETL.md`, ambiente virtual `etl/.venv`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** `pyspark` instalado na venv, interpretador dos workers fixado e pré-requisito de Java 21 documentado; os 8 testes Spark passaram.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode — DeepSeek V4.1 Flash Free
+- **Finalidade do uso da IA:** Permitir a execução real da transformação Spark do ETL.
+- **Etapa da atividade:** Configuração de ambiente, ajuste de código e validação.
+- **Tipo de contribuição da IA:** Instalação de dependência, fixação de `PYSPARK_PYTHON`/`PYSPARK_DRIVER_PYTHON` e documentação de requisitos e erros comuns.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0139
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `etl/README-ETL.md`, `etl/ORQUESTRCAO_PREFECT.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Documentação corrigida: o sync faz upsert sem remover ausentes e não filtra `excluidoem`, com sintoma e solução temporária descritos.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode — DeepSeek V4.1 Flash Free
+- **Finalidade do uso da IA:** Alinhar a documentação ao comportamento real do sync de chamados.
+- **Etapa da atividade:** Documentação.
+- **Tipo de contribuição da IA:** Correção das afirmações sobre remoção de chamados e filtro de soft delete, e nova entrada de troubleshooting.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0140
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `docs/RNF-SEC/AUDITORIA-REQUISITOS-SEGURANCA.md`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Auditoria atualizada para o novo ponteiro do submódulo (`f95bf90`), que também não contém `src/validators`.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode — DeepSeek V4.1 Flash Free
+- **Finalidade do uso da IA:** Manter a auditoria coerente com o ponteiro do submódulo após o merge.
+- **Etapa da atividade:** Documentação.
+- **Tipo de contribuição da IA:** Atualização das referências de commit e inclusão do marcador de uso de IA.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0141
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `mobile/src/services/api-client.ts`, `mobile/.env.example`, `mobile/README.md`, `README.md`, submódulo `backend` (ponteiro `f95bf90` → `ac2d072`), `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** App passou a usar por padrão a API publicada em `https://fiscalize-backend.onrender.com`, com documentação ajustada; submódulo atualizado via `git submodule update --remote`.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode — DeepSeek V4.1 Flash Free
+- **Finalidade do uso da IA:** Apontar o app mobile para o backend publicado e atualizar o submódulo do back-end.
+- **Etapa da atividade:** Configuração, documentação e validação.
+- **Tipo de contribuição da IA:** Troca da URL padrão no cliente HTTP, atualização do `.env.example` e dos READMEs e execução do `git submodule update --remote`, com verificação de tipos e lint.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0142
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `mobile/src/services/api-client.ts`, `USO_IA/Raphael-Miranda.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Timeout do cliente elevado para 60s por causa do cold start do Render e erro de conexão passou a expor a causa real da falha.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** OpenCode — DeepSeek V4.1 Flash Free
+- **Finalidade do uso da IA:** Diagnosticar e reduzir falhas de conexão do app com o backend publicado.
+- **Etapa da atividade:** Investigação, implementação e validação.
+- **Tipo de contribuição da IA:** Aumento do timeout, detecção robusta de abort e inclusão do nome/mensagem do erro de transporte na mensagem exibida; verificação de tipos e lint.
+- **Confirmação de revisão crítica e responsabilidade humana:** Raphael Miranda revisão humana.
+
+## Registro da atividade 0143
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `mobile/app.config.ts`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** ID do projeto EAS passou a ser o valor padrão do app.config, pois o `eas build` não grava em configuração dinâmica.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Claude Code — Claude Sonnet 5.5
+- **Finalidade do uso da IA:** Permitir gerar o APK pela nuvem (EAS Build) sem editar a configuração dinâmica.
+- **Etapa da atividade:** Configuração e validação.
+- **Tipo de contribuição da IA:** Fallback do `projectId` (identificador público) e conferência com `expo config`; verificação de tipos.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0144
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `mobile/src/components/ui/card.tsx`, `collapsible.tsx`, `demand-options-menu.tsx`, `mobile/src/views/demand-form-view.tsx`, `manager-metrics-view.tsx`, `profile-security-view.tsx`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Estilos de Pressable em função e o gap dos cartões eram descartados (NativeWind); convertidos para arrays/View e descrição da categoria exibida no formulário.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Claude Code — Claude Sonnet 5.5
+- **Finalidade do uso da IA:** Corrigir categorias, área de foto e espaçamentos que apareciam sem estilo.
+- **Etapa da atividade:** Diagnóstico, implementação e validação.
+- **Tipo de contribuição da IA:** Diagnóstico por captura de tela e `uiautomator`, troca do Card gluestack por View e conversão dos estilos; verificação de tipos e lint.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0145
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `mobile/src/views/demands-list-view.tsx`, `mobile/src/components/ui/stat-tile.tsx`, `mobile/src/constants/icons.ts`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Botão de nova ocorrência voltou a aparecer; busca e filtros compactos em duas linhas, ícone de ordenação e contadores com selo de status.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Claude Code — Claude Sonnet 5.5
+- **Finalidade do uso da IA:** Restaurar o botão `+` e aproximar a lista do layout de referência.
+- **Etapa da atividade:** Diagnóstico, implementação e validação.
+- **Tipo de contribuição da IA:** Conversão do estilo do botão para array, ajuste de medidas dos filtros, novo ícone `sort` e novo StatTile; verificação de tipos e lint.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0146
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `mobile/src/views/etl-dashboard-view.tsx`, `mobile/src/viewmodels/use-etl-dashboard-view-model.ts`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Dashboard ETL redesenhado: indicadores, ranking por bairro, destaques automáticos, gráfico de clima e tabela; sem alterar backend nem ETL.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Claude Code — Claude Sonnet 5.5
+- **Finalidade do uso da IA:** Melhorar os dados e a visualização do Dashboard ETL no aplicativo.
+- **Etapa da atividade:** Implementação e validação.
+- **Tipo de contribuição da IA:** Novo view model com cálculos (incidência ponderada, destaques, correlação) e nova tela; verificação de tipos e lint.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.
+
+## Registro da atividade 0147
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Raphael Miranda — revisão humana pendente
+- **Arquivo / Arquivos alterado(s):** `mobile/src/services/notification-service.ts`, `mobile/src/views/notification-settings-view.tsx`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Registro de push passou a checar o Expo Go antes de chamar módulos nativos; tela mostra aviso informativo e desativa os testes nesse ambiente.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Claude Code — Claude Sonnet 5.5
+- **Finalidade do uso da IA:** Remover o erro enganoso de módulo desatualizado ao rodar no Expo Go (Android).
+- **Etapa da atividade:** Diagnóstico, implementação e validação.
+- **Tipo de contribuição da IA:** Checagem antecipada de `appOwnership`, mensagens informativas e botões de teste desativados; verificação de tipos e lint.
+- **Confirmação de revisão crítica e responsabilidade humana:** A revisão crítica final e a responsabilidade pelo resultado permanecem com Raphael Miranda; revisão humana pendente.

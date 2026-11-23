@@ -20,6 +20,7 @@ from runstore import new_run_dir  # noqa: E402
 SCHEMA_VERSION = 1
 
 # Created by AI.
+# Updated by AI.
 # Faixas definidas em automation/docs/Métricas de Qualidade.md.
 THRESHOLDS = {
     "M1": {
@@ -37,12 +38,12 @@ THRESHOLDS = {
         "target_display": "> 0",
     },
     "M5": {
-        "label": "Taxa de falha de execução",
-        "description": "Execuções com falha sobre execuções da janela recente.",
-        "target": 0.0,
-        "amber": 0.10,
+        "label": "Estabilidade das execuções",
+        "description": "Execuções da pipeline sem falha sobre as execuções da janela recente. Quanto maior, melhor: 100% significa que nenhuma execução falhou.",
+        "target": 0.90,
+        "red": 0.70,
         "window": 30,
-        "target_display": "0% na branch padrão",
+        "target_display": "≥ 90% (alta); 70% a 89% (média); abaixo de 70% (baixa)",
     },
     "M6": {
         "label": "Falhas abertas (falha-ci)",
@@ -55,18 +56,21 @@ THRESHOLDS = {
 }
 
 # Created by AI.
+# Updated by AI.
 SUITE_LABELS = {
     "unit-junit.xml": "Testes unitários do backend",
     "api-junit.xml": "Jornadas do cidadão e do gestor (API)",
     "api-smoke-junit.xml": "Jornada essencial (smoke de pull request)",
     "regression-junit.xml": "Regressão completa",
     "regression-unit-junit.xml": "Testes unitários (regressão)",
+    "e2e-junit.xml": "Fluxos E2E do app (registrar, acompanhar e notificar)",
 }
 
 # Created by AI.
 PRIMARY_SUITES = {"unit-junit.xml", "api-junit.xml", "regression-junit.xml"}
 
 # Created by AI.
+# Updated by AI.
 # Situação do backlog em automation/docs/Cobertura do Backlog de Automação.md.
 BACKLOG_CASES = [
     {
@@ -93,44 +97,44 @@ BACKLOG_CASES = [
     {
         "id": "TC04",
         "title": "Limites de descrição e endereço",
-        "status": "missing",
-        "tests": "—",
-        "note": "Divergência D1: decidir se a validação é no backend ou no app.",
+        "status": "partial",
+        "tests": "E2E: ocorrencia-descricao-minima.yaml",
+        "note": "Limite da descrição (19/20 caracteres) coberto por E2E no app; ainda sem execução automática na pipeline. Divergência D1 segue aberta no backend.",
     },
     {
         "id": "TC05",
         "title": "Formato do protocolo gerado",
-        "status": "missing",
-        "tests": "—",
-        "note": "Divergência D2: o plano usa SCH-AAAA-NNNN e o sistema gera DEM-AAAAMMDD-XXXX.",
+        "status": "partial",
+        "tests": "E2E: ocorrencia-protocolo.yaml",
+        "note": "Plano alinhado ao backend (DEM-AAAAMMDD-XXXX); coberto por E2E, ainda sem execução automática na pipeline.",
     },
     {
         "id": "TC06",
         "title": "Login do gestor e rotas restritas",
-        "status": "missing",
-        "tests": "—",
-        "note": "O backend já responde 200 para gestor e 403 para cidadão; falta o teste.",
+        "status": "partial",
+        "tests": "E2E: login-gestor.yaml; fluxo-2-acompanhar-notificar.yaml (negativo)",
+        "note": "Login do gestor e bloqueio de \"Atualizar status\" ao cidadão cobertos por E2E; sem execução automática na pipeline.",
     },
     {
         "id": "TC08",
         "title": "Notificação in-app de mudança de status",
-        "status": "missing",
-        "tests": "—",
-        "note": "Contraditório no plano: uma seção trata como manual.",
+        "status": "partial",
+        "tests": "E2E: fluxo-2-acompanhar-notificar.yaml",
+        "note": "Coberto pelo fluxo E2E registrar, acompanhar e notificar; sem execução automática na pipeline.",
     },
     {
         "id": "TC09",
         "title": "Status e linha do tempo do chamado",
-        "status": "missing",
-        "tests": "—",
-        "note": "Contraditório no plano: uma seção trata como manual.",
+        "status": "partial",
+        "tests": "E2E: fluxo-2-acompanhar-notificar.yaml",
+        "note": "Mudança de status na lista coberta por E2E; a linha do tempo ainda não é verificada.",
     },
     {
         "id": "TC12",
         "title": "Cadastro de novo cidadão",
         "status": "partial",
         "tests": "test_user_creation.py (11 casos)",
-        "note": "Cadastro e validações cobertos; o aceite de LGPD não existe no produto.",
+        "note": "Cadastro e validações cobertos pela API; o aceite da política é coberto por E2E (cadastro-aceite-politica.yaml), sem execução automática na pipeline.",
     },
     {
         "id": "TC14",
@@ -149,13 +153,14 @@ BACKLOG_CASES = [
     {
         "id": "TC19",
         "title": "Bloqueio de cadastro de menores de 18 anos",
-        "status": "missing",
-        "tests": "—",
-        "note": "A funcionalidade não existe no produto: não há data de nascimento no cadastro.",
+        "status": "partial",
+        "tests": "E2E: register-underage.yaml",
+        "note": "Coberto por E2E no app; sem execução automática na pipeline.",
     },
 ]
 
 # Created by AI.
+# Updated by AI.
 KNOWN_GAPS = [
     {
         "id": "D1",
@@ -164,8 +169,8 @@ KNOWN_GAPS = [
     },
     {
         "id": "D2",
-        "summary": "O formato do protocolo no TC05 está errado no plano.",
-        "decision": "Atualizar o caso para o formato DEM-AAAAMMDD-XXXX e automatizar via API.",
+        "summary": "O formato do protocolo no TC05 estava errado no plano (resolvida: plano atualizado para DEM-AAAAMMDD-XXXX).",
+        "decision": "Manter o plano e o teste E2E alinhados ao formato do backend.",
     },
     {
         "id": "D3",
@@ -189,13 +194,13 @@ KNOWN_GAPS = [
     },
     {
         "id": "D7",
-        "summary": "Não há testes mobile; nenhuma ferramenta E2E mobile está configurada.",
-        "decision": "Definir a ferramenta (Maestro) e criar os fluxos, ou registrar formalmente que o E2E será via API.",
+        "summary": "Os fluxos E2E em Maestro existem, mas só rodam sob demanda: a execução na pipeline depende do workflow e2e.yml.",
+        "decision": "Executar a suíte E2E na pipeline (workflow e2e.yml) e acompanhar o resultado como suíte própria.",
     },
     {
         "id": "D8",
-        "summary": "TC19 e o aceite de LGPD do TC12 não têm funcionalidade no produto.",
-        "decision": "Manter fora da automação até a funcionalidade existir.",
+        "summary": "TC19 e o aceite de LGPD do TC12 agora têm funcionalidade no app (data de nascimento e aceite da política), mas não são executados na pipeline.",
+        "decision": "Incluir os fluxos E2E de cadastro na execução automática da pipeline.",
     },
 ]
 
@@ -354,8 +359,9 @@ def read_runs(path: Path) -> list[dict] | None:
 
 
 # Created by AI.
+# Updated by AI.
 def _metric_m5(runs: list[dict] | None, default_branch: str) -> dict:
-    """Calcula M5: taxa de falha de execução na janela recente."""
+    """Calcula M5: estabilidade das execuções (percentual sem falha) na janela recente."""
     if runs is None:
         return _metric("M5", None, "unknown", "Histórico de execuções não disponível.")
 
@@ -364,24 +370,31 @@ def _metric_m5(runs: list[dict] | None, default_branch: str) -> dict:
         return _metric("M5", None, "unknown", "Nenhuma execução no histórico.")
 
     failed = [run for run in window if run["conclusion"] == "failure"]
-    rate = len(failed) / len(window)
+    # Estabilidade = execuções sem falha / execuções da janela (100% é o ideal).
+    stability = 1 - len(failed) / len(window)
     main_failures = [
         run
         for run in failed
         if run["branch"] == default_branch and run["event"] in {"push", "schedule", "workflow_dispatch"}
     ]
 
-    if main_failures:
+    # O nível segue o valor: quanto menor a estabilidade, pior o nível. Falha na versão
+    # oficial (branch padrão) impede o nível "alto", mas não pinta de vermelho um valor alto.
+    note = f"{len(failed)} de {len(window)} rodadas de verificação tiveram falha."
+    if stability < THRESHOLDS["M5"]["red"]:
         status = "red"
-        note = f"{len(main_failures)} falha(s) na branch {default_branch}."
-    elif rate > THRESHOLDS["M5"]["amber"]:
+    elif stability < THRESHOLDS["M5"]["target"] or main_failures:
         status = "amber"
-        note = f"{len(failed)} de {len(window)} execuções falharam."
     else:
         status = "green"
-        note = f"{len(failed)} de {len(window)} execuções falharam."
+    if main_failures:
+        note += " A versão oficial do produto teve falha recente."
 
-    return _metric("M5", rate, status, note)
+    metric = _metric("M5", stability, status, note)
+    # Contagens exibidas no relatório para deixar claro que M5 mede o histórico, não a execução atual.
+    metric["window_total"] = len(window)
+    metric["window_failed"] = len(failed)
+    return metric
 
 
 # Created by AI.
@@ -488,6 +501,129 @@ def _coverage() -> dict:
 
 
 # Created by AI.
+# Nomes das métricas em linguagem de negócio, usados na leitura de risco.
+BUSINESS_METRIC_LABELS = {
+    "M1": "Verificações aprovadas",
+    "M2": "Verificações executadas",
+    "M5": "Estabilidade das execuções",
+    "M6": "Falhas aguardando correção",
+}
+
+
+# Created by AI.
+def _lista_ids(ids: list[str], limite: int = 5) -> str:
+    """Formata uma lista de IDs de casos para uso em frases do relatório."""
+    if not ids:
+        return ""
+    visiveis = ids[:limite]
+    resto = len(ids) - len(visiveis)
+    texto = ", ".join(visiveis)
+    return f"{texto} e mais {resto}" if resto > 0 else texto
+
+
+# Created by AI.
+# Updated by AI.
+def _interpret_m1(metric: dict, suites: list[dict]) -> dict:
+    """Traduz a M1 fora da faixa em risco e decisão para o produto."""
+    total, passed, skipped = _primary_totals(suites)
+    executed = total - skipped
+    if metric["value"] is None:
+        return {
+            "risk": "Nada foi verificado, então não dá para saber se o produto funciona.",
+            "decision": "Segurar a entrega até as verificações voltarem a rodar.",
+        }
+    failed = executed - passed
+    return {
+        "risk": f"{failed} de {executed} verificações falharam. Algo pode estar quebrado para o usuário.",
+        "decision": "Segurar novas entregas até corrigir." if metric["status"] == "red" else "Corrigir antes da próxima entrega.",
+    }
+
+
+# Created by AI.
+# Updated by AI.
+def _interpret_m2(metric: dict) -> dict:
+    """Traduz a M2 fora da faixa em risco e decisão para o produto."""
+    return {
+        "risk": "Nada foi verificado: o painel poderia parecer em ordem sem ter conferido nada.",
+        "decision": "Restabelecer as verificações antes de entregar.",
+    }
+
+
+# Created by AI.
+# Updated by AI.
+def _interpret_m5(metric: dict) -> dict:
+    """Traduz a M5 fora da faixa em risco e decisão para o produto."""
+    if metric["value"] is None:
+        return {
+            "risk": "Sem histórico para avaliar se as entregas são confiáveis.",
+            "decision": "Restabelecer o histórico antes de usá-lo como critério.",
+        }
+    return {
+        "risk": f"{metric['window_failed']} de {metric['window_total']} rodadas recentes falharam. As entregas ficam menos previsíveis.",
+        "decision": "Resolver a causa das falhas antes de novas entregas.",
+    }
+
+
+# Created by AI.
+# Updated by AI.
+def _interpret_m6(metric: dict) -> dict:
+    """Traduz a M6 fora da faixa em risco e decisão para o produto."""
+    if metric["value"] is None:
+        return {
+            "risk": "Não dá para ver as falhas pendentes.",
+            "decision": "Revisar as pendentes manualmente até o acompanhamento voltar.",
+        }
+    return {
+        "risk": f"{metric['display']} falha(s) conhecida(s) sem correção. Podem chegar ao usuário.",
+        "decision": "Definir responsável e prazo para cada uma.",
+    }
+
+
+# Created by AI.
+# Updated by AI.
+def _interpret_coverage(coverage: dict) -> dict:
+    """Traduz a cobertura do backlog fora da faixa em risco e decisão para o produto."""
+    nao_cobertos = [case["id"] for case in BACKLOG_CASES if case["status"] != "covered"]
+    return {
+        "risk": f"{len(nao_cobertos)} de {coverage['total']} funcionalidades não são totalmente verificadas.",
+        "decision": "Começar pelas que mais afetam cidadão e gestor.",
+    }
+
+
+# Created by AI.
+# Updated by AI.
+def build_interpretations(metrics: dict, suites: list[dict], coverage: dict) -> list[dict]:
+    """Gera, para cada métrica fora da faixa, uma frase de risco e uma decisão sugerida."""
+    itens: list[dict] = []
+    for metric_id, metric in metrics.items():
+        if metric["status"] == "green":
+            continue
+        if metric["status"] == "unknown" and metric_id not in {"M5", "M6"}:
+            continue
+        if metric_id == "M1":
+            leitura = _interpret_m1(metric, suites)
+        elif metric_id == "M2":
+            leitura = _interpret_m2(metric)
+        elif metric_id == "M5":
+            leitura = _interpret_m5(metric)
+        else:
+            leitura = _interpret_m6(metric)
+        itens.append({"id": metric_id, "label": BUSINESS_METRIC_LABELS[metric_id], "display": metric["display"], "status": metric["status"], **leitura})
+
+    if coverage["status"] != "green":
+        itens.append(
+            {
+                "id": "Cobertura",
+                "label": "Cobertura das funcionalidades",
+                "display": coverage["display"],
+                "status": coverage["status"],
+                **_interpret_coverage(coverage),
+            }
+        )
+    return itens
+
+
+# Created by AI.
 def _run_metadata() -> dict:
     """Monta os metadados da execução a partir do ambiente do GitHub Actions."""
     server = os.getenv("GITHUB_SERVER_URL", "https://github.com")
@@ -507,6 +643,7 @@ def _run_metadata() -> dict:
 
 
 # Created by AI.
+# Updated by AI.
 def build_payload(reports_dir: Path, runs: list[dict] | None, issues: list[dict] | None, default_branch: str) -> dict:
     """Monta o documento metrics.json consumido pelos relatórios."""
     suites = read_suites(reports_dir)
@@ -516,6 +653,7 @@ def build_payload(reports_dir: Path, runs: list[dict] | None, issues: list[dict]
         "M5": _metric_m5(runs, default_branch),
         "M6": _metric_m6(issues),
     }
+    coverage = _coverage()
     failures = [
         {"suite": suite["label"], "test": failure["test"], "detail": failure["detail"]}
         for suite in suites
@@ -532,7 +670,8 @@ def build_payload(reports_dir: Path, runs: list[dict] | None, issues: list[dict]
         "suites": suites,
         "failures": failures,
         "issues": issues or [],
-        "coverage": _coverage(),
+        "coverage": coverage,
+        "interpretations": build_interpretations(metrics, suites, coverage),
         "backlog": BACKLOG_CASES,
         "gaps": KNOWN_GAPS,
         "history": (runs or [])[: THRESHOLDS["M5"]["window"]],
@@ -540,6 +679,7 @@ def build_payload(reports_dir: Path, runs: list[dict] | None, issues: list[dict]
 
 
 # Created by AI.
+# Updated by AI.
 def render_markdown(payload: dict) -> str:
     """Gera um resumo curto em Markdown para o step summary do GitHub Actions."""
     lines = [
@@ -561,6 +701,17 @@ def render_markdown(payload: dict) -> str:
             f"**Risco de cobertura do backlog:** {payload['coverage']['display']} "
             f"({payload['coverage']['covered']} cobertos, {payload['coverage']['partial']} parciais, "
             f"{payload['coverage']['missing']} não implementados).",
+        ]
+    )
+
+    interpretations = payload.get("interpretations") or []
+    if interpretations:
+        lines.extend(["", "### Leitura de risco (métricas fora da faixa)", ""])
+        for item in interpretations:
+            lines.append(f"- **{item['label']} ({item['display']}):** {item['risk']} **Decisão sugerida:** {item['decision']}")
+
+    lines.extend(
+        [
             "",
             "Relatórios: `technical-report.html` e `business-report.html` (artefato `relatorios-qualidade`).",
         ]

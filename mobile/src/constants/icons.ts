@@ -48,6 +48,7 @@ export const Icons = {
   search: { android: 'search', ios: 'magnifyingglass', web: 'search' },
   send: { android: 'send', ios: 'paperplane.fill', web: 'send' },
   shield: { android: 'shield', ios: 'shield.fill', web: 'shield' },
+  sort: { android: 'swap_vert', ios: 'arrow.up.arrow.down', web: 'swap_vert' },
   trash: { android: 'delete', ios: 'trash.fill', web: 'delete' },
   users: { android: 'group', ios: 'person.2.fill', web: 'group' },
   warning: { android: 'warning', ios: 'exclamationmark.triangle.fill', web: 'warning' },

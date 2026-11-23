@@ -1,13 +1,15 @@
-import { Platform } from 'react-native';
-
 import { ApiError } from '@/models/api-error';
 
-const defaultBaseUrl =
-  Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
+// Updated by AI.
+const defaultBaseUrl = 'https://fiscalize-backend.onrender.com';
 
 export const baseUrl = process.env.EXPO_PUBLIC_API_BASE_URL ?? defaultBaseUrl;
 // Created by AI.
-const API_TIMEOUT_MS = 10000;
+// Updated by AI.
+// O backend publicado no Render hiberna no plano gratuito e a primeira
+// requisição pode levar até ~1 minuto; por isso o limite é maior que os 10s
+// usados quando a API roda localmente.
+const API_TIMEOUT_MS = 60000;
 
 let authToken: string | null = null;
 let refreshToken: string | null = null;
@@ -62,12 +64,12 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
       signal: controller.signal,
     });
   } catch (caught) {
-    const isTimeout = caught instanceof Error && caught.name === 'AbortError';
+    const isTimeout = isAbortError(caught);
     throw new ApiError(
       0,
       isTimeout
-        ? `A API não respondeu em ${API_TIMEOUT_MS / 1000} segundos.`
-        : `Não foi possível conectar a ${baseUrl}. O servidor está rodando?`
+        ? `A API não respondeu em ${API_TIMEOUT_MS / 1000} segundos. Se o backend estiver no Render, ele pode estar iniciando — tente novamente.`
+        : `Não foi possível conectar a ${baseUrl}. ${transportFailureReason(caught)}`
     );
   } finally {
     clearTimeout(timeoutId);
@@ -95,6 +97,7 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
 }
 
 // Created by AI.
+// Updated by AI.
 async function rotateTokens(): Promise<boolean> {
   if (refreshInFlight) return refreshInFlight;
 
@@ -108,7 +111,17 @@ async function rotateTokens(): Promise<boolean> {
       setAuthTokens(response.token, response.refreshToken);
       onTokensRotated?.(response.token, response.refreshToken);
       return true;
-    } catch {
+    } catch (caught) {
+      if (
+        !(caught instanceof ApiError) ||
+        caught.isOffline ||
+        caught.statusCode === 408 ||
+        caught.statusCode === 429 ||
+        caught.statusCode >= 500
+      ) {
+        throw caught;
+      }
+
       setAuthTokens(null, null);
       onTokensRotated?.('', '');
       return false;
@@ -118,6 +131,34 @@ async function rotateTokens(): Promise<boolean> {
   })();
 
   return refreshInFlight;
+}
+
+// Created by AI.
+/**
+ * O React Native rejeita o `fetch` abortado com um `DOMException` cujo
+ * protótipo nem sempre deriva de `Error`, então comparar com `instanceof
+ * Error` esconde o timeout e mostra o erro genérico de conexão.
+ */
+function isAbortError(caught: unknown): boolean {
+  return (
+    typeof caught === 'object' &&
+    caught !== null &&
+    'name' in caught &&
+    (caught as { name?: unknown }).name === 'AbortError'
+  );
+}
+
+// Created by AI.
+function transportFailureReason(caught: unknown): string {
+  const name =
+    typeof caught === 'object' && caught !== null && 'name' in caught
+      ? String((caught as { name?: unknown }).name)
+      : '';
+  const message = caught instanceof Error ? caught.message : '';
+
+  if (message && name) return `Falha de rede (${name}: ${message}).`;
+  if (message) return `Falha de rede (${message}).`;
+  return 'Verifique a conexão do aparelho.';
 }
 
 async function parseBody(response: Response): Promise<unknown> {

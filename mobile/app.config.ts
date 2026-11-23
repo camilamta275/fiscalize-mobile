@@ -1,7 +1,16 @@
 // Created by AI.
+// Updated by AI.
 export default () => {
-  const projectId = process.env.EXPO_PUBLIC_EAS_PROJECT_ID;
+  const projectId =
+    process.env.EXPO_PUBLIC_EAS_PROJECT_ID ?? '43b479a4-6ca8-4278-8cb4-760e16ef8ded';
   const updatesUrl = projectId ? `https://u.expo.dev/${projectId}` : undefined;
+  const googleServicesFile = process.env.GOOGLE_SERVICES_FILE;
+  const maestroDeviceId =
+    process.env.MAESTRO_E2E_BUILD === 'true' &&
+    process.env.NODE_ENV !== 'production' &&
+    process.env.EAS_BUILD_PROFILE !== 'production'
+      ? process.env.MAESTRO_E2E_DEVICE_ID?.trim()
+      : undefined;
 
   return {
     name: 'mobile',
@@ -16,6 +25,8 @@ export default () => {
     },
     android: {
       package: 'br.com.fiscalize.mobile',
+      // Updated by AI.
+      ...(googleServicesFile ? { googleServicesFile } : {}),
       adaptiveIcon: {
         backgroundColor: '#E6F4FE',
         foregroundImage: './assets/images/android-icon-foreground.png',
@@ -32,10 +43,12 @@ export default () => {
       fallbackToCacheTimeout: 0,
       ...(updatesUrl ? { url: updatesUrl } : {}),
     },
+    // Updated by AI.
     extra: {
       eas: {
         ...(projectId ? { projectId } : {}),
       },
+      ...(maestroDeviceId ? { maestroE2eDeviceId: maestroDeviceId } : {}),
     },
     plugins: [
       'expo-router',

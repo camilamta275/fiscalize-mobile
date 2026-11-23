@@ -54,10 +54,9 @@ export function ScreenHeader({
               accessibilityRole="button"
               hitSlop={Spacing.two}
               onPress={onBack}
-              style={({ pressed }) => [
+              style={[
                 styles.backButton,
                 { backgroundColor: backSurface },
-                pressed && styles.pressed,
               ]}>
               <Icon color={foreground} name={Icons.arrowLeft} size={18} />
             </Pressable>
@@ -95,6 +94,7 @@ export function ScreenHeader({
 }
 
 // Created by AI.
+// Updated by AI.
 const styles = StyleSheet.create({
   plain: {
     borderBottomWidth: 1,
@@ -127,8 +127,5 @@ const styles = StyleSheet.create({
     height: 36,
     justifyContent: 'center',
     width: 36,
-  },
-  pressed: {
-    opacity: 0.7,
   },
 });

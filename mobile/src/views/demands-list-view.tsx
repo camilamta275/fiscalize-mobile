@@ -93,6 +93,9 @@ export function DemandsListView() {
 
   const firstName = usuario?.nome.trim().split(' ')[0] ?? '';
 
+  // Created by AI.
+  const openNotifications = () => router.push('/notifications');
+
   return (
     <View style={[styles.root, { backgroundColor: theme.background }]}>
       <StatusBar style={isFocused ? 'light' : 'dark'} />
@@ -130,7 +133,17 @@ export function DemandsListView() {
                     Meus Chamados
                   </ThemedText>
                 </View>
-                <ProfileButton onGradient />
+                <View style={styles.heroActions}>
+                  <Pressable
+                    accessibilityLabel="Abrir notificações"
+                    accessibilityRole="button"
+                    hitSlop={Spacing.one}
+                    onPress={openNotifications}
+                    style={styles.notificationButton}>
+                    <Icon color="#FFFFFF" name={Icons.bell} size={19} />
+                  </Pressable>
+                  <ProfileButton onGradient />
+                </View>
               </View>
 
               <View style={[styles.search, { backgroundColor: theme.card }]}>
@@ -163,37 +176,45 @@ export function DemandsListView() {
             </GradientView>
 
             <View style={[styles.sheet, { backgroundColor: theme.background }]}>
-              <FilterSelect
-                label={statusFilter ?? 'Todos os status'}
-                onPress={() => setOpenFilter('status')}
-              />
-              <FilterSelect
-                label={
-                  categoryFilter !== null
-                    ? categories.find((category) => category.id === categoryFilter)?.nome ??
-                      'Categoria selecionada'
-                    : 'Todas as categorias'
-                }
-                onPress={() => setOpenFilter('categoria')}
-              />
-              <View style={styles.filterRow}>
-                <View style={styles.orgFilter}>
-                  <FilterSelect
-                    label={
-                      orgaoFilter
-                        ? organizations.find((organization) => organization.id === orgaoFilter)?.sigla ??
-                          'Órgão selecionado'
-                        : 'Todos os órgãos'
-                    }
-                    onPress={() => setOpenFilter('orgao')}
-                  />
+              <View style={styles.filters}>
+                <View style={styles.filterRow}>
+                  <View style={styles.filterCell}>
+                    <FilterSelect
+                      label={statusFilter ?? 'Todos os status'}
+                      onPress={() => setOpenFilter('status')}
+                    />
+                  </View>
+                  <View style={styles.filterCell}>
+                    <FilterSelect
+                      label={
+                        categoryFilter !== null
+                          ? categories.find((category) => category.id === categoryFilter)?.nome ??
+                            'Categoria selecionada'
+                          : 'Todas as categorias'
+                      }
+                      onPress={() => setOpenFilter('categoria')}
+                    />
+                  </View>
                 </View>
-                <View style={styles.sortFilter}>
-                  <FilterSelect
-                    label={SORT_OPTIONS.find((option) => option.value === sortBy)?.label ?? 'Mais recentes'}
-                    onPress={() => setOpenFilter('sort')}
-                    showSortIcon
-                  />
+                <View style={styles.filterRow}>
+                  <View style={styles.filterCell}>
+                    <FilterSelect
+                      label={
+                        orgaoFilter
+                          ? organizations.find((organization) => organization.id === orgaoFilter)?.sigla ??
+                            'Órgão selecionado'
+                          : 'Todos os órgãos'
+                      }
+                      onPress={() => setOpenFilter('orgao')}
+                    />
+                  </View>
+                  <View style={styles.filterCell}>
+                    <FilterSelect
+                      label={SORT_OPTIONS.find((option) => option.value === sortBy)?.label ?? 'Mais recentes'}
+                      onPress={() => setOpenFilter('sort')}
+                      showSortIcon
+                    />
+                  </View>
                 </View>
               </View>
 
@@ -264,8 +285,13 @@ export function DemandsListView() {
         <Pressable
           accessibilityLabel="Registrar nova ocorrência"
           accessibilityRole="button"
+          android_ripple={{ color: 'rgba(255, 255, 255, 0.25)' }}
           onPress={() => router.push('/new')}
-          style={({ pressed }) => [
+          // Updated by AI. Static style array on purpose: with the NativeWind
+          // JSX transform the `style={({ pressed }) => ...}` callback was being
+          // dropped, so the FAB lost its position/size and rendered as a
+          // full-width, invisible strip at the bottom of the screen.
+          style={[
             styles.fab,
             Shadows.floating,
             {
@@ -273,7 +299,6 @@ export function DemandsListView() {
               bottom: insets.bottom + Spacing.four,
               shadowColor: theme.shadow,
             },
-            pressed && styles.pressed,
           ]}>
           <Icon color={theme.primaryForeground} name={Icons.plus} size={26} />
         </Pressable>
@@ -340,6 +365,7 @@ export function DemandsListView() {
 }
 
 // Created by AI.
+// Updated by AI.
 function FilterSelect({ label, onPress, showSortIcon = false }: { label: string; onPress: () => void; showSortIcon?: boolean }) {
   const theme = useTheme();
 
@@ -347,9 +373,18 @@ function FilterSelect({ label, onPress, showSortIcon = false }: { label: string;
     <Pressable
       accessibilityRole="button"
       onPress={onPress}
-      style={({ pressed }) => [styles.filterSelect, { borderColor: theme.border }, pressed && styles.pressed]}>
-      <ThemedText style={styles.filterLabel} type="default">{label}</ThemedText>
-      <Icon color={theme.mutedForeground} name={showSortIcon ? Icons.refresh : Icons.chevronDown} size={18} />
+      style={[
+        styles.filterSelect,
+        {
+          backgroundColor: theme.card,
+          borderColor: theme.borderStrong,
+          borderWidth: 1,
+        },
+      ]}>
+      <ThemedText numberOfLines={1} style={styles.filterLabel} type="default">
+        {label}
+      </ThemedText>
+      <Icon color={theme.mutedForeground} name={showSortIcon ? Icons.sort : Icons.chevronDown} size={16} />
     </Pressable>
   );
 }
@@ -423,6 +458,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
+  heroActions: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: Spacing.two,
+  },
+  notificationButton: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    borderColor: 'rgba(255,255,255,0.35)',
+    borderRadius: Radius.pill,
+    borderWidth: 1,
+    height: 38,
+    justifyContent: 'center',
+    width: 38,
+  },
   greeting: {
     gap: 2,
   },
@@ -435,15 +485,16 @@ const styles = StyleSheet.create({
   },
   search: {
     alignItems: 'center',
-    borderRadius: Radius.md,
+    borderRadius: Radius.lg,
     flexDirection: 'row',
     gap: Spacing.two,
+    minHeight: 48,
     paddingHorizontal: Spacing.three,
-    paddingVertical: 10,
+    paddingVertical: Spacing.two,
   },
   searchInput: {
     flex: 1,
-    fontSize: 14,
+    fontSize: 15,
     padding: 0,
   },
   sheet: {
@@ -454,15 +505,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     paddingTop: Spacing.three,
   },
+  filters: {
+    gap: Spacing.two,
+  },
   filterRow: {
     flexDirection: 'row',
     gap: Spacing.two,
   },
-  orgFilter: {
+  filterCell: {
     flex: 1,
-  },
-  sortFilter: {
-    width: 150,
   },
   filterSelect: {
     alignItems: 'center',
@@ -470,12 +521,15 @@ const styles = StyleSheet.create({
     borderRadius: Radius.md,
     borderWidth: 1,
     flexDirection: 'row',
+    gap: Spacing.one,
     justifyContent: 'space-between',
-    minHeight: 48,
-    paddingHorizontal: Spacing.three,
+    minHeight: 40,
+    paddingHorizontal: Spacing.two + 2,
   },
   filterLabel: {
     flexShrink: 1,
+    fontSize: 14,
+    lineHeight: 20,
   },
   modalBackdrop: {
     alignItems: 'center',
@@ -531,8 +585,5 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: Spacing.four,
     width: 56,
-  },
-  pressed: {
-    opacity: 0.8,
   },
 });

@@ -1,13 +1,15 @@
+altair
 black
+pytest
 requests
 pymongo
 python-dotenv
 pandas
 pyspark==4.0.1
 beautifulsoup4
-sqlalchemy 
+sqlalchemy
 psycopg2-binary
-prefect
+prefect>=3.1.16  # Updated by AI.
 psycopg[binary]
 # Updated by AI.
 streamlit
