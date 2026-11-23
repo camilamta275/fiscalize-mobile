@@ -132,10 +132,14 @@ npm install
 cp .env.example .env
 ```
 
-Abra o `.env` e ajuste `EXPO_PUBLIC_API_BASE_URL` conforme onde você for testar (o próprio arquivo explica cada caso):
-   - Emulador Android → `http://10.0.2.2:3000` (já é o padrão, não precisa mexer)
-   - Simulador iOS → `http://localhost:3000` (também já é o padrão)
-   - **Celular físico** (o caso mais comum) → o IP da sua máquina na rede local, ex: `http://192.168.0.10:3000`. Descubra o seu com `ipconfig getifaddr en0` (macOS) ou `ipconfig` (Windows, procure por "Endereço IPv4"). Esse IP muda se você trocar de Wi-Fi — é só atualizar o `.env` de novo quando isso acontecer.
+O padrão já aponta para o backend publicado em `https://fiscalize-backend.onrender.com`, então funciona no emulador, no simulador e em celular físico sem precisar do backend local.
+
+Para testar contra a API local (passo 4 abaixo), ajuste `EXPO_PUBLIC_API_BASE_URL` no `.env`:
+   - Emulador Android → `http://10.0.2.2:3000`
+   - Simulador iOS → `http://localhost:3000`
+   - **Celular físico** → o IP da sua máquina na rede local, ex: `http://192.168.0.10:3000`. Descubra o seu com `ipconfig getifaddr en0` (macOS) ou `ipconfig` (Windows, procure por "Endereço IPv4"). Esse IP muda se você trocar de Wi-Fi — é só atualizar o `.env` de novo quando isso acontecer.
+
+> No plano gratuito do Render a API hiberna sem uso e a primeira requisição pode demorar até ~1 minuto para responder.
 
 4. Suba o backend (em outro terminal — veja o [README do backend](./backend/README.md) para configurar banco de dados e seed):
 
@@ -187,7 +191,7 @@ As instruções completas (banco de dados, migrações e seed) estão no [README
 
 ### Configurar o endereço da API
 
-O app mobile aponta para o backend pela variável `EXPO_PUBLIC_API_BASE_URL` — veja o passo 3 de [Como Executar o Projeto](#-como-executar-o-projeto) para os valores certos em cada cenário (emulador, simulador ou celular físico).
+O app mobile aponta para o backend publicado em `https://fiscalize-backend.onrender.com` por padrão (definido em `mobile/src/services/api-client.ts`). Para usar a API local, defina `EXPO_PUBLIC_API_BASE_URL` — veja o passo 3 de [Como Executar o Projeto](#-como-executar-o-projeto).
 
 > Nunca adicione senhas, tokens ou outras credenciais diretamente ao repositório.
 

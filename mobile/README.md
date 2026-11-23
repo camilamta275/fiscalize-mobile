@@ -69,8 +69,15 @@ npx eas build --platform ios --profile production
 npx eas build --platform android --profile development
 ```
 
-Defina `EXPO_PUBLIC_API_BASE_URL` com o endereço da API **no momento do
-build**: a URL fica embutida no bundle.
+Por padrão o app usa a API publicada em `https://fiscalize-backend.onrender.com`
+(valor embutido no bundle por `mobile/src/services/api-client.ts`). Para
+apontar para outra instância — inclusive a local — defina
+`EXPO_PUBLIC_API_BASE_URL` **no momento do build**, porque a URL fica embutida
+no bundle:
+
+```bash
+EXPO_PUBLIC_API_BASE_URL=http://localhost:3000 npx eas build --platform android --profile preview
+```
 
 ### Build local (sem EAS)
 

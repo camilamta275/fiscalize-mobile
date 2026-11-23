@@ -47,10 +47,9 @@ export function DemandOptionsMenu({
         accessibilityRole="button"
         hitSlop={Spacing.two}
         onPress={() => setMenuOpen(true)}
-        style={({ pressed }) => [
+        style={[
           styles.kebab,
           { backgroundColor: theme.backgroundElement },
-          pressed && styles.pressed,
         ]}>
         <Icon color={theme.textSecondary} name={Icons.more} size={18} />
       </Pressable>
@@ -79,7 +78,7 @@ export function DemandOptionsMenu({
                 setMenuOpen(false);
                 setConfirmOpen(true);
               }}
-              style={({ pressed }) => [styles.menuRow, pressed && styles.pressed]}>
+              style={[styles.menuRow]}>
               <Icon color={theme.destructive} name={Icons.trash} size={16} />
               <ThemedText style={{ color: theme.destructive }} type="smallBold">
                 Excluir chamado

@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, type StyleProp, type ViewProps, type ViewStyle } from 'react-native';
+import { Pressable, StyleSheet, View, type StyleProp, type ViewProps, type ViewStyle } from 'react-native';
 
-import { Card as GlueCard } from '@/components/gluestack/card';
 import { Radius, Shadows, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -45,9 +44,12 @@ export function Card({ children, onPress, padded = true, style, tone = 'default'
     gold: theme.gold,
   }[tone];
 
+  // Updated by AI. A plain View on purpose. This used to be the gluestack Card
+  // with `className="gap-0"`: the NativeWind className won over the caller's
+  // `style.gap`, so every Card lost the spacing between its children (avatar
+  // glued to the name, labels glued to section titles, tiles with no gap).
   const content = (
-    <GlueCard
-      className="gap-0"
+    <View
       style={[
         styles.base,
         Shadows.card,
@@ -62,7 +64,7 @@ export function Card({ children, onPress, padded = true, style, tone = 'default'
       ]}
       {...rest}>
       {children}
-    </GlueCard>
+    </View>
   );
 
   if (!onPress) return content;
