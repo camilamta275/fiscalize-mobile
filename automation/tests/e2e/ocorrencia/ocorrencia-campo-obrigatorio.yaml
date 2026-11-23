@@ -1,0 +1,45 @@
+# Created by AI.
+# TC05 / TS05 - tentativa de envio de ocorrência sem preencher o campo obrigatório título.
+appId: br.com.fiscalize.mobile
+env:
+  CIDADAO_EMAIL: cidadao@fiscalize.gov.br
+  CIDADAO_SENHA: Cidadao@123456
+
+---
+- launchApp:
+    clearState: true
+
+- tapOn:
+    id: "login-email"
+- inputText: ${CIDADAO_EMAIL}
+- tapOn:
+    id: "login-password"
+- inputText: ${CIDADAO_SENHA}
+- hideKeyboard
+- tapOn:
+    id: "login-submit"
+- extendedWaitUntil:
+    visible: "Meus Chamados"
+    timeout: 15000
+
+- tapOn: "Registrar nova ocorrência"
+- assertVisible: "Registre um problema urbano"
+- assertVisible:
+    id: "demand-title"
+
+- scrollUntilVisible:
+    element:
+      id: "demand-submit"
+- tapOn:
+    id: "demand-submit"
+
+- scrollUntilVisible:
+    element:
+      id: "demand-title"
+    direction: UP
+- extendedWaitUntil:
+    visible: "Título deve ter no mínimo 5 caracteres"
+    timeout: 10000
+- assertVisible: "Descrição deve ter no mínimo 20 caracteres"
+- assertVisible: "Selecione uma categoria"
+- assertNotVisible: "Ocorrência registrada!"

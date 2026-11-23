@@ -77,6 +77,12 @@ appId: br.com.fiscalize.mobile
 - inputText: "50050000"
 - hideKeyboard
 - extendedWaitUntil:
+    visible: "Rua da Aurora"
+    timeout: 20000
+- extendedWaitUntil:
+    notVisible: "Calculando…"
+    timeout: 20000
+- extendedWaitUntil:
     visible: "Preenchida automaticamente"
     timeout: 30000
 

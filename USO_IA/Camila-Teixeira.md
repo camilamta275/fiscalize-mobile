@@ -85,3 +85,27 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** resolução de conflito e validação da árvore integrada.
 - **Tipo de contribuição da IA:** seleção do gitlink do submódulo da branch principal e atualização do registro obrigatório de uso de IA.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0007
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Camila Teixeira
+- **Arquivo / Arquivos alterado(s):** `automation/tests/e2e/ocorrencia/ocorrencia-campo-obrigatorio.yaml`, `automation/tests/test_maestro_ci.py`, `automation/README.md`, `RELATORIO_TESTE_E2E.md`, `USO_IA/Camila-Teixeira.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Ampliei a suíte E2E com fluxo negativo para campo obrigatório, validei descoberta e documentei a execução bloqueada por ambiente.
+- **Tratamento de dados pessoais:** Não houve; foram usados apenas credenciais sintéticas do seed do projeto.
+- **Alterado pela IA (nome da IA, versão da IA):** GitHub Copilot usando Copilot SDK no VS Code; versão não disponibilizada nesta sessão.
+- **Finalidade do uso da IA:** implementar e documentar a pendência E3 com cenário negativo Maestro sem substituir a execução por API.
+- **Etapa da atividade:** análise, implementação, validação da descoberta e documentação.
+- **Tipo de contribuição da IA:** criação do fluxo de campo obrigatório, ajuste da descoberta da suíte, validação automatizada e relatório de evidências.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0008
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Camila Teixeira
+- **Arquivo / Arquivos alterado(s):** `automation/tests/e2e/ocorrencia/ocorrencia-campo-obrigatorio.yaml`, `automation/tests/e2e/ocorrencia/ocorrencia-descricao-minima.yaml`, `automation/tests/e2e/ocorrencia/ocorrencia-protocolo.yaml`, `automation/tests/e2e/fluxo/fluxo-1-registrar-chamado.yaml`, fluxos de login sem estado inicial explícito, `automation/scripts/run_maestro_e2e.py`, `automation/tests/test_maestro_ci.py`, `.github/scripts/run-maestro-e2e.sh`, `.github/workflows/e2e.yml`, `automation/README.md`, `RELATORIO_TESTE_E2E.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Corrigi esperas, estado, TC02, testIDs e integração dos 16 YAML Maestro com o workflow E2E.
+- **Tratamento de dados pessoais:** Não houve; somente credenciais sintéticas e referências a secrets já configurados foram usadas.
+- **Alterado pela IA (nome da IA, versão da IA):** GitHub Copilot usando Copilot SDK no VS Code; versão não disponibilizada nesta sessão.
+- **Finalidade do uso da IA:** tornar a suíte Maestro mais confiável e integrar sua execução ao GitHub Actions.
+- **Etapa da atividade:** revisão prévia, correção de cenários, ajuste do runner e workflow, validação automatizada e documentação.
+- **Tipo de contribuição da IA:** análise de seletor e histórico, correção de testes YAML, validação de testIDs, integração de scripts de CI e registro das evidências.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
