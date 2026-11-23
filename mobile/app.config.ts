@@ -1,10 +1,19 @@
+import { existsSync } from 'node:fs';
+import path from 'node:path';
+
 // Created by AI.
 // Updated by AI.
 export default () => {
   const projectId =
     process.env.EXPO_PUBLIC_EAS_PROJECT_ID ?? '43b479a4-6ca8-4278-8cb4-760e16ef8ded';
   const updatesUrl = projectId ? `https://u.expo.dev/${projectId}` : undefined;
-  const googleServicesFile = process.env.GOOGLE_SERVICES_FILE;
+  // GOOGLE_SERVICES_FILE (segredo de arquivo no EAS) tem prioridade; localmente
+  // usa ./google-services.json se existir (arquivo ignorado pelo git).
+  const googleServicesFile =
+    process.env.GOOGLE_SERVICES_FILE ??
+    (existsSync(path.join(__dirname, 'google-services.json'))
+      ? './google-services.json'
+      : undefined);
   const maestroDeviceId =
     process.env.MAESTRO_E2E_BUILD === 'true' &&
     process.env.NODE_ENV !== 'production' &&
@@ -13,7 +22,7 @@ export default () => {
       : undefined;
 
   return {
-    name: 'mobile',
+    name: 'Fiscalize',
     slug: 'mobile',
     version: '1.0.0',
     orientation: 'portrait',
@@ -21,14 +30,14 @@ export default () => {
     scheme: 'mobile',
     userInterfaceStyle: 'automatic',
     ios: {
-      icon: './assets/expo.icon',
+      icon: './assets/images/icon.png',
     },
     android: {
       package: 'br.com.fiscalize.mobile',
       // Updated by AI.
       ...(googleServicesFile ? { googleServicesFile } : {}),
       adaptiveIcon: {
-        backgroundColor: '#E6F4FE',
+        backgroundColor: '#208AEF',
         foregroundImage: './assets/images/android-icon-foreground.png',
         backgroundImage: './assets/images/android-icon-background.png',
         monochromeImage: './assets/images/android-icon-monochrome.png',
