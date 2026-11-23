@@ -151,6 +151,7 @@ def _view(payload: dict) -> dict:
             for case in payload["backlog"]
         ],
         "interpretations": payload.get("interpretations", []),
+        "release": payload.get("release"),
         "history": payload["history"],
         "run": payload["run"],
         "generated_at": payload["generated_at"],
