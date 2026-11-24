@@ -26,6 +26,7 @@ export default function AppLayout() {
       <Stack.Screen name="profile" />
       <Stack.Screen name="profile/edit" />
       <Stack.Screen name="profile/security" />
+      <Stack.Screen name="profile/notification-settings" />
       <Stack.Screen name="profile/dashboard" />
       <Stack.Screen name="profile/metrics" />
     </Stack>

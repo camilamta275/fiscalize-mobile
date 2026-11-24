@@ -93,3 +93,11 @@ automation/reports/
 *.log
 
 citycare-routing-hub-main/
+# Created by AI.
+# Backups do banco (RNF-SEC-15): nunca versionar dumps, nem cifrados.
+backups/
+*.dump
+*.dump.gpg
+*.dump.gpg.sha256
+*.dump.gpg.partial
+/Users/rrsm/Documents/Project/fiscalize-mobile/mobile/fiscalize-01-firebase-adminsdk-fbsvc-98c57e83f1.json

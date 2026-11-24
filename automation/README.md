@@ -64,6 +64,12 @@ minuto fora da hora cheia, e a regressão também pode ser disparada manualmente
 em **Actions > Regressão > Run workflow**. Os relatórios de cada execução e a
 issue automática de falha estão descritos em [Execution reports](#execution-reports).
 
+A política de manutenção da TAS está em [docs/tas.md](../docs/tas.md). Registre
+demandas manuais pelo [formulário de manutenção](../.github/ISSUE_TEMPLATE/tas-manutencao.yml);
+falhas de CI continuam sendo abertas/atualizadas automaticamente com o rótulo
+`falha-ci`. A [demonstração simulada](../docs/evidencias/manutencao-tas-simulada.md)
+mostra o registro, a classificação e o encaminhamento.
+
 Configure a proteção da branch principal no GitHub em **Settings > Branches >
 Branch protection rules** (ou em **Rulesets**) com as seguintes opções:
 
@@ -141,64 +147,77 @@ sem a migration de MFA, os cenários afetados são *skipped* com mensagem acion�
 `FISCALIZE_TEST_TOKEN` reaproveita um token obtido à mão e
 `FISCALIZE_TEST_DEVICE_ID` muda o sufixo do identificador de dispositivo.
 
-## 7. Executando os testes E2E mobile
+## 7. Execução dos fluxos E2E Maestro
 
-Os fluxos E2E mobile usam o Maestro e ficam em
-[`tests/e2e/`](tests/e2e/). Com o aplicativo instalado no dispositivo ou
-emulador, execute o fluxo de navegação do cadastro com:
+Os 16 fluxos mobile ficam em [`tests/e2e/`](tests/e2e/). O runner executa todos
+em sequência por padrão, aceita caminhos individuais e grava relatório JUnit,
+logs e evidências por fluxo em `automation/reports/maestro/`.
+
+### Execução local
+
+Instale dependências da automação e deixe o backend com migrações e seed ativos.
+Instale/build o app em um emulador Android e garanta que o Maestro esteja no
+`PATH`. Forneça as credenciais de contas de teste pelo ambiente do terminal:
 
 ```bash
-maestro test tests/e2e/register/register-navigation.yaml
+export MAESTRO_TC02_EMAIL="<email de teste>"
+export MAESTRO_TC03_EMAIL="<email de teste>"
+export MAESTRO_TC03_PASSWORD="<senha de teste>"
+export MAESTRO_TC06_EMAIL="<email de gestor de teste>"
+export MAESTRO_TC06_PASSWORD="<senha de gestor de teste>"
+
+cd mobile
+npm ci
+npx expo run:android
 ```
 
-O fluxo valida a navegação da tela de login para o cadastro e a abertura e o
-fechamento da Política de Privacidade, sem depender de credenciais ou de dados
-persistidos no backend.
-## 7. Execução do Maestro
-
-Este runner cobre apenas os cenários sob responsabilidade desta implementação:
-
-- TC02 / senha incorreta para usuário existente;
-- teste complementar de conta inexistente;
-- login do gestor como cobertura complementar mobile.
-
-
-### Variáveis exigidas por fluxo
-
-O script valida apenas as variáveis necessárias para os arquivos selecionados:
-
-- `MAESTRO_TC02_EMAIL` — exigida somente para `login-senha-incorreta-usuario-existente.yaml`;
-- `MAESTRO_TC06_EMAIL` — exigida somente para `login-gestor.yaml`;
-- `MAESTRO_TC06_PASSWORD` — exigida somente para `login-gestor.yaml`;
-- `login-senha-incorreta.yaml` não exige credenciais porque usa um e-mail inexistente e senha fixa literais no YAML.
-
-As variáveis devem ser fornecidas no ambiente do processo que executa o Maestro; o script não lê nem grava segredos em arquivos versionados, e não imprime senhas, hashes, tokens ou URLs com credenciais.
-
-### Requisitos de ambiente
-
-Antes da execução real, o ambiente local precisa ter o Maestro disponível no PATH. Este runner não executa banco, migrações nem seed, e não instala dependências automaticamente.
-
-### Execução do dry-run
+Em outro terminal:
 
 ```bash
 cd automation
 python scripts/run_maestro_e2e.py --dry-run
+python scripts/run_maestro_e2e.py
 ```
 
-O `--dry-run` valida os arquivos selecionados, mostra as etapas previstas e interrompe antes de qualquer execução do Maestro. Ele não altera o banco, não executa migrações nem seed e não exige segredos.
-
-### Execução real (somente após validação manual)
+Para executar um fluxo isolado, passe seu caminho relativo à raiz do repositório:
 
 ```bash
-cd automation
-python scripts/run_maestro_e2e.py automation/tests/e2e/login/login-senha-incorreta-usuario-existente.yaml automation/tests/e2e/login/login-senha-incorreta.yaml automation/tests/e2e/login/login-gestor.yaml
+python scripts/run_maestro_e2e.py automation/tests/e2e/login/login-gestor.yaml
 ```
 
-A execução real deve acontecer somente em ambiente validado e com o Maestro disponível no PATH. O runner não executa `npm install`, `prisma migrate deploy`, `npm run seed` ou qualquer preparação de banco; essas etapas ficam fora do escopo deste script.
+O fluxo do gestor exige que o dispositivo já esteja confiável. Em execução local,
+conclua o login e o OTP reais no app e não limpe os dados do aplicativo antes de
+executar o fluxo. O preflight que recupera o OTP do PostgreSQL é exclusivo do
+GitHub Actions.
 
-### Observações sobre o Maestro
+### Execução no GitHub Actions
 
-Com base na versão instalada do CLI, o comando `maestro test` aceita `-e/--env` para injetar variáveis de ambiente no fluxo e o YAML lê esses valores com `${NOME_DA_VARIAVEL}`. Este runner injeta as variáveis no ambiente do processo filho para evitar expor segredos na linha de comando visível do sistema.
+Os jobs de API (push/pull request) e regressão (agendamento/execução manual)
+reutilizam o backend e o PostgreSQL efêmero já provisionados pelo workflow. Eles
+instalam SDK Android 36, iniciam um emulador API 34, compilam/instalam o app em
+modo debug, iniciam o Metro e executam sequencialmente os 16 fluxos Maestro.
+Para o emulador, a API fica disponível em `http://10.0.2.2:3000`.
+Antes de cada fluxo, a CI limpa os dados locais do app para isolar sessões; o
+identificador E2E estável mantém a confiança do dispositivo no backend.
+
+Configure estes GitHub Secrets com as contas de teste correspondentes ao seed:
+
+- `MAESTRO_TC02_EMAIL`
+- `MAESTRO_TC03_EMAIL` e `MAESTRO_TC03_PASSWORD`
+- `MAESTRO_TC06_EMAIL` e `MAESTRO_TC06_PASSWORD`
+
+Antes do login do gestor, um preflight usa `POST /auth/login`, recupera o OTP
+somente do PostgreSQL local efêmero e chama `POST /auth/2fa/verify` com o mesmo
+identificador de dispositivo do app. O identificador determinístico só é incluído
+na configuração Expo do build/Metro Maestro de debug; builds de produção não
+recebem essa configuração. Em `NODE_ENV=test`, o backend não grava OTP nos logs.
+O código não é impresso nem incluído nos artefatos.
+
+O workflow publica JUnit, logs e evidências Maestro mesmo quando um fluxo falha.
+Em pull requests de forks, GitHub não disponibiliza os Secrets; nesses casos, a
+validação prévia de variáveis falha explicitamente e os fluxos não são executados.
+O Maestro CLI lê automaticamente variáveis do processo com prefixo `MAESTRO_`;
+o runner não coloca valores secretos nos argumentos da linha de comando.
 
 ## 7.1 Suíte E2E: registrar, acompanhar e notificar
 
@@ -210,6 +229,17 @@ A suíte E2E roda o app Android real (emulador) integrado ao backend real, sem m
 3. `fluxo-2-acompanhar-notificar.yaml`: o cidadão vê o novo status na lista, recebe a notificação "Status da ocorrência atualizado" e **não** vê a ação "Atualizar status", exclusiva do Gestor (cenário negativo pela interface, equivalente ao 403 da API).
 
 Os demais fluxos Maestro (`login/`, `cadastro/`, `ocorrencia/`, `perfil/`, `register/`) cobrem cenários isolados, incluindo os negativos de login (senha incorreta, e-mail e senha inválidos).
+
+O fluxo `ocorrencia/ocorrencia-campo-obrigatorio.yaml` cobre um cenário negativo
+direto no app: ao tentar criar uma ocorrência sem informar o título, o Maestro
+verifica as mensagens de validação e confirma que o fluxo de registro não é concluído.
+
+Os YAML standalone são executados pelo runner
+`automation/scripts/run_maestro_e2e.py`. O workflow `.github/workflows/e2e.yml`
+reutiliza `.github/scripts/run-maestro-e2e.sh`, que prepara PostgreSQL, backend,
+app Android, dispositivo MFA confiável e chama o runner com `--reset-app-state`.
+Após os 16 fluxos, o mesmo emulador executa os dois testes Pytest existentes
+de fluxo integrado e bloqueio de API.
 
 Execução local, com emulador ligado, app instalado e backend com seed:
 
@@ -229,7 +259,8 @@ caminhos `--html`/`--junitxml`, que sobrescrevem esses padrões para manter um
 relatório por job.
 
 O workflow publica esses arquivos como artefatos, com a estrutura
-`fiscalize-mobile/reports/` e, nos jobs de API, o log do backend. O
+`fiscalize-mobile/reports/` e, nos jobs de API, o log do backend e as evidências
+Maestro por fluxo. O
 `junit_summary.py` transforma os XML em tabela Markdown no resumo da execução, o
 `jest_to_junit.py` converte o JSON do Jest em JUnit XML e, quando um job falha, o
 workflow abre ou atualiza uma issue `falha-ci` com o link da execução e dos

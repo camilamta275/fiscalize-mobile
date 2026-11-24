@@ -33,6 +33,9 @@ yarn-error.*
 # local env files
 .env*.local
 
+# Updated by AI.
+google-services.json
+
 # typescript
 *.tsbuildinfo
 
@@ -41,3 +44,4 @@ example
 # generated native folders
 /ios
 /android
+/Users/rrsm/Documents/Project/fiscalize-mobile/mobile/fiscalize-01-firebase-adminsdk-fbsvc-98c57e83f1.json

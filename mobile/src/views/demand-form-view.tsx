@@ -220,14 +220,17 @@ export function DemandFormView({ demandId }: { demandId?: string }) {
                     accessibilityRole="button"
                     accessibilityState={{ selected }}
                     key={category.id}
+                    android_ripple={{ color: theme.primarySoft }}
                     onPress={() => setCategoryId(category.id)}
-                    style={({ pressed }) => [
+                    // Updated by AI. Static style array: the NativeWind JSX
+                    // transform drops `style` callbacks on Pressable, which left
+                    // the tiles without border, padding or grid width.
+                    style={[
                       styles.categoryTile,
                       {
                         backgroundColor: selected ? theme.primarySoft : theme.background,
                         borderColor: selected ? theme.primary : theme.border,
                       },
-                      pressed && styles.pressed,
                     ]}>
                     <CategoryEmoji name={category.nome} size={22} />
                     <ThemedText
@@ -236,6 +239,15 @@ export function DemandFormView({ demandId }: { demandId?: string }) {
                       type="smallBold">
                       {category.nome}
                     </ThemedText>
+                    {category.descricao ? (
+                      <ThemedText
+                        numberOfLines={3}
+                        style={styles.categoryDescription}
+                        themeColor="mutedForeground"
+                        type="caption">
+                        {category.descricao}
+                      </ThemedText>
+                    ) : null}
                     {selected ? (
                       <View style={[styles.checkBadge, { backgroundColor: theme.primary }]}>
                         <Icon color={theme.primaryForeground} name={Icons.check} size={10} />
@@ -288,12 +300,10 @@ export function DemandFormView({ demandId }: { demandId?: string }) {
             ) : (
               <Pressable
                 accessibilityRole="button"
+                android_ripple={{ color: theme.primarySoft }}
                 onPress={() => setIsCameraOpen(true)}
-                style={({ pressed }) => [
-                  styles.photoDropzone,
-                  { borderColor: theme.border },
-                  pressed && styles.pressed,
-                ]}>
+                // Updated by AI. Static style array (see the category tiles above).
+                style={[styles.photoDropzone, { borderColor: theme.border }]}>
                 <View style={[styles.dropzoneIcon, { backgroundColor: theme.primarySoft }]}>
                   <Icon color={theme.primary} name={Icons.camera} size={22} />
                 </View>
@@ -385,6 +395,9 @@ const styles = StyleSheet.create({
     minHeight: 92,
     padding: Spacing.two,
   },
+  categoryDescription: {
+    textAlign: 'center',
+  },
   checkBadge: {
     alignItems: 'center',
     borderRadius: Radius.pill,
@@ -418,9 +431,6 @@ const styles = StyleSheet.create({
   },
   blockedCard: {
     gap: Spacing.three,
-  },
-  pressed: {
-    opacity: 0.8,
   },
   centered: {
     textAlign: 'center',

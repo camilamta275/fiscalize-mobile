@@ -175,7 +175,7 @@ export function ProfileSecurityView() {
               setFeedback(null);
               setModal('change-password');
             }}
-            style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
+            style={[styles.row]}>
             <View style={[styles.rowIcon, { backgroundColor: theme.primarySoft }]}>
               <Icon color={theme.primary} name={Icons.lock} size={18} />
             </View>

@@ -1,6 +1,9 @@
-# Welcome to your Expo app 👋
+<!-- Updated by AI. -->
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+# Fiscalize Mobile
+
+Aplicativo Expo/React Native com NativeWind e GlueStack UI para estilização e
+componentes reutilizáveis.
 
 ## Get started
 
@@ -34,6 +37,109 @@ npm run reset-project
 ```
 
 This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+
+## Gerar builds
+
+O caminho principal de entrega é o EAS Build. O perfil `preview` gera um **APK
+Android instalável**; o `production` gera o binário de loja.
+
+Pré-requisitos: Node 20+, `npm install`, conta Expo e sessão iniciada
+(`npx eas login`) ou `EXPO_TOKEN` exportado.
+
+| Perfil (`eas.json`) | Distribuição | Saída |
+|---|---|---|
+| `development` | Interna, com `developmentClient` | Dev client |
+| `preview` | Interna | APK Android / simulador iOS |
+| `production` | Loja | AAB Android / IPA iOS |
+
+```bash
+cd mobile
+npm install
+npx eas login            # ou: export EXPO_TOKEN=...
+npx eas whoami
+
+# APK Android para teste interno
+npx eas build --platform android --profile preview
+
+# Produção (AAB Android e IPA iOS)
+npx eas build --platform android --profile production
+npx eas build --platform ios --profile production
+
+# Development client
+npx eas build --platform android --profile development
+```
+
+Por padrão o app usa a API publicada em `https://fiscalize-backend.onrender.com`
+(valor embutido no bundle por `mobile/src/services/api-client.ts`). Para
+apontar para outra instância — inclusive a local — defina
+`EXPO_PUBLIC_API_BASE_URL` **no momento do build**, porque a URL fica embutida
+no bundle:
+
+```bash
+EXPO_PUBLIC_API_BASE_URL=http://localhost:3000 npx eas build --platform android --profile preview
+```
+
+### Build local (sem EAS)
+
+Requer Android SDK e JDK 21:
+
+```bash
+cd mobile
+npx expo prebuild --platform android
+cd android && ./gradlew assembleRelease
+# saída: android/app/build/outputs/apk/release/app-release.apk
+```
+
+Para debug rápido no emulador/dispositivo: `npx expo run:android`.
+
+### Build na CI
+
+- `.github/workflows/e2e.yml` — `expo prebuild` + `gradlew assembleRelease`,
+  instala o APK no emulador e roda os fluxos Maestro.
+- `.github/workflows/regressao.yml` — unidade, API e smoke a cada push/PR.
+
+### Limitações
+
+- Build iOS exige credenciais Apple (conta Apple Developer).
+- Push real exige `EXPO_ACCESS_TOKEN` configurado no backend.
+- Actualizações OTA usam `EXPO_PUBLIC_EAS_PROJECT_ID` (ver seção abaixo).
+
+### Notificações push no Android
+
+O Firebase precisa de um arquivo de configuração para o pacote Android
+`br.com.fiscalize.mobile`:
+
+1. Registre esse package name como um app Android no projeto Firebase.
+2. Baixe o `google-services.json` e coloque-o em `mobile/google-services.json`.
+   O arquivo é local e está ignorado pelo Git; não o publique nem o cole no chat.
+3. Configure `GOOGLE_SERVICES_FILE=./google-services.json` ao compilar. O
+   `app.config.ts` usa esse caminho na configuração nativa:
+
+   ```bash
+   cd mobile
+   GOOGLE_SERVICES_FILE=./google-services.json npx expo run:android
+   ```
+
+4. Para builds EAS, cadastre `GOOGLE_SERVICES_FILE` como variável de arquivo
+   protegida no projeto EAS.
+5. Para envio remoto pelo Expo Push Service, configure também as credenciais FCM
+   v1 do projeto Expo/EAS conforme o [guia de credenciais FCM](https://docs.expo.dev/push-notifications/fcm-credentials/).
+
+## Atualizações e funcionamento offline
+
+O app usa `expo-updates` com runtime baseado na versão do aplicativo. Para
+builds EAS, configure `EXPO_PUBLIC_EAS_PROJECT_ID` com o ID do projeto Expo;
+os perfis `development`, `preview` e `production` usam canais homônimos.
+
+```bash
+set EXPO_PUBLIC_EAS_PROJECT_ID=seu-project-id
+npx eas update --channel preview --message "Atualização do app"
+```
+
+O token e o refresh token permanecem no `SecureStore`. A última lista e os
+detalhes de demandas são persistidos no `AsyncStorage`, isolados por usuário.
+Sem rede, o app mantém a sessão e exibe a última consulta disponível; criação,
+edição, exclusão e alterações de status continuam exigindo conexão.
 
 ### Other setup steps
 

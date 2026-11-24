@@ -2,6 +2,7 @@ import {
   createContext,
   use,
   useCallback,
+  useEffect,
   useMemo,
   useState,
   type PropsWithChildren,
@@ -15,6 +16,7 @@ import type {
   DemandStatusUpdate,
 } from '@/models/demand';
 import { useSession } from '@/contexts/session-context';
+import { readJson, writeJson } from '@/services/local-storage-service';
 import * as demandService from '@/services/demand-service';
 
 /**
@@ -37,7 +39,8 @@ import * as demandService from '@/services/demand-service';
  */
 
 // Created by AI.
-type DemandListState = {
+// Updated by AI.
+export type DemandListState = {
   key: string;
   items: Demand[];
   page: number;
@@ -45,9 +48,20 @@ type DemandListState = {
 };
 
 // Created by AI.
+type DemandCacheSnapshot = {
+  list: DemandListState | null;
+  details: Record<string, DemandDetail>;
+  cachedAt: string;
+};
+
+// Created by AI.
+// Updated by AI.
 type DemandContextValue = {
   list: DemandListState | null;
   isListStale: boolean;
+  isCacheHydrating: boolean;
+  cachedAt: string | null;
+  cacheError: string | null;
   // `DemandDetail` only adds optional fields, so a list item is a valid one.
   getCached: (id: string) => DemandDetail | null;
   storeListPage: (key: string, result: DemandListResult) => void;
@@ -71,6 +85,7 @@ export function useDemands() {
 }
 
 // Created by AI.
+// Updated by AI.
 export function DemandProvider({ children }: PropsWithChildren) {
   const { usuario } = useSession();
   const userId = usuario?.id ?? null;
@@ -78,6 +93,9 @@ export function DemandProvider({ children }: PropsWithChildren) {
   const [list, setList] = useState<DemandListState | null>(null);
   const [details, setDetails] = useState<Record<string, DemandDetail>>({});
   const [isListStale, setIsListStale] = useState(false);
+  const [isCacheHydrating, setIsCacheHydrating] = useState(Boolean(userId));
+  const [cachedAt, setCachedAt] = useState<string | null>(null);
+  const [cacheError, setCacheError] = useState<string | null>(null);
 
   // The store is wiped when the signed-in user changes, so one account's
   // demands are never shown to the next. Resetting during render (rather than
@@ -88,7 +106,53 @@ export function DemandProvider({ children }: PropsWithChildren) {
     setList(null);
     setDetails({});
     setIsListStale(false);
+    setIsCacheHydrating(Boolean(userId));
+    setCachedAt(null);
+    setCacheError(null);
   }
+
+  useEffect(() => {
+    if (!userId) return;
+
+    let active = true;
+    void readJson<DemandCacheSnapshot>(cacheKey(userId))
+      .then((snapshot) => {
+        if (!active || !snapshot) return;
+        setList(snapshot.list);
+        setDetails(snapshot.details);
+        setCachedAt(snapshot.cachedAt);
+      })
+      .catch((caught: unknown) => {
+        if (!active) return;
+        setCacheError(
+          caught instanceof Error ? caught.message : 'Não foi possível ler o cache local.'
+        );
+      })
+      .finally(() => {
+        if (active) setIsCacheHydrating(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [userId]);
+
+  useEffect(() => {
+    if (!userId || isCacheHydrating) return;
+
+    const snapshot: DemandCacheSnapshot = {
+      list,
+      details,
+      cachedAt: new Date().toISOString(),
+    };
+    void writeJson(cacheKey(userId), snapshot)
+      .then(() => setCachedAt(snapshot.cachedAt))
+      .catch((caught: unknown) => {
+        setCacheError(
+          caught instanceof Error ? caught.message : 'Não foi possível salvar o cache local.'
+        );
+      });
+  }, [userId, list, details, isCacheHydrating]);
 
   // Only read during render (detail screen), so it may change identity with
   // the state it reads — it's never used as an effect dependency.
@@ -209,6 +273,9 @@ export function DemandProvider({ children }: PropsWithChildren) {
     () => ({
       list,
       isListStale,
+      isCacheHydrating,
+      cachedAt,
+      cacheError,
       getCached,
       storeListPage,
       fetchDetail,
@@ -217,10 +284,28 @@ export function DemandProvider({ children }: PropsWithChildren) {
       updateDemandStatus,
       deleteDemand,
     }),
-    [list, isListStale, getCached, storeListPage, fetchDetail, createDemand, updateDemand, updateDemandStatus, deleteDemand]
+    [
+      list,
+      isListStale,
+      isCacheHydrating,
+      cachedAt,
+      cacheError,
+      getCached,
+      storeListPage,
+      fetchDetail,
+      createDemand,
+      updateDemand,
+      updateDemandStatus,
+      deleteDemand,
+    ]
   );
 
   return <DemandContext.Provider value={value}>{children}</DemandContext.Provider>;
+}
+
+// Created by AI.
+function cacheKey(userId: string): string {
+  return `fiscalize.demands.${userId}`;
 }
 
 // Created by AI.

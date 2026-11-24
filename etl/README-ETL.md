@@ -9,6 +9,7 @@ Os dados brutos são armazenados no MongoDB (camada **bronze**), as tabelas norm
 ## Pré-requisitos
 
 - Python 3.10 ou superior, compatível com as dependências do projeto.
+- Java 17 ou 21 configurado em `JAVA_HOME`. O Spark 4.0.1 não funciona com Java 24 ou superior.
 - Acesso ao cluster MongoDB do projeto.
 - Acesso ao banco PostgreSQL no Neon.
 - Dependências listadas em `etl/requirements.txt`.
@@ -40,8 +41,9 @@ fiscalize-mobile/
     │   ├── seed_mongo.py            # Funções para popular as coleções brutas
     │   ├── sync_chamados.py         # Sync backend PostgreSQL → `chamados_raw`
     │   └── transform.py             # Camadas silver e gold (normalização e agregação)
-    ├── run_etl.py                   # Ponto de entrada do pipeline
-    ├── flow_etl.py                  # Orquestração do pipeline com Prefect
+    ├── flow_etl.py                  # Pipeline completo com Spark, orquestrado pelo Prefect
+    ├── run_etl.py                   # Execução alternativa em Pandas, sem Spark
+    ├── serve_etl.py                 # Deployment Prefect com execução diária
     ├── requirements.txt             # Dependências do ETL e dashboard
     ├── .env.example                 # Modelo de configuração sem credenciais reais
     ├── .env                         # Configurações reais, não versionadas
@@ -111,7 +113,29 @@ O arquivo `config.py` é o ponto central de configuração, evitando que cada m�
 
 ## Como executar o pipeline
 
-O ponto de entrada do pipeline é `etl/run_etl.py`. A execução realiza as etapas de sincronização dos chamados, extração, transformação e carga dos dados de clima e população.
+O ponto de entrada do pipeline completo é `etl/flow_etl.py`. Executado pelo Prefect, ele realiza a sincronização dos chamados, a extração, a transformação com Apache Spark e a carga dos dados de clima e população.
+
+O `etl/run_etl.py` permanece disponível como execução alternativa: percorre as mesmas camadas (bronze, silver e gold), mas usa transformação em Pandas e não depende do Prefect nem do Spark.
+
+Para agendar a execução diária com Prefect, inicie o servidor local em um
+terminal e mantenha-o ativo:
+
+```bash
+cd etl
+python -m prefect server start
+```
+
+Em outro terminal, com as dependências instaladas e `etl/.env` configurado,
+inicie o deployment:
+
+```bash
+cd etl
+python serve_etl.py
+```
+
+O fluxo será executado diariamente às 03:00 no fuso `America/Recife`. Mantenha
+o processo `serve_etl.py` em execução para que o worker local execute os
+agendamentos. Para uma execução imediata/manual, use `python flow_etl.py`.
 
 > **Importante:** o sync e o pipeline gravam em destinos diferentes. O comando `sync_chamados` atualiza apenas o MongoDB (`chamados_raw`). O Dashboard ETL do app lê a tabela final `chamados_populacao` no Neon, que só é atualizada quando o pipeline é executado. **Rodar somente o sync não altera o total exibido no app.**
 
@@ -124,7 +148,7 @@ cd etl
 python3 -m src.sync_chamados
 ```
 
-O sync é idempotente: usa o `id` do chamado como `_id`, atualiza registros existentes e remove de `chamados_raw` os chamados que não existem mais no backend. Rodar novamente não duplica dados. Ele também registra em log quantos chamados vieram sem bairro e sem coordenada válida.
+O sync é idempotente: usa o `id` do chamado como `_id` e faz upsert dos registros, sem duplicar dados ao rodar novamente. Documentos que não existem mais no backend são preservados em `chamados_raw`: o sync atual não executa remoções. Ele também registra em log quantos chamados vieram sem bairro e sem coordenada válida.
 
 > O comando de sync lê `BACKEND_DATABASE_URL`. Sem essa variável, ele falha com uma mensagem explícita.
 
@@ -134,17 +158,19 @@ Com o ambiente virtual ativado, a partir da pasta `etl/`:
 
 ```bash
 cd etl
-python run_etl.py
+python flow_etl.py
 ```
 
-No Windows/PowerShell, o comando é o mesmo: `python run_etl.py`.
+No Windows/PowerShell, o comando é o mesmo: `python flow_etl.py`.
 
 O pipeline executa, nesta ordem:
 
-1. **Bronze:** lê `chamados_raw` (sync do backend) e garante as cargas brutas de clima (`clima_raw`) e população (`populacao_ibge_raw`) no MongoDB.
-2. **Silver:** monta `silver_chamado`, `silver_clima_diario` e `silver_bairro_populacao`.
-3. **Gold:** gera `chamados_clima`, `chamados_populacao` e `chamados_clima_diario` exclusivamente a partir das tabelas silver.
+1. **Bronze:** sincroniza os chamados do backend e lê `chamados_raw`, garantindo as cargas brutas de clima (`clima_raw`) e população (`populacao_ibge_raw`) no MongoDB.
+2. **Silver:** monta `silver_chamado`, `silver_clima_diario` e `silver_bairro_populacao` com Apache Spark.
+3. **Gold:** gera `chamados_clima`, `chamados_populacao` e `chamados_clima_diario` exclusivamente a partir das tabelas silver, também com Apache Spark.
 4. **Load:** grava silver e gold no SQLite local e no Neon.
+
+A transformação das camadas silver e gold é feita com Apache Spark (`etl/src/spark_transform.py`), usando a sessão criada em `etl/src/spark_session.py`. O Prefect coordena as tarefas, os retries e o agendamento. Para executar o mesmo pipeline sem Prefect e sem Spark, use `python run_etl.py`, que aplica a mesma lógica com Pandas (`etl/src/transform.py`).
 
 **Atenção:** a execução apaga e regrava as linhas das tabelas finais no Neon (sem `DROP TABLE`). Confirme as permissões do usuário configurado antes de executar em um ambiente compartilhado.
 
@@ -172,7 +198,7 @@ Essa etapa:
 2. Regrava `silver_chamado` e `silver_bairro_populacao`.
 3. Agrega os chamados por bairro e regrava a gold `chamados_populacao` no SQLite local e no Neon.
 
-É mais rápida que o pipeline completo e não consulta a API de clima. Ao final, o log deve exibir algo como:
+É mais rápida que o pipeline completo e não consulta a API de clima. Essa etapa usa a transformação em Pandas de `run_etl.py`; ela não passa pelo Prefect nem pelo Spark. Ao final, o log deve exibir algo como:
 
 ```text
 Carga mais recente de chamados_raw: 22 registros em ...
@@ -188,10 +214,10 @@ O número em `chamado(s) de entrada` deve ser igual ao total que o dashboard pas
 ```bash
 cd etl
 python -m src.sync_chamados
-python run_etl.py
+python flow_etl.py
 ```
 
-Se a alteração for apenas em chamados e você não precisar atualizar clima, substitua o segundo comando pela etapa isolada de população mostrada em **2.1**.
+Se a alteração for apenas em chamados e você não precisar atualizar clima, substitua o segundo comando pela etapa isolada de população mostrada em **2.1** (execução em Pandas). Para reproduzir o fluxo completo sem Prefect e sem Spark, use `python run_etl.py`.
 
 ## Histórico das cargas e camada bronze
 
@@ -199,11 +225,23 @@ A coleção `chamados_raw` é a entrada operacional do ETL. Ela é preenchida pe
 
 As cargas brutas armazenadas no MongoDB recebem o campo `data_extracao`, que identifica o momento em que os dados foram coletados.
 
-O processo de carga mantém os documentos antigos na coleção, em vez de apagá-los a cada nova extração. Na etapa de extração para transformação, são selecionados os documentos pertencentes à carga mais recente identificada por `data_extracao`.
+As cargas de API são idempotentes por conteúdo: `load_mongo` gera um identificador
+determinístico para cada snapshot e registra sua data em `_etl_raw_loads`. Repetir
+o mesmo conteúdo não cria documentos duplicados, mesmo em uma chamada manual;
+um conteúdo diferente gera um novo snapshot, preservando o histórico. Se uma
+gravação falhar parcialmente, a repetição reutiliza a data do manifesto e conclui
+o mesmo lote. As verificações do pipeline continuam evitando chamadas de API
+desnecessárias, mas não são a única proteção contra duplicação.
+
+Na etapa de extração para transformação, são selecionados os documentos
+pertencentes à carga mais recente identificada por `data_extracao`.
 
 Esse procedimento permite preservar o histórico das cargas brutas e utilizar a versão mais recente na transformação.
 
-A seleção da última carga deve ser distinguida da atualização das tabelas finais: a preservação do histórico bruto não significa, por si só, que as tabelas finais sejam incrementais.
+A seleção da última carga deve ser distinguida da atualização das tabelas finais:
+a preservação do histórico bruto não significa, por si só, que as tabelas finais
+sejam incrementais. Chamados seguem uma estratégia própria: o sync faz upsert
+por ID do chamado.
 
 ### Camadas silver e gold
 
@@ -213,7 +251,9 @@ A seleção da última carga deve ser distinguida da atualização das tabelas f
 | Silver | SQLite e Neon | `silver_chamado`, `silver_clima_diario`, `silver_bairro_populacao` | Dados normalizados, uma linha por entidade/dia/bairro |
 | Gold | SQLite e Neon | `chamados_clima`, `chamados_populacao`, `chamados_clima_diario` | Dados agregados e cruzados para o dashboard |
 
-`silver_chamado` já chega sem os chamados soft-deleted: o sync filtra `excluidoem IS NULL` no backend. A gold `chamados_clima_diario` é a tabela que efetivamente usa a série diária da Open-Meteo: cada linha traz data, temperatura média, precipitação e quantidade de chamados naquele dia.
+As transformações de silver e gold são implementadas com Apache Spark em `etl/src/spark_transform.py`. O módulo `etl/src/transform.py` mantém a mesma lógica em Pandas e é usado apenas pela execução alternativa de `run_etl.py`.
+
+`silver_chamado` é montada a partir de todos os documentos presentes em `chamados_raw`. O sync atual não filtra `excluidoem` no backend nem remove registros ausentes da origem; por isso, chamados soft-deleted ou removidos no backend continuam no bronze e podem aparecer na silver, na gold e no dashboard. A gold `chamados_clima_diario` é a tabela que efetivamente usa a série diária da Open-Meteo: cada linha traz data, temperatura média, precipitação e quantidade de chamados naquele dia.
 
 O carregamento no Neon apaga as linhas da tabela e insere a nova carga na mesma transação. Isso evita `DROP TABLE`/`TRUNCATE`, que exigiriam ser proprietário da tabela.
 
@@ -379,7 +419,7 @@ Os valores ilustram o formato da tabela e não substituem a consulta aos dados a
 
 ## Orquestração com Prefect
 
-O projeto também contém o arquivo `etl/flow_etl.py`, responsável por organizar as etapas da pipeline em tarefas e executá-las na ordem definida pelas dependências.
+O arquivo `etl/flow_etl.py` é o ponto de entrada do pipeline completo. Ele organiza as etapas em tarefas do Prefect, executa-as na ordem definida pelas dependências e aplica Apache Spark nas camadas silver e gold.
 
 O fluxo executa, nesta ordem:
 
@@ -417,7 +457,7 @@ cd etl
 python -c "from run_etl import run_populacao; run_populacao()"
 ```
 
-Depois, no app, puxe a tela do dashboard para baixo ou toque no ícone de refresh. Para atualizar também os dados climáticos, use o pipeline completo: `python run_etl.py`.
+Depois, no app, puxe a tela do dashboard para baixo ou toque no ícone de refresh. Para atualizar também os dados climáticos, use o pipeline completo: `python flow_etl.py`.
 
 ### `ValueError` ao abrir `chamados_raw`
 
@@ -435,6 +475,36 @@ Copie o valor de `DATABASE_URL` de `backend/.env` para `BACKEND_DATABASE_URL` em
 ### `ModuleNotFoundError: No module named 'src'`
 
 Confirme que o ambiente virtual está ativado, que as dependências foram instaladas e que os comandos estão sendo executados a partir da raiz do repositório conforme as instruções.
+
+### Chamados excluídos continuam no dashboard
+
+Sintoma: o dashboard exibe chamados que foram excluídos ou fechados no backend.
+
+Causa: o sync não filtra `excluidoem IS NULL` na origem e não remove de `chamados_raw` os documentos que deixaram de existir no backend.
+
+Solução temporária: remova da coleção `chamados_raw` os documentos indesejados e execute a etapa de população (`python -c "from run_etl import run_populacao; run_populacao()"`) ou o pipeline completo (`python flow_etl.py`).
+
+### Spark falha com `getSubject is not supported`
+
+Sintoma: o pipeline aborta ao criar a sessão Spark com `java.lang.UnsupportedOperationException: getSubject is not supported`.
+
+Causa: o `JAVA_HOME` aponta para Java 24 ou superior, que removeu `Subject.getSubject`.
+
+Solução: use Java 17 ou 21. No Linux ou macOS:
+
+```bash
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+```
+
+No PowerShell, ajuste `JAVA_HOME` para a pasta do JDK 21 antes de executar `python flow_etl.py`.
+
+### `PYTHON_VERSION_MISMATCH` no Spark
+
+Sintoma: `Python in worker has different version: ... than that in driver`.
+
+Causa: os workers do Spark estavam usando outro interpretador Python.
+
+Solução: `criar_sessao_spark` define `PYSPARK_PYTHON` e `PYSPARK_DRIVER_PYTHON` com o interpretador da venv. Execute o pipeline com a venv ativada. Se o erro persistir, defina as duas variáveis manualmente apontando para `etl/.venv/bin/python` (Linux/macOS) ou `etl\.venv\Scripts\python.exe` (Windows).
 
 ### Erro de conexão com o MongoDB
 

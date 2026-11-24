@@ -71,7 +71,7 @@ export function ManagerMetricsView() {
             accessibilityRole="button"
             disabled={isRefreshing}
             onPress={() => void load(true)}
-            style={({ pressed }) => [styles.reload, { backgroundColor: theme.primarySoft }, pressed && styles.pressed]}>
+            style={[styles.reload, { backgroundColor: theme.primarySoft }]}>
             <Icon color={theme.primary} name={Icons.refresh} size={18} />
           </Pressable>
         }

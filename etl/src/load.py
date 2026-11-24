@@ -1,7 +1,10 @@
+import hashlib
+import json
 import sqlite3
 from datetime import datetime, timezone
 
 import pandas as pd
+from pyspark.sql import DataFrame as SparkDataFrame
 from pymongo import MongoClient, UpdateOne
 from pymongo.server_api import ServerApi
 from sqlalchemy import create_engine, text
@@ -9,40 +12,54 @@ from sqlalchemy import create_engine, text
 from src.config import DATABASE_URL, MONGO_DATABASE, MONGODB_URI, SQLITE_DATABASE
 
 
-# Updated by AI.
 class Load:
     """
-    Responsável por persistir os dados extraídos da API do IBGE (PNADC),
-    seja em um arquivo JSON local, seja em uma coleção do MongoDB.
+    Responsável por persistir dados nas camadas de armazenamento:
+    SQLite, MongoDB e PostgreSQL (Neon).
     """
 
-    # Updated by AI.
     def __init__(self):
         self.mongo_uri = MONGODB_URI
-        self.client = MongoClient(self.mongo_uri, server_api=ServerApi("1"))
+        self.client = MongoClient(
+            self.mongo_uri,
+            server_api=ServerApi("1"),
+        )
 
         self.database_name = MONGO_DATABASE
         self.sqlite_database = SQLITE_DATABASE
 
-    # Updated by AI.
     def close(self) -> None:
         """Encerra a conexão com o MongoDB."""
         self.client.close()
 
+    def _para_pandas(self, dados) -> pd.DataFrame:
+        """
+        Converte um DataFrame Spark para Pandas quando necessário.
 
-    # Updated by AI.
+        Mantém compatibilidade com DataFrames que já são Pandas.
+        A conversão acontece somente na etapa de persistência.
+        """
+        if isinstance(dados, SparkDataFrame):
+            return dados.toPandas()
+
+        if isinstance(dados, pd.DataFrame):
+            return dados
+
+        raise TypeError(
+            "O carregamento espera um DataFrame do Pandas ou do Spark."
+        )
+
     def load_sqlite(
         self,
-        df: pd.DataFrame,
-        table_name: str
+        df,
+        table_name: str,
     ) -> None:
         """
         Carrega o DataFrame transformado em uma tabela SQLite.
 
-        Parâmetros:
-            df: DataFrame com os dados transformados.
-            table_name: nome da tabela no SQLite.
+        Aceita DataFrames do Pandas ou do Spark.
         """
+        df = self._para_pandas(df)
 
         with sqlite3.connect(self.sqlite_database) as conn:
             df.to_sql(
@@ -61,7 +78,7 @@ class Load:
     def load_mongo(
         self,
         data: dict | list[dict],
-        collection_name: str
+        collection_name: str,
     ) -> None:
         """
         Carrega dados brutos em uma coleção do MongoDB.
@@ -69,12 +86,15 @@ class Load:
         Parâmetros:
             data: dado bruto a ser armazenado.
             collection_name: nome da coleção no MongoDB.
-        """
 
+        Snapshots idênticos reutilizam os mesmos documentos e metadados;
+        alterações no conteúdo geram um novo lote histórico.
+        """
         db = self.client[self.database_name]
         collection = db[collection_name]
 
         data_extracao = datetime.now(timezone.utc)
+
         if isinstance(data, dict):
             records = [dict(data)]
         else:
@@ -86,18 +106,67 @@ class Load:
                 f"{collection_name}."
             )
 
-        for record in records:
-            record["data_extracao"] = data_extracao
+        records.sort(
+            key=lambda record: json.dumps(
+                record,
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=False,
+                default=str,
+            )
+        )
+        batch_hash = hashlib.sha256(
+            json.dumps(
+                records,
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=False,
+                default=str,
+            ).encode("utf-8")
+        ).hexdigest()
+        batch_id = f"{collection_name}:{batch_hash}"
 
-        collection.insert_many(records)
+        manifests = db["_etl_raw_loads"]
+        manifests.update_one(
+            {"_id": batch_id},
+            {
+                "$setOnInsert": {
+                    "collection_name": collection_name,
+                    "data_extracao": data_extracao,
+                }
+            },
+            upsert=True,
+        )
+        manifest = manifests.find_one({"_id": batch_id})
+        if manifest is None or "data_extracao" not in manifest:
+            raise RuntimeError(
+                f"Não foi possível recuperar os metadados da carga "
+                f"{batch_id}."
+            )
+
+        data_extracao = manifest["data_extracao"]
+        operations = []
+        for index, record in enumerate(records):
+            document = dict(record)
+            document["_id"] = f"{batch_hash}:{index}"
+            document["data_extracao"] = data_extracao
+            operations.append(
+                UpdateOne(
+                    {"_id": document["_id"]},
+                    {"$setOnInsert": document},
+                    upsert=True,
+                )
+            )
+
+        collection.bulk_write(operations, ordered=False)
 
         print(
             f"Dados brutos carregados com sucesso "
             f"no MongoDB: {collection_name} "
-            f"({len(records)} registros; carga {data_extracao})"
+            f"({len(records)} registros; carga {data_extracao}; "
+            f"lote {batch_hash})"
         )
 
-    # Updated by AI.
     def upsert_mongo(
         self,
         records: list[dict],
@@ -105,14 +174,21 @@ class Load:
         id_field: str = "_id",
     ) -> tuple[int, int]:
         """
-        Insere ou atualiza documentos usando `id_field` como chave.
+        Insere ou atualiza documentos usando id_field como chave.
 
-        Diferente de `load_mongo`, esta carga é idempotente: rodar o sync
-        duas vezes não duplica chamados. Documentos que não existem mais no
-        backend também são removidos da coleção.
+        A operação é idempotente: executar o sync novamente não duplica
+        chamados.
+
+        Documentos que não existem mais na origem são preservados,
+        evitando exclusões de dados de outras cargas ou execuções.
+
+        Retorna:
+            Quantidade de registros gravados e quantidade removida.
         """
         if not records:
-            print(f"Nenhum registro para sincronizar em {collection_name}.")
+            print(
+                f"Nenhum registro para sincronizar em {collection_name}."
+            )
             return 0, 0
 
         db = self.client[self.database_name]
@@ -120,18 +196,19 @@ class Load:
         synced_at = datetime.now(timezone.utc)
 
         operations = []
-        ids = []
+
         for record in records:
             document = dict(record)
+
             if id_field not in document:
                 raise ValueError(
                     f"Registro sem o campo obrigatório '{id_field}' "
                     f"para a coleção {collection_name}."
                 )
 
-            ids.append(document[id_field])
             document["data_extracao"] = synced_at
             document["synced_at"] = synced_at
+
             operations.append(
                 UpdateOne(
                     {id_field: document[id_field]},
@@ -140,10 +217,11 @@ class Load:
                 )
             )
 
-        result = collection.bulk_write(operations, ordered=False)
-        deleted = collection.delete_many(
-            {id_field: {"$nin": ids}}
-        ).deleted_count
+        collection.bulk_write(operations, ordered=False)
+
+        # Preserva documentos que não estão na origem atual.
+        # Não realiza exclusões automáticas no MongoDB.
+        deleted = 0
 
         print(
             f"Chamados sincronizados em {collection_name}: "
@@ -153,25 +231,29 @@ class Load:
 
         return len(records), deleted
 
-    # Updated by AI.
     def load_neon(
         self,
-        df: pd.DataFrame,
-        table_name: str
+        df,
+        table_name: str,
     ) -> None:
         """
         Carrega o DataFrame transformado em uma tabela PostgreSQL.
 
-        A carga não usa DROP/TRUNCATE: o usuário do Neon pode não ser dono
-        das tabelas criadas por outro papel. Em vez disso, apaga as linhas e
-        insere a nova carga na mesma transação. Se a tabela ainda não existir,
-        ela é criada.
+        Aceita DataFrames do Pandas ou do Spark.
+
+        A carga não usa DROP/TRUNCATE: apaga as linhas e insere
+        a nova carga na mesma transação. Se a tabela ainda não
+        existir, ela é criada.
         """
+        df = self._para_pandas(df)
 
         if not table_name.replace("_", "").isalnum():
-            raise ValueError(f"Nome de tabela inválido: {table_name}")
+            raise ValueError(
+                f"Nome de tabela inválido: {table_name}"
+            )
 
         engine = create_engine(DATABASE_URL)
+
         try:
             with engine.begin() as connection:
                 exists = connection.execute(
@@ -180,7 +262,10 @@ class Load:
                 ).scalar()
 
                 if exists:
-                    connection.execute(text(f'DELETE FROM "{table_name}"'))
+                    connection.execute(
+                        text(f'DELETE FROM "{table_name}"')
+                    )
+
                     df.to_sql(
                         table_name,
                         connection,
@@ -194,6 +279,7 @@ class Load:
                         if_exists="fail",
                         index=False,
                     )
+
         finally:
             engine.dispose()
 
