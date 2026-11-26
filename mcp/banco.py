@@ -65,5 +65,13 @@ class BancoNeon:
         return texto
 
 
-# TODO (Exercício 3): criar a classe BancoComLimite, que herda de BancoNeon e devolve
-# no máximo 10 linhas em consultar (use super().__init__ e super().consultar).
+# Created by AI.
+class BancoComLimite(BancoNeon):
+    # Created by AI.
+    def __init__(self, url_conexao):
+        super().__init__(url_conexao)
+
+    # Created by AI.
+    def consultar(self, sql):
+        """Executa a consulta herdada e devolve no máximo 10 linhas."""
+        return super().consultar(sql)[:10]
