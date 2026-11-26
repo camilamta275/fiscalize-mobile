@@ -109,3 +109,15 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** revisão prévia, correção de cenários, ajuste do runner e workflow, validação automatizada e documentação.
 - **Tipo de contribuição da IA:** análise de seletor e histórico, correção de testes YAML, validação de testIDs, integração de scripts de CI e registro das evidências.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0009
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Camila Teixeira
+- **Arquivo / Arquivos alterado(s):** `mcp/banco.py`, `USO_IA/Camila-Teixeira.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Criada BancoComLimite, subclasse de BancoNeon que limita o retorno de consultar a no máximo 10 linhas.
+- **Tratamento de dados pessoais:** Não houve; nenhum dado real ou do banco Neon foi consultado.
+- **Alterado pela IA (nome da IA, versão da IA):** GitHub Copilot usando Copilot SDK no VS Code; versão não disponibilizada nesta sessão.
+- **Finalidade do uso da IA:** implementar o Exercício 3 do MCP sem alterar BancoNeon ou executar consultas ao Neon.
+- **Etapa da atividade:** análise, implementação e validação isolada.
+- **Tipo de contribuição da IA:** inspeção da classe existente, criação da subclasse e testes isolados com respostas simuladas.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
