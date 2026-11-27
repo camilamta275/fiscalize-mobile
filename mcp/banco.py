@@ -15,6 +15,11 @@ class BancoNeon:
 
     def consultar(self, sql):
         """Executa um SELECT e devolve uma lista de dicionários."""
+        return self._executar(sql)
+
+    # Created by AI.
+    def _executar(self, sql):
+        """Executa o SELECT sem limite. Usado também pelos metadados do banco."""
         conexao = self._conectar()
         try:
             with conexao.cursor() as cursor:
@@ -34,7 +39,8 @@ class BancoNeon:
             WHERE table_schema = 'public'
             ORDER BY table_name
         """
-        return [linha["table_name"] for linha in self.consultar(sql)]
+        # Metadados não passam pelo limite de linhas de consultar().
+        return [linha["table_name"] for linha in self._executar(sql)]
 
     def descrever_tabela(self, tabela):
         """Retorna as colunas e os tipos de uma tabela."""

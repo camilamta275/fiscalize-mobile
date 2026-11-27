@@ -26,9 +26,9 @@ Atenção: `perguntar_ao_banco` envia o esquema e as linhas retornadas ao proved
 
 ## Atividades pendentes (TODO)
 As atividades pendentes têm um comentário `TODO` no código, no ponto onde devem ser feitas.
-- [ ] **Exercício 1** (`servidor.py`): ferramenta `contar_linhas(tabela: str) -> int`.
+- [x] **Exercício 1** (`servidor.py`): ferramenta `contar_linhas(tabela: str) -> int`.
 - [x] **Exercício 2** (`servidor.py`, `assistente.py`): ler o modelo do `.env` (`MODELO`), com padrão `gpt-6-luna`.
-- [ ] **Exercício 3** (`banco.py`, `servidor.py`): classe `BancoComLimite(BancoNeon)` com no máximo 10 linhas em `consultar`.
+- [x] **Exercício 3** (`banco.py`, `servidor.py`): classe `BancoComLimite(BancoNeon)` com no máximo 10 linhas em `consultar`.
 - [ ] **Teste de segurança**: no Inspector, `executar_select` com `DELETE FROM ...` deve ser recusado (read-only).
 
 ## Provedor de LLM

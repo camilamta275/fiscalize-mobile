@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from fastmcp import FastMCP
 
 from assistente import AssistenteGPT
-from banco import BancoNeon
+from banco import BancoComLimite
 
 # 1) Lê as variáveis: mcp/.env primeiro e, como reserva, o etl/.env (DATABASE_URL)
 AQUI = Path(__file__).resolve().parent
@@ -15,8 +15,10 @@ load_dotenv(AQUI.parent / "etl" / ".env")
 url_banco = os.getenv("NEON") or os.getenv("DATABASE_URL")
 
 # 2) Objetos que fazem o trabalho de verdade
-# TODO (Exercício 3): trocar BancoNeon por BancoComLimite (criar em banco.py).
-banco = BancoNeon(url_banco)
+# Updated by AI.
+# BancoComLimite devolve no máximo 10 linhas em consultar (Exercício 3).
+# Tabelas e colunas não são limitadas: listar_tabelas usa _executar.
+banco = BancoComLimite(url_banco)
 # Updated by AI.
 gpt = AssistenteGPT(
     os.getenv("GPT"),
