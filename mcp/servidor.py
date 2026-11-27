@@ -55,9 +55,16 @@ def perguntar_ao_banco(pergunta: str) -> dict:
     return {"sql": sql, "dados": dados, "resposta": resposta}
 
 
-# TODO (Exercício 1): criar a ferramenta contar_linhas(tabela: str) -> int, que devolve
-# quantas linhas a tabela tem. Valide o nome da tabela contra banco.listar_tabelas()
-# antes de montar o SQL (nome de tabela não pode ir no %s).
+# Created by AI.
+@mcp.tool
+def contar_linhas(tabela: str) -> int:
+    """Devolve quantas linhas a tabela informada possui."""
+    # Nome de tabela não pode ir no %s; por isso só é aceito se existir de verdade no banco.
+    if tabela not in banco.listar_tabelas():
+        raise ValueError(f"Tabela '{tabela}' não existe no banco.")
+    # O nome já foi validado acima; as aspas protegem nomes com maiúsculas ou caracteres especiais.
+    resultado = banco.consultar(f'SELECT COUNT(*) AS total FROM "{tabela}"')
+    return int(resultado[0]["total"])
 
 
 if __name__ == "__main__":
