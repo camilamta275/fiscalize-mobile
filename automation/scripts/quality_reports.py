@@ -108,14 +108,14 @@ def main() -> int:
     parser.add_argument(
         "--reports-dir",
         type=Path,
-        default=Path("reports"),
-        help="Diretório com os relatórios JUnit XML (padrão: reports).",
+        default=runstore.REPORTS_DIR,
+        help="Diretório com os relatórios JUnit XML (padrão: automation/reports).",
     )
     parser.add_argument(
         "--output-dir",
         type=Path,
-        default=Path("reports"),
-        help="Base onde a pasta versionada da execução é criada (padrão: reports).",
+        default=runstore.REPORTS_DIR,
+        help="Base onde a pasta versionada da execução é criada (padrão: automation/reports).",
     )
     parser.add_argument(
         "--label",

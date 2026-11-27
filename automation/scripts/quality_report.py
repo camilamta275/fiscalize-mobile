@@ -13,7 +13,7 @@ from jinja2 import Environment, FileSystemLoader
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from runstore import latest_run_dir  # noqa: E402
+from runstore import REPORTS_DIR, latest_run_dir  # noqa: E402
 
 # Created by AI.
 TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
@@ -210,7 +210,7 @@ def generate(
 # Created by AI.
 def _default_input() -> Path | None:
     """Localiza o metrics.json da execução mais recente em reports/runs."""
-    run_dir = latest_run_dir(Path("reports"))
+    run_dir = latest_run_dir(REPORTS_DIR)
     return run_dir / "metrics.json" if run_dir else None
 
 

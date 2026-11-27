@@ -1,1 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="0.108" timestamp="2026-11-05T01:09:19.252563-03:00" hostname="EU3146025017574.local"><testcase classname="tests.api.tests.test_public_demand_privacy" name="test_public_demands_are_anonymous" time="0.085" /></testsuite></testsuites>
