@@ -85,6 +85,17 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Tipo de contribuição da IA:** Edição do cálculo de nível da M5, dos textos de interpretação e do modelo HTML; verificação com cenários de dados de teste e conferência do texto gerado.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
 
+## Registro da atividade 0008
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Ana Sofia
+- **Arquivo / Arquivos alterado(s):** `mcp/servidor.py`, `mcp/README.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Exercício 1 do servidor MCP: nova ferramenta contar_linhas, que valida o nome da tabela contra as tabelas do banco antes de montar o SQL de contagem.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Claude Code (Claude Sonnet 5.5)
+- **Finalidade do uso da IA:** Implementar o Exercício 1 da atividade do servidor MCP da aula 10 (ferramenta contar_linhas).
+- **Etapa da atividade:** Desenvolvimento: servidor MCP de consulta ao banco do ETL.
+- **Tipo de contribuição da IA:** Escrita da ferramenta e teste em memória com um banco simulado (contagem correta e nome de tabela inválido recusado). Não foi testado contra o Neon real, por falta de credenciais no ambiente.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo (conferido por Ana Sofia contra a branch MCP atualizada, incluindo o trabalho da Camila)
 ## Registro da atividade 0007
 
 - **Revisado por (nome do usuário que está fazendo as edições):** Ana Sofia

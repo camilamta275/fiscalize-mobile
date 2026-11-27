@@ -62,3 +62,15 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Configuração de issues do GitHub, integração com a pipeline e elaboração da evidência simulada.
 - **Tipo de contribuição da IA:** Criação do formulário, atualização do workflow e da documentação, e produção de um registro de demonstração fictício.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
+
+## Registro da atividade 0005
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Lucas Rodrigues
+- **Arquivo / Arquivos alterado(s):** `mcp/assistente.py`, `mcp/servidor.py`, `mcp/.env.example`, `mcp/README.md`, `USO_IA/Lucas-Rodrigues.md`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Configurado o modelo do LLM via `MODELO`, com `gpt-6-luna` como padrão quando a variável estiver vazia ou ausente.
+- **Tratamento de dados pessoais:** Houve tratamento restrito ao nome do revisor Lucas Rodrigues, fornecido para o registro obrigatório; nenhum dado do banco, credencial ou dado de usuário foi tratado.
+- **Alterado pela IA (nome da IA, versão da IA):** AI assistant using Copilot SDK in VS Code (versão não disponibilizada nesta sessão)
+- **Finalidade do uso da IA:** Implementar o exercício 2 da aula 10, tornando o modelo do servidor MCP configurável.
+- **Etapa da atividade:** Implementação, documentação e validação técnica.
+- **Tipo de contribuição da IA:** Análise do fluxo de configuração, alteração do código, atualização do exemplo de ambiente e documentação, e teste isolado dos valores configurado e padrão.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo
