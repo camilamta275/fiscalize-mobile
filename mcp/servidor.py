@@ -17,7 +17,12 @@ url_banco = os.getenv("NEON") or os.getenv("DATABASE_URL")
 # 2) Objetos que fazem o trabalho de verdade
 # TODO (Exercício 3): trocar BancoNeon por BancoComLimite (criar em banco.py).
 banco = BancoNeon(url_banco)
-gpt = AssistenteGPT(os.getenv("GPT"), base_url=os.getenv("LLM_BASE_URL") or None)
+# Updated by AI.
+gpt = AssistenteGPT(
+    os.getenv("GPT"),
+    modelo=os.getenv("MODELO") or "gpt-6-luna",
+    base_url=os.getenv("LLM_BASE_URL") or None,
+)
 
 # 3) Servidor MCP
 mcp = FastMCP("Servidor Neon + GPT (Fiscalize ETL)")

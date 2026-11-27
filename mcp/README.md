@@ -11,6 +11,8 @@ pip install -r requirements.txt
 cp .env.example .env   # preencha GPT (chave do LLM); NEON é opcional
 ```
 Sem `NEON`, usa o `DATABASE_URL` de `../etl/.env`. Chave gratuita do Groq: console.groq.com.
+O modelo é configurado pela variável `MODELO`; se ela estiver vazia ou ausente,
+o padrão é `gpt-6-luna`.
 
 ## Uso
 - Terminal: `python cliente_teste.py`
@@ -23,9 +25,9 @@ O `.env` nunca vai para o Git.
 Atenção: `perguntar_ao_banco` envia o esquema e as linhas retornadas ao provedor de LLM.
 
 ## Atividades pendentes (TODO)
-Cada uma tem um comentário `TODO` no código, no ponto onde deve ser feita.
+As atividades pendentes têm um comentário `TODO` no código, no ponto onde devem ser feitas.
 - [ ] **Exercício 1** (`servidor.py`): ferramenta `contar_linhas(tabela: str) -> int`.
-- [ ] **Exercício 2** (`servidor.py`, `assistente.py`): ler o modelo do `.env` (`MODELO`), com padrão `openai/gpt-oss-120b`.
+- [x] **Exercício 2** (`servidor.py`, `assistente.py`): ler o modelo do `.env` (`MODELO`), com padrão `gpt-6-luna`.
 - [ ] **Exercício 3** (`banco.py`, `servidor.py`): classe `BancoComLimite(BancoNeon)` com no máximo 10 linhas em `consultar`.
 - [ ] **Teste de segurança**: no Inspector, `executar_select` com `DELETE FROM ...` deve ser recusado (read-only).
 

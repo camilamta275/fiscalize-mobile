@@ -1,10 +1,10 @@
 from openai import OpenAI
 
 
+# Updated by AI.
 class AssistenteGPT:
-    # TODO (Exercício 2): fazer o modelo ser lido do .env (variável MODELO) em
-    # servidor.py, mantendo o padrão abaixo caso a variável não exista.
-    def __init__(self, chave_api, modelo="openai/gpt-oss-120b", base_url=None):
+    # Updated by AI.
+    def __init__(self, chave_api, modelo="gpt-6-luna", base_url=None):
         # base_url permite usar serviços gratuitos compatíveis com a API da OpenAI
         self.cliente = OpenAI(api_key=chave_api, base_url=base_url)
         self.modelo = modelo
