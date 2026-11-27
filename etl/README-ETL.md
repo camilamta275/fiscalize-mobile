@@ -12,8 +12,8 @@ Os dados brutos são armazenados no MongoDB (camada **bronze**), as tabelas norm
 - Java 17 ou 21 configurado em `JAVA_HOME`. O Spark 4.0.1 não funciona com Java 24 ou superior.
 - Acesso ao cluster MongoDB do projeto.
 - Acesso ao banco PostgreSQL no Neon.
-- Dependências listadas em `etl/requirements.txt`.
-- Arquivo `etl/.env` configurado com as variáveis necessárias.
+- Dependências listadas em `requirements.txt`.
+- Arquivo `.env` configurado com as variáveis necessárias.
 
 ## Estrutura de pastas
 
@@ -26,7 +26,7 @@ fiscalize-mobile/
 │       ├── dashboard_visao_geral.png
 │       ├── dashboard_filtro_tabela.png
 │       └── dashboard_dados_detalhados.png
-└── etl/
+└── 
     ├── data/
     │   └── chamados.json            # Fixture legado; não é usado pelo pipeline
     ├── notebooks/
@@ -50,7 +50,7 @@ fiscalize-mobile/
     └── README-ETL.md                # Documentação do ETL
 ```
 
-Os notebooks em `etl/notebooks/` são materiais exploratórios. Eles não fazem parte do pipeline executável e não são chamados pelo ponto de entrada do ETL.
+Os notebooks em `notebooks/` são materiais exploratórios. Eles não fazem parte do pipeline executável e não são chamados pelo ponto de entrada do ETL.
 
 ## Configuração do ambiente
 
@@ -61,7 +61,8 @@ Execute os comandos a seguir a partir da raiz do repositório, `fiscalize-mobile
 No Windows, utilizando PowerShell:
 
 ```powershell
-python -m venv etl/.venv
+cd etl
+python -m venv .venv
 .\etl\.venv\Scripts\Activate.ps1
 ```
 
@@ -70,8 +71,8 @@ Se o ambiente virtual já estiver criado e ativo, não é necessário recriá-lo
 No Linux ou macOS:
 
 ```bash
-python3 -m venv etl/.venv
-source etl/.venv/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
 ### 2. Instalar as dependências
@@ -79,12 +80,12 @@ source etl/.venv/bin/activate
 Com o ambiente virtual ativado:
 
 ```bash
-python -m pip install -r etl/requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 ### 3. Configurar as variáveis de ambiente
 
-O arquivo `etl/src/config.py` centraliza a leitura das configurações do projeto e disponibiliza os valores necessários aos demais módulos.
+O arquivo `src/config.py` centraliza a leitura das configurações do projeto e disponibiliza os valores necessários aos demais módulos.
 
 Entre as configurações estão:
 
@@ -99,23 +100,23 @@ Para configurar o ambiente:
 1. Copie o arquivo de exemplo:
 
    ```powershell
-   Copy-Item etl/.env.example etl/.env
+   Copy-Item .env.example .env
    ```
 
 2. Preencha `MONGODB_URI` com a connection string do cluster MongoDB Atlas do projeto.
 3. Preencha `DATABASE_URL` com a connection string do banco PostgreSQL no Neon.
 4. Preencha `BACKEND_DATABASE_URL` com a connection string do PostgreSQL operacional do backend (mesmo valor de `backend/.env`). Prefira um usuário com permissão apenas de leitura.
-5. Confira as demais variáveis documentadas em `etl/.env.example` e ajuste-as conforme necessário.
+5. Confira as demais variáveis documentadas em `.env.example` e ajuste-as conforme necessário.
 
-**Importante:** nunca compartilhe ou versione o arquivo `etl/.env` com credenciais reais. Utilize o `.env.example` para documentar as variáveis necessárias sem expor senhas ou tokens.
+**Importante:** nunca compartilhe ou versione o arquivo `.env` com credenciais reais. Utilize o `.env.example` para documentar as variáveis necessárias sem expor senhas ou tokens.
 
 O arquivo `config.py` é o ponto central de configuração, evitando que cada módulo precise carregar as variáveis de ambiente individualmente.
 
 ## Como executar o pipeline
 
-O ponto de entrada do pipeline completo é `etl/flow_etl.py`. Executado pelo Prefect, ele realiza a sincronização dos chamados, a extração, a transformação com Apache Spark e a carga dos dados de clima e população.
+O ponto de entrada do pipeline completo é `flow_etl.py`. Executado pelo Prefect, ele realiza a sincronização dos chamados, a extração, a transformação com Apache Spark e a carga dos dados de clima e população.
 
-O `etl/run_etl.py` permanece disponível como execução alternativa: percorre as mesmas camadas (bronze, silver e gold), mas usa transformação em Pandas e não depende do Prefect nem do Spark.
+O `run_etl.py` permanece disponível como execução alternativa: percorre as mesmas camadas (bronze, silver e gold), mas usa transformação em Pandas e não depende do Prefect nem do Spark.
 
 Para agendar a execução diária com Prefect, inicie o servidor local em um
 terminal e mantenha-o ativo:
@@ -125,7 +126,7 @@ cd etl
 python -m prefect server start
 ```
 
-Em outro terminal, com as dependências instaladas e `etl/.env` configurado,
+Em outro terminal, com as dependências instaladas e `.env` configurado,
 inicie o deployment:
 
 ```bash
@@ -154,7 +155,7 @@ O sync é idempotente: usa o `id` do chamado como `_id` e faz upsert dos registr
 
 ### 2. Executar o pipeline completo
 
-Com o ambiente virtual ativado, a partir da pasta `etl/`:
+Com o ambiente virtual ativado, a partir da pasta ``:
 
 ```bash
 cd etl
@@ -170,13 +171,13 @@ O pipeline executa, nesta ordem:
 3. **Gold:** gera `chamados_clima`, `chamados_populacao` e `chamados_clima_diario` exclusivamente a partir das tabelas silver, também com Apache Spark.
 4. **Load:** grava silver e gold no SQLite local e no Neon.
 
-A transformação das camadas silver e gold é feita com Apache Spark (`etl/src/spark_transform.py`), usando a sessão criada em `etl/src/spark_session.py`. O Prefect coordena as tarefas, os retries e o agendamento. Para executar o mesmo pipeline sem Prefect e sem Spark, use `python run_etl.py`, que aplica a mesma lógica com Pandas (`etl/src/transform.py`).
+A transformação das camadas silver e gold é feita com Apache Spark (`src/spark_transform.py`), usando a sessão criada em `src/spark_session.py`. O Prefect coordena as tarefas, os retries e o agendamento. Para executar o mesmo pipeline sem Prefect e sem Spark, use `python run_etl.py`, que aplica a mesma lógica com Pandas (`src/transform.py`).
 
 **Atenção:** a execução apaga e regrava as linhas das tabelas finais no Neon (sem `DROP TABLE`). Confirme as permissões do usuário configurado antes de executar em um ambiente compartilhado.
 
-O pipeline utiliza as funções de extração, transformação e carga implementadas nos módulos de `etl/src/`.
+O pipeline utiliza as funções de extração, transformação e carga implementadas nos módulos de `src/`.
 
-A carga de clima é automática: o pipeline calcula o intervalo de datas coberto por `chamados_raw` (no fuso `America/Recife`) e consulta a Open-Meteo somente quando a série já carregada não cobre esse intervalo. A carga bruta de população continua sendo feita pelas funções de seed de `etl/src/seed_mongo.py`.
+A carga de clima é automática: o pipeline calcula o intervalo de datas coberto por `chamados_raw` (no fuso `America/Recife`) e consulta a Open-Meteo somente quando a série já carregada não cobre esse intervalo. A carga bruta de população continua sendo feita pelas funções de seed de `src/seed_mongo.py`.
 
 O fim da consulta climática é limitado à data atual de Recife. Assim, chamados
 recentes podem ficar sem dados climáticos enquanto a Open-Meteo ainda não
@@ -251,7 +252,7 @@ por ID do chamado.
 | Silver | SQLite e Neon | `silver_chamado`, `silver_clima_diario`, `silver_bairro_populacao` | Dados normalizados, uma linha por entidade/dia/bairro |
 | Gold | SQLite e Neon | `chamados_clima`, `chamados_populacao`, `chamados_clima_diario` | Dados agregados e cruzados para o dashboard |
 
-As transformações de silver e gold são implementadas com Apache Spark em `etl/src/spark_transform.py`. O módulo `etl/src/transform.py` mantém a mesma lógica em Pandas e é usado apenas pela execução alternativa de `run_etl.py`.
+As transformações de silver e gold são implementadas com Apache Spark em `src/spark_transform.py`. O módulo `src/transform.py` mantém a mesma lógica em Pandas e é usado apenas pela execução alternativa de `run_etl.py`.
 
 `silver_chamado` é montada a partir de todos os documentos presentes em `chamados_raw`. O sync atual não filtra `excluidoem` no backend nem remove registros ausentes da origem; por isso, chamados soft-deleted ou removidos no backend continuam no bronze e podem aparecer na silver, na gold e no dashboard. A gold `chamados_clima_diario` é a tabela que efetivamente usa a série diária da Open-Meteo: cada linha traz data, temperatura média, precipitação e quantidade de chamados naquele dia.
 
@@ -281,7 +282,7 @@ Essa distinção evita que a ausência de informação seja confundida com um va
 
 O projeto possui um dashboard desenvolvido com **Streamlit**, que consulta as tabelas gold `chamados_populacao` e `chamados_clima_diario`, armazenadas no PostgreSQL do Neon.
 
-O app mobile também possui a tela **Dashboard ETL**, que consome o endpoint `/dashboard/etl/population` do backend. Esse endpoint lê a mesma tabela `chamados_populacao` no Neon.
+O app mobile também possui a tela **Dashboard ETL**, que consome o endpoint `/dashboard/population` do backend. Esse endpoint lê a mesma tabela `chamados_populacao` no Neon.
 
 Nos dois casos, a tabela precisa ser regravada pela etapa de população do ETL. Apenas rodar o sync de chamados não atualiza esses dashboards.
 
@@ -306,7 +307,7 @@ Os indicadores e as visualizações de bairro são atualizados conforme o filtro
 Com o ambiente virtual ativado e as dependências instaladas, execute na raiz do repositório:
 
 ```powershell
-python -m streamlit run ../dashboard/app.py
+python -m streamlit run dashboard/app.py
 ```
 
 O Streamlit disponibilizará o dashboard no navegador, normalmente em:
@@ -419,7 +420,7 @@ Os valores ilustram o formato da tabela e não substituem a consulta aos dados a
 
 ## Orquestração com Prefect
 
-O arquivo `etl/flow_etl.py` é o ponto de entrada do pipeline completo. Ele organiza as etapas em tarefas do Prefect, executa-as na ordem definida pelas dependências e aplica Apache Spark nas camadas silver e gold.
+O arquivo `flow_etl.py` é o ponto de entrada do pipeline completo. Ele organiza as etapas em tarefas do Prefect, executa-as na ordem definida pelas dependências e aplica Apache Spark nas camadas silver e gold.
 
 O fluxo executa, nesta ordem:
 
@@ -435,7 +436,7 @@ O fluxo executa, nesta ordem:
 Para executar o fluxo, a partir da raiz do repositório:
 
 ```powershell
-python etl/flow_etl.py
+python flow_etl.py
 ```
 
 A execução requer as dependências instaladas, as variáveis de ambiente configuradas (incluindo `BACKEND_DATABASE_URL`) e acesso às fontes e aos destinos utilizados pelo pipeline.
@@ -470,7 +471,7 @@ python -m src.sync_chamados
 
 ### `BACKEND_DATABASE_URL não foi encontrada`
 
-Copie o valor de `DATABASE_URL` de `backend/.env` para `BACKEND_DATABASE_URL` em `etl/.env`. O `DATABASE_URL` do ETL continua apontando para o Neon e não é usado pelo sync.
+Copie o valor de `DATABASE_URL` de `backend/.env` para `BACKEND_DATABASE_URL` em `.env`. O `DATABASE_URL` do ETL continua apontando para o Neon e não é usado pelo sync.
 
 ### `ModuleNotFoundError: No module named 'src'`
 
@@ -504,15 +505,15 @@ Sintoma: `Python in worker has different version: ... than that in driver`.
 
 Causa: os workers do Spark estavam usando outro interpretador Python.
 
-Solução: `criar_sessao_spark` define `PYSPARK_PYTHON` e `PYSPARK_DRIVER_PYTHON` com o interpretador da venv. Execute o pipeline com a venv ativada. Se o erro persistir, defina as duas variáveis manualmente apontando para `etl/.venv/bin/python` (Linux/macOS) ou `etl\.venv\Scripts\python.exe` (Windows).
+Solução: `criar_sessao_spark` define `PYSPARK_PYTHON` e `PYSPARK_DRIVER_PYTHON` com o interpretador da venv. Execute o pipeline com a venv ativada. Se o erro persistir, defina as duas variáveis manualmente apontando para `.venv/bin/python` (Linux/macOS) ou `etl\.venv\Scripts\python.exe` (Windows).
 
 ### Erro de conexão com o MongoDB
 
-Confira se `etl/.env` existe e se `MONGODB_URI` contém uma connection string válida. Verifique também o acesso ao cluster MongoDB Atlas e as permissões de rede.
+Confira se `.env` existe e se `MONGODB_URI` contém uma connection string válida. Verifique também o acesso ao cluster MongoDB Atlas e as permissões de rede.
 
 ### Erro ao conectar ao Neon
 
-Confira se `DATABASE_URL` está configurada corretamente no arquivo `etl/.env` e se o banco está acessível. Não compartilhe a connection string ou a senha ao solicitar ajuda.
+Confira se `DATABASE_URL` está configurada corretamente no arquivo `.env` e se o banco está acessível. Não compartilhe a connection string ou a senha ao solicitar ajuda.
 
 ### Dados brutos sem `data_extracao`
 
