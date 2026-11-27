@@ -6,11 +6,11 @@
 **Escopo:** aplicativo mobile, backend, banco de dados, ETL e backups
 **Versão:** 1.0
 **Data:** 19/11/2026
-**Documentos relacionados:** [Política de Privacidade](../../POLITICA-DE-PRIVACIDADE.md), [Arquitetura de autenticação e autorização](ARQUITETURA-AUTENTICACAO-AUTORIZACAO.md), [Fornecedores e terceiros](FORNECEDORES-E-TERCEIROS.md), [Requisitos de Segurança - v2](Requisitos%20de%20Segurança%20-%20v2.md), [Runbook de restauração de backup](RUNBOOK-RESTAURACAO-BACKUP.md)
+**Documentos relacionados:** [Política de Privacidade](POLITICA-DE-PRIVACIDADE.md), [Arquitetura de autenticação e autorização](ARQUITETURA-AUTENTICACAO-AUTORIZACAO.md), [Fornecedores e terceiros](FORNECEDORES-E-TERCEIROS.md), [Requisitos de Segurança - v2](Requisitos%20de%20Segurança%20-%20v2.md), [Runbook de restauração de backup](RUNBOOK-RESTAURACAO-BACKUP.md)
 
 ## 1. Objetivo
 
-Este plano operacionaliza a [Política de Privacidade](../../POLITICA-DE-PRIVACIDADE.md)
+Este plano operacionaliza a [Política de Privacidade](POLITICA-DE-PRIVACIDADE.md)
 e demonstra, com evidências do código, como o Fiscalize atende aos requisitos da
 Lei nº 13.709/2018 (LGPD). Ele cobre:
 
