@@ -96,3 +96,14 @@ Após o término da atividade, preencher todos os campos abaixo:
 - **Etapa da atividade:** Desenvolvimento: servidor MCP de consulta ao banco do ETL.
 - **Tipo de contribuição da IA:** Escrita da ferramenta e teste em memória com um banco simulado (contagem correta e nome de tabela inválido recusado). Não foi testado contra o Neon real, por falta de credenciais no ambiente.
 - **Confirmação de revisão crítica e responsabilidade humana:** Confirmo (conferido por Ana Sofia contra a branch MCP atualizada, incluindo o trabalho da Camila)
+## Registro da atividade 0007
+
+- **Revisado por (nome do usuário que está fazendo as edições):** Ana Sofia
+- **Arquivo / Arquivos alterado(s):** `automation/scripts/metrics.py`, `automation/scripts/quality_report.py`, `automation/scripts/templates/business.html.j2`
+- **Breve resumo do que foi feito (200 caracteres ou menos):** Relatório de negócio ganha a seção de decisão de release: decisão de cada faixa, funcionalidades sem cobertura completa e risco assumido ao liberar, também no resumo em Markdown.
+- **Tratamento de dados pessoais:** Não houve tratamento de dados pessoais.
+- **Alterado pela IA (nome da IA, versão da IA):** Claude Code (Claude Sonnet 5.5)
+- **Finalidade do uso da IA:** Atender ao feedback da professora sobre o critério M2 (relatório interpreta resultados e aponta riscos): decisão de release por faixa, o que permanece sem cobertura e o risco assumido.
+- **Etapa da atividade:** Testes automatizados: melhoria do relatório de resultados e riscos.
+- **Tipo de contribuição da IA:** Escrita da função de leitura de release, do modelo HTML e da saída em Markdown; verificação com dados de teste e conferência do texto gerado.
+- **Confirmação de revisão crítica e responsabilidade humana:** Confirmo

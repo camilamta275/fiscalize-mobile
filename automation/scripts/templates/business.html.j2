@@ -25,6 +25,12 @@
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; } .risk-item { border-left: 4px solid var(--red); padding-left: 12px; margin-bottom: 12px; } .risk-item strong { display: block; font-size: 15px; } .risk-item p { margin: 4px 0 0; font-size: 13px; color: var(--text-muted); }
     .kpi-scope { display: inline-block; font-size: 11px; font-weight: 600; color: var(--primary); background: #dbeafe; border-radius: 10px; padding: 2px 8px; margin-bottom: 10px; }
     .scope-note { font-size: 13px; color: var(--text-muted); margin: -10px 0 24px; }
+    .release-decision { display: inline-block; font-size: 20px; font-weight: 700; padding: 6px 16px; border-radius: 8px; margin-bottom: 12px; }
+    .release-green { background: #d1fae5; color: #065f46; } .release-amber { background: #fef3c7; color: #92400e; } .release-red { background: #fee2e2; color: #991b1b; } .release-unknown { background: #e5e7eb; color: #374151; }
+    .release-line { margin: 6px 0; font-size: 14px; }
+    .bands { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; } .bands td { padding: 10px 8px; border-top: 1px solid var(--border); vertical-align: top; } .bands tr.current { background: #f9fafb; font-weight: 600; }
+    .muted { color: var(--text-muted); font-weight: 400; }
+    .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; } .dot-green { background: var(--green); } .dot-amber { background: var(--amber); } .dot-red { background: var(--red); }
     .kpi-hint { margin-top: 8px; font-size: 12px; color: var(--text-muted); }
     .level-bar { height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; margin-top: 10px; } .level-fill { height: 100%; } .level-green { background: var(--green); } .level-amber { background: var(--amber); } .level-red { background: var(--red); }
     ul { padding-left: 20px; font-size: 14px; color: var(--text-muted); } code { background: #f3f4f6; border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; }
@@ -66,6 +72,26 @@
     </div>
     <div class="progress-bar"><div class="progress-fill" style="width: {{ execution.pass_rate }}%;"></div></div>
   </div>
+
+  {% if release %}
+  <div class="box release-box">
+    <h2 class="section-title">Dá para liberar esta versão?</h2>
+    <div class="release-decision release-{{ release.status }}">{{ release.decision }}</div>
+    <p class="release-line"><b>Risco ao liberar assim:</b> {{ release.risk_assumed }}</p>
+    {% if release.uncovered %}
+    <p class="release-line"><b>Sem verificação completa:</b> {{ release.uncovered[:5]|join(', ') }}{% if release.uncovered|length > 5 %} e mais {{ release.uncovered|length - 5 }}{% endif %}.</p>
+    {% endif %}
+    <table class="bands">
+      {% for band in release.bands %}
+      <tr class="{{ 'current' if band.status == release.status else '' }}">
+        <td><span class="dot dot-{{ band.status }}"></span>{{ band.name }}</td>
+        <td><b>{{ band.decision }}</b><br><span class="muted">{{ band.when }}</span></td>
+        <td class="muted">{{ band.risk }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  {% endif %}
 
   {% if interpretations %}
   <div class="box">
