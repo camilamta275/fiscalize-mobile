@@ -643,6 +643,64 @@ def _run_metadata() -> dict:
 
 
 # Created by AI.
+# Faixas de decisão de release: o que cada status geral sustenta e o risco assumido.
+RELEASE_BANDS = [
+    {
+        "status": "green",
+        "name": "Verde",
+        "decision": "Pode liberar",
+        "when": "Todos os indicadores dentro da meta.",
+        "risk": "Só o que não é verificado (lista abaixo) segue por conta da equipe.",
+    },
+    {
+        "status": "amber",
+        "name": "Amarelo",
+        "decision": "Liberar só com aceite do risco",
+        "when": "Algum indicador em atenção, sem falha crítica.",
+        "risk": "Quem decide libera sabendo dos pontos em atenção e do que não é verificado.",
+    },
+    {
+        "status": "red",
+        "name": "Vermelho",
+        "decision": "Não liberar",
+        "when": "Alguma verificação falhou ou algum indicador está crítico.",
+        "risk": "Liberar entregaria ao usuário um problema já conhecido.",
+    },
+]
+
+
+# Created by AI.
+def build_release_reading(overall: str, metrics: dict, coverage: dict) -> dict:
+    """Traduz o status geral em decisão de release, pontos sem cobertura e risco assumido."""
+    band = next((item for item in RELEASE_BANDS if item["status"] == overall), None)
+    nao_cobertos = [case["title"] for case in BACKLOG_CASES if case["status"] != "covered"]
+    atencao = [
+        f"{BUSINESS_METRIC_LABELS[metric_id]} ({metric['display']})"
+        for metric_id, metric in metrics.items()
+        if metric["status"] in {"amber", "red"}
+    ]
+
+    if band is None:
+        decision = "Sem base para decidir"
+        risk = "Faltam dados para avaliar a versão; liberar agora seria decidir às cegas."
+    else:
+        decision = band["decision"]
+        risk = band["risk"]
+        if atencao and overall != "green":
+            risk = f"{risk} Em atenção: {', '.join(atencao)}."
+
+    return {
+        "status": overall,
+        "decision": decision,
+        "risk_assumed": risk,
+        "attention": atencao,
+        "uncovered": nao_cobertos,
+        "uncovered_display": coverage["display"],
+        "bands": RELEASE_BANDS,
+    }
+
+
+# Created by AI.
 # Updated by AI.
 def build_payload(reports_dir: Path, runs: list[dict] | None, issues: list[dict] | None, default_branch: str) -> dict:
     """Monta o documento metrics.json consumido pelos relatórios."""
@@ -660,13 +718,15 @@ def build_payload(reports_dir: Path, runs: list[dict] | None, issues: list[dict]
         for failure in suite["failures"]
     ]
 
+    overall = _worst([metric["status"] for metric in metrics.values()])
     return {
         "schema_version": SCHEMA_VERSION,
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "run": _run_metadata(),
         "default_branch": default_branch,
         "metrics": metrics,
-        "overall": _worst([metric["status"] for metric in metrics.values()]),
+        "overall": overall,
+        "release": build_release_reading(overall, metrics, coverage),
         "suites": suites,
         "failures": failures,
         "issues": issues or [],
@@ -703,6 +763,13 @@ def render_markdown(payload: dict) -> str:
             f"{payload['coverage']['missing']} não implementados).",
         ]
     )
+
+    release = payload.get("release")
+    if release:
+        lines.extend(["", f"### Decisão de release: {release['decision']}", ""])
+        lines.append(f"- **Risco assumido:** {release['risk_assumed']}")
+        if release["uncovered"]:
+            lines.append(f"- **Sem verificação completa ({release['uncovered_display']} de cobertura):** " + "; ".join(release["uncovered"]) + ".")
 
     interpretations = payload.get("interpretations") or []
     if interpretations:
