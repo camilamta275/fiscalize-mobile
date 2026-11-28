@@ -35,7 +35,7 @@ Lei nº 13.709/2018 (LGPD). Ele cobre:
 |---|---|---|
 | **Controlador** | Fiscalize (entidade responsável pela operação) | Decidir finalidades, bases legais, prazos de retenção e atender titulares |
 | **Encarregado (DPO)** | Raphael Miranda — `rrsm2@cesar.school` | Canal com titulares e ANPD, orientação interna, registro de operações |
-| **Operadores** | Railway, provedor do PostgreSQL, Neon, Google (Gmail), Expo, GitHub, Redis | Tratar dados apenas conforme instrução do controlador (ver [FORNECEDORES-E-TERCEIROS.md](FORNECEDORES-E-TERCEIROS.md)) |
+| **Operadores** | Render, provedor do PostgreSQL, Neon, Resend, Expo, GitHub, Redis | Tratar dados apenas conforme instrução do controlador (ver [FORNECEDORES-E-TERCEIROS.md](FORNECEDORES-E-TERCEIROS.md)) |
 | **Equipe técnica** | Squad do projeto | Implementar e manter os controles descritos neste plano |
 
 Contato de privacidade publicado na política: `rrsm2@cesar.school`.
@@ -206,16 +206,16 @@ e-mail publicado na política e o portal de direitos dentro do app
 
 | Operador | Dados | Finalidade | Salvaguarda |
 |---|---|---|---|
-| Railway | Tráfego da API e segredos | Hospedagem | Contrato a formalizar |
+| Render | Tráfego da API e segredos | Hospedagem | DPA do Render a anexar |
 | Provedor do PostgreSQL | Todos os dados pessoais | Persistência | Contrato a formalizar |
 | Neon | Agregados do ETL | Dashboard analítico | Contrato a formalizar |
-| Google (Gmail SMTP) | E-mail e código OTP | Segundo fator | Contrato do Google |
+| Resend | E-mail e código OTP | Segundo fator | DPA do Resend a anexar |
 | Expo | Token de push e texto da notificação | Notificação | Contrato a formalizar |
 | GitHub | Código, backups cifrados, relatórios | CI/CD | Backup é cifrado em AES-256 |
 | ViaCEP | CEP informado | Preenchimento de endereço | Serviço público |
 | Redis | Contadores de rate limit | Segurança | Sem dado pessoal direto |
 
-**Transferência internacional (art. 33):** Railway, Neon, Expo e GitHub podem
+**Transferência internacional (art. 33):** Render, Neon, Resend, Expo e GitHub podem
 processar dados fora do Brasil. A região de cada serviço **não foi verificada**
 (lacuna L7). É necessário confirmar a região, formalizar cláusulas contratuais
 e registrá-las no relatório de impacto quando houver dados pessoais.
@@ -235,7 +235,7 @@ e registrá-las no relatório de impacto quando houver dados pessoais.
 | Projeção pública anonimizada | `demandService.listPublic` |
 | Backups cifrados AES-256 com checksum | `ops/backup/`, `backup.yml` |
 | Auditoria de ações administrativas | `auditLogService.ts` |
-| HTTPS em produção | Exigido na operação (Railway); não imposto no código (L9) |
+| HTTPS em produção | Fornecido pelo Render (TLS gerenciado); não imposto no código (L9) |
 
 ## 10. Resposta a incidentes
 
