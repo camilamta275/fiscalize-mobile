@@ -8,7 +8,7 @@ from sqlalchemy import create_engine
 
 
 # Created by AI.
-ETL_DIR = Path(__file__).resolve().parents[1] / "etl"
+ETL_DIR = Path(__file__).resolve().parents[1]
 if str(ETL_DIR) not in sys.path:
     sys.path.insert(0, str(ETL_DIR))
 

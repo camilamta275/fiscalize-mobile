@@ -14,7 +14,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from junit_summary import read_report  # noqa: E402
-from runstore import new_run_dir  # noqa: E402
+from runstore import REPORTS_DIR, new_run_dir  # noqa: E402
 
 # Created by AI.
 SCHEMA_VERSION = 1
@@ -828,7 +828,7 @@ def main() -> int:
     issues = read_issues(args.issues) if args.issues else None
     payload = build_payload(args.reports_dir, runs, issues, args.default_branch)
 
-    output = args.output or (new_run_dir(Path("reports"), args.label) / "metrics.json")
+    output = args.output or (new_run_dir(REPORTS_DIR, args.label) / "metrics.json")
     write_payload(payload, output)
 
     markdown = render_markdown(payload)

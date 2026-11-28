@@ -8,6 +8,10 @@ from datetime import datetime
 from pathlib import Path
 
 # Created by AI.
+# Sempre automation/reports, independente do diretório de onde o script é executado.
+REPORTS_DIR = Path(__file__).resolve().parents[1] / "reports"
+
+# Created by AI.
 RUNS_DIRNAME = "runs"
 
 # Created by AI.
