@@ -50,7 +50,7 @@ depende do provedor. Ver a proposta de redação no documento técnico.
   (por exemplo, o cofre de senhas do grupo), com pelo menos duas pessoas com
   acesso.
 - Um **banco novo e vazio** para receber o restore. **TODO:** documentar como
-  criar um banco no provedor de produção (Railway ou outro, ainda não
+  criar um banco no provedor de produção (Render Postgres ou outro, ainda não
   confirmado).
 - A versão do Postgres de produção. Defina `PG_VERSION` com a mesma versão ou
   uma maior. **TODO:** confirmar a versão.
@@ -132,11 +132,11 @@ migrations do código em produção (`backend/prisma/migrations`).
 
 1. **TODO:** documentar como pausar o backend no provedor durante a troca,
    para evitar escrita no banco antigo.
-2. Atualize a variável `DATABASE_URL` do serviço do backend na Railway com a
-   URL do banco restaurado. **TODO:** confirmar o caminho na Railway (projeto,
-   serviço e variável) e quem tem acesso.
-3. Faça um novo deploy. O `startCommand` em `backend/railway.toml` roda
-   `npm run migrate:deploy && npm run seed && npm run start`:
+2. Atualize a variável `DATABASE_URL` do serviço do backend no Render
+   (Dashboard > serviço do backend > Environment) com a URL do banco
+   restaurado. **TODO:** confirmar quem tem acesso ao workspace do Render.
+3. Faça um novo deploy. O Start Command do Render (`npm run start`, que executa
+   `prisma migrate deploy && node dist/server.js`) aplica as migrações e sobe a API:
    - `migrate deploy` só aplica as migrations que faltarem;
    - o seed é idempotente: usa `upsert` com `update: {}`, `createMany` com
      `skipDuplicates` e verifica a existência antes de cada `create`. Não
